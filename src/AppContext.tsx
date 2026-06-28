@@ -1,12 +1,11 @@
 import {
-  createContext,
-  useContext,
   useState,
   useEffect,
   useCallback,
   type ReactNode,
 } from "react";
 import type { AppState, Task, JournalEntry, QuestLine, Achievement } from "./types";
+import { AppContext } from "./context";
 import { createDefaultAppState } from "./data/defaultData";
 import { loadAppState, saveAppState, resetAppState } from "./utils/storage";
 import { localTimestamp, today } from "./utils/date";
@@ -14,20 +13,7 @@ import { checkAchievements } from "./utils/achievements";
 import { calcLevel, getPlayerTitle, calcAttributeLevel } from "./utils/exp";
 import { genId } from "./utils/id";
 
-interface AppContextType {
-  state: AppState;
-  completeTask: (taskId: string) => void;
-  addJournal: (entry: Omit<JournalEntry, "id" | "createdAt">) => void;
-  addTask: (task: Omit<Task, "id" | "createdAt" | "completed" | "completedAt">) => void;
-  addQuestLine: (ql: Omit<QuestLine, "id" | "createdAt">) => void;
-  resetData: () => void;
-  todayTasks: Task[];
-  todayCompletedTasks: Task[];
-  newlyUnlocked: Achievement[];
-  clearNewlyUnlocked: () => void;
-}
-
-const AppContext = createContext<AppContextType | null>(null);
+export { useApp } from "./hooks/useApp";
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(() => {
@@ -188,10 +174,4 @@ export function AppProvider({ children }: { children: ReactNode }) {
       {children}
     </AppContext.Provider>
   );
-}
-
-export function useApp() {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("useApp must be inside AppProvider");
-  return ctx;
 }
