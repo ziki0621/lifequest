@@ -1,4 +1,4 @@
-import { useApp } from "../AppContext";
+import { useApp } from "../hooks/useApp";
 import { expToNextLevel } from "../utils/exp";
 
 const pageTitles: Record<string, string> = {
@@ -20,47 +20,49 @@ const pageSubtitles: Record<string, string> = {
 export default function TopBar({ currentPage }: { currentPage: string }) {
   const { state } = useApp();
   const { player } = state;
-  const progress = Math.round(
-    ((player.totalExp % 100) / 100) * 100
-  );
+  const progress = Math.round(((player.totalExp % 100) / 100) * 100);
 
   return (
-    <header className="sticky top-0 z-40 bg-cream/80 backdrop-blur-md border-b border-sage-light/30 px-4 md:px-6 py-3">
+    <header className="sticky top-0 z-40 bg-bg-deep/80 backdrop-blur-xl border-b border-border-subtle px-6 py-4">
       <div className="flex items-center justify-between max-w-4xl mx-auto">
-        <div>
-          <h2 className="text-lg md:text-xl font-semibold text-text-primary">
+        <div className="flex-1 min-w-0">
+          <h2 className="text-base font-semibold text-text-primary tracking-tight">
             {pageTitles[currentPage] || "人生支线"}
           </h2>
-          <p className="text-xs text-text-muted mt-0.5">
+          <p className="text-[11px] text-text-muted mt-0.5">
             {pageSubtitles[currentPage]}
           </p>
         </div>
-        <div className="flex items-center gap-3 text-sm">
-          <div className="hidden sm:flex items-center gap-2 bg-white/60 rounded-full px-3 py-1.5 shadow-sm">
-            <span className="text-warm-gold font-medium">
+
+        {/* Level badge */}
+        <div className="hidden sm:flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-bg-glass border border-border-subtle">
+            <span className="text-xs font-semibold text-accent tracking-tight">
               Lv.{player.level}
             </span>
-            <span className="text-text-muted">|</span>
-            <span className="text-text-secondary text-xs">
+            <span className="w-px h-3 bg-border-default" />
+            <span className="text-[11px] text-text-secondary">
               {player.title}
             </span>
           </div>
-          {/* Exp mini bar */}
-          <div className="hidden sm:block w-20">
-            <div className="text-xs text-text-muted mb-0.5 text-right">
-              {expToNextLevel(player.totalExp)} EXP → Lv.{player.level + 1}
+          {/* Mini exp bar */}
+          <div className="w-24">
+            <div className="flex justify-between text-[10px] text-text-muted mb-1">
+              <span>EXP</span>
+              <span>{expToNextLevel(player.totalExp)} → Lv.{player.level + 1}</span>
             </div>
-            <div className="h-1.5 bg-sage-light/50 rounded-full overflow-hidden">
+            <div className="h-1 bg-bg-glass rounded-full overflow-hidden">
               <div
-                className="h-full bg-sage rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-accent-soft to-accent rounded-full transition-all duration-700 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
           </div>
-          {/* Mobile compact */}
-          <div className="sm:hidden flex items-center gap-1 bg-white/60 rounded-full px-2 py-1 text-xs shadow-sm">
-            <span className="text-warm-gold font-medium">Lv.{player.level}</span>
-          </div>
+        </div>
+
+        {/* Mobile compact level */}
+        <div className="sm:hidden flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-glass border border-border-subtle text-xs">
+          <span className="font-semibold text-accent">Lv.{player.level}</span>
         </div>
       </div>
     </header>

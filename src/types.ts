@@ -1,58 +1,34 @@
+import {
+  Dumbbell, Brain, Heart, Home, Compass, Palette, GraduationCap,
+  Briefcase, Wallet, Eye, ClipboardList, Sparkles, Lightbulb,
+  type LucideIcon,
+} from "lucide-react";
+
 // ====== Domain Types ======
 
 export type LifeDomain =
-  | "body"
-  | "mind"
-  | "relationship"
-  | "home"
-  | "exploration"
-  | "interest"
-  | "learning"
-  | "career"
-  | "finance";
+  | "body" | "mind" | "relationship" | "home" | "exploration"
+  | "interest" | "learning" | "career" | "finance";
 
 export type TaskType =
-  | "main"
-  | "side"
-  | "daily"
-  | "exploration"
-  | "relationship"
-  | "selfCare"
-  | "home"
-  | "interest";
+  | "main" | "side" | "daily" | "exploration" | "relationship"
+  | "selfCare" | "home" | "interest";
 
 export type LifeAttribute =
-  | "stamina"
-  | "mind"
-  | "perception"
-  | "connection"
-  | "order"
-  | "creativity"
-  | "knowledge";
+  | "stamina" | "mind" | "perception" | "connection"
+  | "order" | "creativity" | "knowledge";
 
 export type Mood =
-  | "calm"
-  | "happy"
-  | "tired"
-  | "anxious"
-  | "sad"
-  | "satisfied"
-  | "blank"
-  | "motivated";
+  | "calm" | "happy" | "tired" | "anxious" | "sad"
+  | "satisfied" | "blank" | "motivated";
 
 export type EnergyLevel = "low" | "normal" | "high";
 
 // ====== Data Models ======
 
-export interface AttributeState {
-  level: number;
-  exp: number;
-}
+export interface AttributeState { level: number; exp: number; }
 
-export interface AttributeReward {
-  attribute: LifeAttribute;
-  exp: number;
-}
+export interface AttributeReward { attribute: LifeAttribute; exp: number; }
 
 export interface Player {
   name: string;
@@ -61,119 +37,91 @@ export interface Player {
   title: string;
   attributes: Record<LifeAttribute, AttributeState>;
   unlockedAchievements: string[];
-  startDate: string; // 用户"来到地球"的日期
+  startDate: string;
 }
 
 export interface QuestLine {
-  id: string;
-  title: string;
-  description: string;
-  domain: LifeDomain;
-  status: "active" | "paused" | "completed";
+  id: string; title: string; description: string;
+  domain: LifeDomain; status: "active" | "paused" | "completed";
   createdAt: string;
 }
 
 export interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  questLineId?: string;
-  type: TaskType;
-  domain: LifeDomain;
-  difficulty: "easy" | "normal" | "hard";
-  expReward: number;
-  attributeRewards: AttributeReward[];
-  dueDate?: string;
-  completed: boolean;
-  completedAt?: string;
-  createdAt: string;
+  id: string; title: string; description?: string;
+  questLineId?: string; type: TaskType; domain: LifeDomain;
+  difficulty: "easy" | "normal" | "hard"; expReward: number;
+  attributeRewards: AttributeReward[]; dueDate?: string;
+  completed: boolean; completedAt?: string; createdAt: string;
 }
 
 export interface JournalEntry {
-  id: string;
-  date: string;
-  taskId?: string;
-  mood: Mood;
-  energy: EnergyLevel;
-  content: string;
-  tags: string[];
-  createdAt: string;
+  id: string; date: string; taskId?: string;
+  mood: Mood; energy: EnergyLevel; content: string;
+  tags: string[]; createdAt: string;
 }
 
 export interface Achievement {
-  id: string;
-  title: string;
-  description: string;
-  conditionText: string;
-  unlocked: boolean;
-  unlockedAt?: string;
+  id: string; title: string; description: string;
+  conditionText: string; unlocked: boolean; unlockedAt?: string;
 }
 
 // ====== App State ======
 
 export interface AppState {
-  player: Player;
-  questLines: QuestLine[];
-  tasks: Task[];
-  journalEntries: JournalEntry[];
+  player: Player; questLines: QuestLine[];
+  tasks: Task[]; journalEntries: JournalEntry[];
   achievements: Achievement[];
 }
 
-// ====== Display Labels ======
+// ====== Icon Mappings (lucide-react) ======
 
-export const DOMAIN_LABELS: Record<LifeDomain, string> = {
-  body: "身体",
-  mind: "心情",
-  relationship: "关系",
-  home: "居住",
-  exploration: "探索",
-  interest: "兴趣",
-  learning: "学习",
-  career: "事业",
-  finance: "财务",
+export const DOMAIN_ICONS: Record<LifeDomain, LucideIcon> = {
+  body: Dumbbell, mind: Brain, relationship: Heart, home: Home,
+  exploration: Compass, interest: Palette, learning: GraduationCap,
+  career: Briefcase, finance: Wallet,
 };
 
-export const DOMAIN_EMOJI: Record<LifeDomain, string> = {
-  body: "💪",
-  mind: "🧘",
-  relationship: "💝",
-  home: "🏠",
-  exploration: "🗺️",
-  interest: "🎨",
-  learning: "📚",
-  career: "💼",
-  finance: "💰",
+export const DOMAIN_LABELS: Record<LifeDomain, string> = {
+  body: "身体", mind: "心情", relationship: "关系", home: "居住",
+  exploration: "探索", interest: "兴趣", learning: "学习",
+  career: "事业", finance: "财务",
+};
+
+export const DOMAIN_COLORS: Record<LifeDomain, string> = {
+  body: "text-green", mind: "text-purple", relationship: "text-rose",
+  home: "text-orange", exploration: "text-cyan", interest: "text-accent",
+  learning: "text-blue", career: "text-gold", finance: "text-warning",
 };
 
 export const TASK_TYPE_LABELS: Record<TaskType, string> = {
-  main: "主线任务",
-  side: "支线任务",
-  daily: "每日任务",
-  exploration: "探索任务",
-  relationship: "关系任务",
-  selfCare: "自我照顾",
-  home: "居住任务",
-  interest: "兴趣任务",
+  main: "主线任务", side: "支线任务", daily: "每日任务",
+  exploration: "探索任务", relationship: "关系任务",
+  selfCare: "自我照顾", home: "居住任务", interest: "兴趣任务",
+};
+
+export const ATTRIBUTE_ICONS: Record<LifeAttribute, LucideIcon> = {
+  stamina: Dumbbell, mind: Brain, perception: Eye,
+  connection: Heart, order: ClipboardList, creativity: Sparkles,
+  knowledge: Lightbulb,
 };
 
 export const ATTRIBUTE_LABELS: Record<LifeAttribute, string> = {
-  stamina: "体力",
-  mind: "心力",
-  perception: "感知",
-  connection: "连接",
-  order: "秩序",
-  creativity: "创造",
+  stamina: "体力", mind: "心力", perception: "感知",
+  connection: "连接", order: "秩序", creativity: "创造",
   knowledge: "智识",
 };
 
-export const ATTRIBUTE_EMOJI: Record<LifeAttribute, string> = {
-  stamina: "⚡",
-  mind: "💙",
-  perception: "👁️",
-  connection: "🔗",
-  order: "📋",
-  creativity: "✨",
-  knowledge: "💡",
+export const ATTRIBUTE_COLORS: Record<LifeAttribute, string> = {
+  stamina: "text-green", mind: "text-purple", perception: "text-cyan",
+  connection: "text-rose", order: "text-orange", creativity: "text-accent",
+  knowledge: "text-blue",
+};
+
+export const ATTRIBUTE_BG_COLORS: Record<LifeAttribute, string> = {
+  stamina: "bg-green-surface", mind: "bg-purple-surface",
+  perception: "bg-cyan-surface", connection: "bg-rose-surface",
+  order: "bg-orange-surface", creativity: "bg-accent-surface",
+  knowledge: "bg-blue-surface",
 };
 
 export const ATTRIBUTE_DESCRIPTIONS: Record<LifeAttribute, string> = {
@@ -187,31 +135,18 @@ export const ATTRIBUTE_DESCRIPTIONS: Record<LifeAttribute, string> = {
 };
 
 export const MOOD_LABELS: Record<Mood, string> = {
-  calm: "平静",
-  happy: "开心",
-  tired: "疲惫",
-  anxious: "焦虑",
-  sad: "低落",
-  satisfied: "满足",
-  blank: "空白",
-  motivated: "有动力",
+  calm: "平静", happy: "开心", tired: "疲惫", anxious: "焦虑",
+  sad: "低落", satisfied: "满足", blank: "空白", motivated: "有动力",
 };
 
-export const MOOD_EMOJI: Record<Mood, string> = {
-  calm: "😌",
-  happy: "😊",
-  tired: "😴",
-  anxious: "😰",
-  sad: "😢",
-  satisfied: "😌",
-  blank: "😶",
-  motivated: "🔥",
+export const MOOD_COLORS: Record<Mood, string> = {
+  calm: "text-blue", happy: "text-green", tired: "text-text-muted",
+  anxious: "text-warning", sad: "text-purple", satisfied: "text-accent",
+  blank: "text-text-muted", motivated: "text-gold",
 };
 
 export const ENERGY_LABELS: Record<EnergyLevel, string> = {
-  low: "低能量",
-  normal: "普通",
-  high: "高能量",
+  low: "低能量", normal: "普通", high: "高能量",
 };
 
 export const PLAYER_TITLES = [

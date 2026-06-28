@@ -1,55 +1,168 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #faf8f5;
-  --color-cream-dark: #f0ebe0;
-  --color-sage: #8b9d83;
-  --color-sage-light: #e8efe4;
-  --color-sage-dark: #6b7d63;
-  --color-warm-gold: #c9a96e;
-  --color-warm-gold-light: #f5ecd7;
-  --color-soft-rose: #d4a99a;
-  --color-soft-rose-light: #f5e8e4;
-  --color-mist-blue: #a3b5c7;
-  --color-mist-blue-light: #e4ebf1;
-  --color-lavender: #b8a9c9;
-  --color-lavender-light: #ede7f3;
-  --color-text-primary: #3d3645;
-  --color-text-secondary: #6b6375;
-  --color-text-muted: #9a93a3;
+  /* Premium dark palette */
+  --color-bg-deep: #08080c;
+  --color-bg-surface: #0f0f15;
+  --color-bg-elevated: #16161e;
+  --color-bg-glass: rgba(255, 255, 255, 0.03);
+  --color-border-subtle: rgba(255, 255, 255, 0.06);
+  --color-border-default: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 255, 255, 0.14);
+  --color-text-primary: #f0f0f3;
+  --color-text-secondary: #9898a5;
+  --color-text-muted: #6b6b78;
+  --color-accent: #818cf8;
+  --color-accent-soft: #6366f1;
+  --color-accent-glow: rgba(99, 102, 241, 0.15);
+  --color-accent-surface: rgba(99, 102, 241, 0.08);
+  --color-success: #6ee7b7;
+  --color-success-surface: rgba(110, 231, 183, 0.08);
+  --color-warning: #fbbf24;
+  --color-warning-surface: rgba(251, 191, 36, 0.08);
+  --color-gold: #c9a96e;
+  --color-gold-surface: rgba(201, 169, 110, 0.08);
+  --color-rose: #f0abaa;
+  --color-rose-surface: rgba(240, 171, 170, 0.08);
+  --color-blue: #93c5fd;
+  --color-blue-surface: rgba(147, 197, 253, 0.08);
+  --color-purple: #c4b5fd;
+  --color-purple-surface: rgba(196, 181, 253, 0.08);
+  --color-green: #86efac;
+  --color-green-surface: rgba(134, 239, 172, 0.08);
+  --color-cyan: #67e8f9;
+  --color-cyan-surface: rgba(103, 232, 249, 0.08);
+  --color-orange: #fdba74;
+  --color-orange-surface: rgba(253, 186, 116, 0.08);
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
 }
 
-body {
-  margin: 0;
-  font-family: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
-  background: var(--color-cream);
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--color-bg-deep);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
+    line-height: 1.6;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: var(--color-accent-glow);
+    color: var(--color-text-primary);
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.14);
+  }
+}
+
+/* Glass card utility */
+.glass {
+  background: var(--color-bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.glass-elevated {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--color-border-default);
+}
+
+/* Subtle glow ring */
+.ring-accent {
+  box-shadow: 0 0 0 1px var(--color-border-default), 0 0 20px var(--color-accent-glow);
+}
+
+/* Form input base */
+.input {
+  display: block;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-border-subtle);
+  background: var(--color-bg-glass);
   color: var(--color-text-primary);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-size: 12px;
+  font-family: var(--font-sans);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.input::placeholder { color: rgba(255,255,255,0.2); }
+.input:focus {
+  border-color: rgba(99,102,241,0.3);
+  box-shadow: 0 0 0 3px var(--color-accent-glow);
+}
+select.input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b6b78' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.25rem; padding-right: 2rem; }
+
+/* Animation utilities */
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-#root {
-  min-height: 100vh;
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Smooth transitions */
-* {
-  transition-property: background-color, border-color, opacity, transform;
-  transition-duration: 200ms;
-  transition-timing-function: ease-out;
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-::-webkit-scrollbar-thumb {
-  background: #d1ccc0;
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #b8b0a0;
+
+.animate-in { animation: fade-in-up 0.3s ease-out both; }
+.animate-fade { animation: fade-in 0.2s ease-out both; }
+.animate-scale { animation: scale-in 0.2s ease-out both; }
+.animate-slide-right { animation: slide-in-right 0.25s ease-out both; }
+
+/* Stagger children */
+.stagger-1 > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-1 > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-1 > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-1 > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-1 > *:nth-child(5) { animation-delay: 0.25s; }
+
+/* Shimmer loading */
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-glass) 0%,
+    rgba(255,255,255,0.05) 50%,
+    var(--color-bg-glass) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
 }

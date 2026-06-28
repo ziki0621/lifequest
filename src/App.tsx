@@ -1,18 +1,18 @@
 import { useState, useCallback } from "react";
-import { AppProvider, useApp } from "./AppContext";
+import { AppProvider } from "./AppContext";
+import { useApp } from "./hooks/useApp";
 import Layout from "./components/Layout";
 import TodayPage from "./pages/TodayPage";
 import TasksPage from "./pages/TasksPage";
 import CalendarPage from "./pages/CalendarPage";
 import JournalPage from "./pages/JournalPage";
 import CharacterPage from "./pages/CharacterPage";
-import { Trophy } from "lucide-react";
+import { Sparkles, Trophy, ArrowRight, Target, BookOpen } from "lucide-react";
 
 function AppContent() {
   const [page, setPage] = useState("today");
   const { newlyUnlocked, clearNewlyUnlocked } = useApp();
 
-  // 首次进入欢迎
   const [showWelcome, setShowWelcome] = useState(() => {
     return !localStorage.getItem("lifequest-welcomed");
   });
@@ -34,25 +34,22 @@ function AppContent() {
       {page === "journal" && <JournalPage />}
       {page === "character" && <CharacterPage />}
 
-      {/* 成就解锁 Toast */}
+      {/* Achievement toast */}
       {newlyUnlocked.length > 0 && (
-        <div className="fixed bottom-24 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-80 z-50 space-y-2">
+        <div className="fixed bottom-24 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-72 z-50 space-y-2">
           {newlyUnlocked.map((a) => (
             <div
               key={a.id}
-              className="bg-white rounded-xl shadow-lg border border-warm-gold/30 p-3 flex items-center gap-3 animate-bounce-in"
+              className="bg-bg-elevated border border-gold/20 rounded-xl shadow-xl shadow-gold/5 p-3 flex items-center gap-3 animate-slide-right backdrop-blur-xl"
             >
-              <div className="w-10 h-10 bg-warm-gold-light rounded-xl flex items-center justify-center flex-shrink-0">
-                <Trophy size={20} className="text-warm-gold" />
+              <div className="w-9 h-9 rounded-lg bg-gold-surface/30 flex items-center justify-center flex-shrink-0">
+                <Trophy size={15} className="text-gold" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-text-primary">成就解锁</p>
-                <p className="text-xs text-warm-gold font-medium truncate">{a.title}</p>
+                <p className="text-[10px] text-text-muted font-medium uppercase tracking-wider">成就解锁</p>
+                <p className="text-[11px] text-gold font-semibold truncate">{a.title}</p>
               </div>
-              <button
-                onClick={clearNewlyUnlocked}
-                className="text-text-muted hover:text-text-primary text-xs"
-              >
+              <button onClick={clearNewlyUnlocked} className="text-text-muted hover:text-text-primary text-[10px]">
                 ✕
               </button>
             </div>
@@ -65,26 +62,53 @@ function AppContent() {
 
 function WelcomeScreen({ onStart }: { onStart: () => void }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cream p-4">
-      <div className="text-center max-w-sm">
-        <div className="text-6xl mb-4">⚔️</div>
-        <h1 className="text-2xl font-bold text-text-primary mb-2">人生支线</h1>
-        <p className="text-sm text-warm-gold font-medium mb-1">LifeQuest</p>
-        <p className="text-text-secondary text-sm leading-relaxed mt-4">
+    <div className="min-h-screen flex items-center justify-center bg-bg-deep p-6">
+      <div className="text-center max-w-sm animate-scale">
+        {/* Logo */}
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-accent-surface flex items-center justify-center ring-1 ring-accent/20 mb-6">
+          <Sparkles size={28} className="text-accent" />
+        </div>
+
+        <h1 className="text-2xl font-bold text-text-primary tracking-tight mb-1">
+          LifeQuest
+        </h1>
+        <p className="text-[11px] text-accent font-medium uppercase tracking-widest">
+          人生支线
+        </p>
+
+        <p className="text-[13px] text-text-secondary leading-relaxed mt-6">
           把现实生活变成一场温和的 RPG。
         </p>
-        <p className="text-text-muted text-xs mt-2 leading-relaxed">
-          完成生活中的小事，获得经验，提升属性，
-          <br />
-          一点点经营自己的现实生活。
-        </p>
+
+        <div className="mt-8 space-y-3 text-left">
+          <Feature icon={<Sparkles size={14} />} color="text-accent" text="完成生活中的小事，获得经验与成长" />
+          <Feature icon={<Target size={14} />} color="text-green" text="提升七种生活属性，解锁专属成就" />
+          <Feature icon={<BookOpen size={14} />} color="text-purple" text="记录每一天的感受，留下生活痕迹" />
+        </div>
+
         <button
           onClick={onStart}
-          className="mt-8 px-8 py-3 bg-sage text-white rounded-2xl text-base font-medium hover:bg-sage-dark transition-all active:scale-95 shadow-md hover:shadow-lg"
+          className="mt-10 w-full py-3 bg-accent hover:bg-accent-soft text-white rounded-xl text-[13px] font-semibold tracking-wide transition-all active:scale-[0.98] shadow-lg shadow-accent-glow flex items-center justify-center gap-2"
         >
           开始今天的生活冒险
+          <ArrowRight size={16} />
         </button>
+
+        <p className="text-[10px] text-text-muted mt-4">
+          没有 KPI，没有压力，只是一个温柔的陪伴。
+        </p>
       </div>
+    </div>
+  );
+}
+
+function Feature({ icon, color, text }: { icon: React.ReactNode; color: string; text: string }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className={`w-7 h-7 rounded-lg bg-bg-glass flex items-center justify-center flex-shrink-0 ${color}`}>
+        {icon}
+      </div>
+      <span className="text-[11px] text-text-secondary">{text}</span>
     </div>
   );
 }

@@ -1,13 +1,16 @@
 import { useState } from "react";
-import { X, Save } from "lucide-react";
+import { X } from "lucide-react";
 import type { Mood, EnergyLevel } from "../types";
-import { MOOD_EMOJI, MOOD_LABELS, ENERGY_LABELS } from "../types";
+import { MOOD_LABELS, MOOD_COLORS, ENERGY_LABELS } from "../types";
 
 interface CreateJournalModalProps {
   defaultDate: string;
   onClose: () => void;
   onSave: (data: { date: string; mood: Mood; energy: EnergyLevel; content: string; tags: string[] }) => void;
 }
+
+const moods: Mood[] = ["calm", "happy", "tired", "anxious", "sad", "satisfied", "blank", "motivated"];
+const energies: EnergyLevel[] = ["low", "normal", "high"];
 
 export default function CreateJournalModal({ defaultDate, onClose, onSave }: CreateJournalModalProps) {
   const [date, setDate] = useState(defaultDate);
@@ -16,67 +19,56 @@ export default function CreateJournalModal({ defaultDate, onClose, onSave }: Cre
   const [content, setContent] = useState("");
   const [tagsInput, setTagsInput] = useState("");
 
-  const moods: Mood[] = ["calm", "happy", "tired", "anxious", "sad", "satisfied", "blank", "motivated"];
-  const energies: EnergyLevel[] = ["low", "normal", "high"];
-
   const handleSave = () => {
     if (!content.trim()) return;
-    const tags = tagsInput
-      .split(/[,，、\s]+/)
-      .map((t) => t.trim())
-      .filter(Boolean);
+    const tags = tagsInput.split(/[,，、\s]+/).map((t) => t.trim()).filter(Boolean);
     onSave({ date, mood, energy, content: content.trim(), tags });
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-5 border-b border-sage-light/30 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-text-primary">📝 写日记</h3>
-          <button onClick={onClose} className="text-text-muted hover:text-text-primary">
-            <X size={20} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade">
+      <div className="bg-bg-elevated border border-border-default rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale">
+        <div className="p-5 border-b border-border-subtle flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-text-primary">写日记</h3>
+          <button onClick={onClose} className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-glass transition-colors">
+            <X size={16} />
           </button>
         </div>
         <div className="p-5 space-y-4">
           <div>
-            <label className="text-xs text-text-muted block mb-1">日期</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full rounded-xl border border-sage-light/40 bg-cream/50 px-3 py-2 text-sm text-text-primary focus:outline-none focus:border-sage"
-            />
+            <label className="text-[10px] text-text-muted block mb-1.5 font-medium uppercase tracking-wider">日期</label>
+            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="input w-full" />
           </div>
           <div>
-            <label className="text-xs text-text-muted block mb-1">心情</label>
+            <label className="text-[10px] text-text-muted block mb-1.5 font-medium uppercase tracking-wider">心情</label>
             <div className="flex flex-wrap gap-1.5">
               {moods.map((m) => (
                 <button
                   key={m}
                   onClick={() => setMood(m)}
-                  className={`text-xs px-2.5 py-1.5 rounded-full transition-all ${
+                  className={`text-[10px] px-2.5 py-1.5 rounded-full border transition-all ${
                     mood === m
-                      ? "bg-sage-light text-sage-dark font-medium"
-                      : "bg-cream-dark/50 text-text-secondary hover:bg-cream-dark"
+                      ? `${MOOD_COLORS[m]} bg-bg-glass border-current/30 font-medium`
+                      : "text-text-muted border-border-subtle hover:border-border-default"
                   }`}
                 >
-                  {MOOD_EMOJI[m]} {MOOD_LABELS[m]}
+                  {MOOD_LABELS[m]}
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="text-xs text-text-muted block mb-1">能量状态</label>
+            <label className="text-[10px] text-text-muted block mb-1.5 font-medium uppercase tracking-wider">能量</label>
             <div className="flex gap-2">
               {energies.map((e) => (
                 <button
                   key={e}
                   onClick={() => setEnergy(e)}
-                  className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                  className={`text-[10px] px-3 py-1.5 rounded-full border transition-all ${
                     energy === e
-                      ? "bg-sage-light text-sage-dark font-medium"
-                      : "bg-cream-dark/50 text-text-secondary hover:bg-cream-dark"
+                      ? "text-accent bg-accent-surface border-accent/20 font-medium"
+                      : "text-text-muted border-border-subtle hover:border-border-default"
                   }`}
                 >
                   {ENERGY_LABELS[e]}
@@ -85,30 +77,29 @@ export default function CreateJournalModal({ defaultDate, onClose, onSave }: Cre
             </div>
           </div>
           <div>
-            <label className="text-xs text-text-muted block mb-1">正文</label>
+            <label className="text-[10px] text-text-muted block mb-1.5 font-medium uppercase tracking-wider">正文</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="这次任务带来了什么感受？一句话也可以。"
               rows={4}
-              className="w-full rounded-xl border border-sage-light/40 bg-cream/50 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-sage focus:ring-1 focus:ring-sage-light resize-none"
+              className="input w-full resize-none"
             />
           </div>
           <div>
-            <label className="text-xs text-text-muted block mb-1">标签（逗号分隔）</label>
+            <label className="text-[10px] text-text-muted block mb-1.5 font-medium uppercase tracking-wider">标签（逗号分隔）</label>
             <input
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="例如：散步, 放松, 日常"
-              className="w-full rounded-xl border border-sage-light/40 bg-cream/50 px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-sage focus:ring-1 focus:ring-sage-light"
+              className="input w-full"
             />
           </div>
           <button
             onClick={handleSave}
             disabled={!content.trim()}
-            className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-medium bg-sage text-white hover:bg-sage-dark disabled:bg-sage-light/40 disabled:text-text-muted transition-all active:scale-[0.98]"
+            className="w-full py-2.5 rounded-xl text-[11px] font-semibold tracking-wide uppercase bg-accent text-white hover:bg-accent-soft disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
           >
-            <Save size={16} />
             保存日记
           </button>
         </div>

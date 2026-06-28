@@ -1,8 +1,9 @@
-import { RotateCcw, Trophy, Star } from "lucide-react";
-import { useApp } from "../AppContext";
+import { RotateCcw, Trophy, Zap, Target } from "lucide-react";
+import { useApp } from "../hooks/useApp";
 import StatBar from "../components/StatBar";
 import AchievementCard from "../components/AchievementCard";
-import { ATTRIBUTE_LABELS, ATTRIBUTE_EMOJI, ATTRIBUTE_DESCRIPTIONS } from "../types";
+import { ATTRIBUTE_LABELS, ATTRIBUTE_COLORS } from "../types";
+import type { LifeAttribute } from "../types";
 import { expToNextLevel } from "../utils/exp";
 import { daysSince } from "../utils/date";
 
@@ -18,98 +19,109 @@ export default function CharacterPage() {
     }
   };
 
-  // 找出最高属性
-  const topAttr = Object.entries(player.attributes).sort(
-    (a, b) => b[1].level - a[1].level || b[1].exp - a[1].exp
-  )[0];
+  const sortedAttrs = (Object.entries(player.attributes) as [LifeAttribute, { level: number; exp: number }][])
+    .sort((a, b) => b[1].level - a[1].level || b[1].exp - a[1].exp);
+  const topAttr = sortedAttrs[0];
 
   return (
     <div className="space-y-6">
-      {/* 角色概览 */}
-      <div className="bg-gradient-to-br from-sage-light/30 via-cream to-warm-gold-light/20 rounded-2xl border border-sage-light/30 p-5 text-center">
-        <div className="text-4xl mb-2">🌍</div>
-        <h2 className="text-xl font-semibold text-text-primary">{player.name}</h2>
-        <p className="text-sm text-warm-gold font-medium mt-1">「{player.title}」</p>
-        <div className="flex items-center justify-center gap-4 mt-3 text-sm">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-text-primary">{player.level}</p>
-            <p className="text-xs text-text-muted">等级</p>
+      {/* Profile card */}
+      <div className="relative overflow-hidden bg-bg-elevated border border-border-subtle rounded-2xl p-6 text-center">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-accent-glow rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-30" />
+        <div className="relative">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-accent-surface flex items-center justify-center ring-1 ring-accent/20 mb-4">
+            <Zap size={24} className="text-accent" />
           </div>
-          <div className="w-px h-8 bg-sage-light/50" />
-          <div className="text-center">
-            <p className="text-2xl font-bold text-text-primary">{player.totalExp}</p>
-            <p className="text-xs text-text-muted">总经验</p>
-          </div>
-          <div className="w-px h-8 bg-sage-light/50" />
-          <div className="text-center">
-            <p className="text-2xl font-bold text-text-primary">{daysSince(player.startDate)}</p>
-            <p className="text-xs text-text-muted">地球天数</p>
-          </div>
-        </div>
-        <div className="mt-3 max-w-xs mx-auto">
-          <div className="flex items-center justify-between text-xs text-text-muted mb-1">
-            <span>距下一级</span>
-            <span>{expToNextLevel(player.totalExp)} EXP → Lv.{player.level + 1}</span>
-          </div>
-          <div className="h-2.5 bg-white/50 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-sage to-sage-dark rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-        {/* 最高属性提示 */}
-        {topAttr && (
-          <p className="text-xs text-text-muted mt-3">
-            最强属性：{ATTRIBUTE_EMOJI[topAttr[0] as keyof typeof ATTRIBUTE_EMOJI]}{" "}
-            {ATTRIBUTE_LABELS[topAttr[0] as keyof typeof ATTRIBUTE_LABELS]} Lv.{topAttr[1].level}
-          </p>
-        )}
-      </div>
+          <h2 className="text-base font-semibold text-text-primary tracking-tight">{player.name}</h2>
+          <p className="text-[11px] text-accent font-medium mt-0.5">{player.title}</p>
 
-      {/* 属性面板 */}
-      <div className="bg-white/60 rounded-2xl border border-sage-light/30 p-4">
-        <h3 className="font-medium text-text-primary text-sm mb-3 flex items-center gap-2">
-          <Star size={16} className="text-warm-gold" /> 生活属性
-        </h3>
-        <div className="space-y-0.5">
-          {(Object.entries(player.attributes) as [keyof typeof ATTRIBUTE_LABELS, { level: number; exp: number }][]).map(
-            ([key, val]) => (
-              <div key={key} className="group" title={ATTRIBUTE_DESCRIPTIONS[key]}>
-                <StatBar attribute={key} level={val.level} exp={val.exp} />
-              </div>
-            )
+          <div className="flex items-center justify-center gap-6 mt-4">
+            <Stat label="等级" value={player.level.toString()} />
+            <Divider />
+            <Stat label="总经验" value={player.totalExp.toString()} />
+            <Divider />
+            <Stat label="地球天数" value={daysSince(player.startDate).toString()} />
+          </div>
+
+          {/* Exp bar */}
+          <div className="mt-4 max-w-xs mx-auto">
+            <div className="flex items-center justify-between text-[10px] text-text-muted mb-1.5">
+              <span>距 Lv.{player.level + 1}</span>
+              <span className="tabular-nums">{expToNextLevel(player.totalExp)} EXP</span>
+            </div>
+            <div className="h-2 bg-bg-glass rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-accent-soft to-accent rounded-full transition-all duration-700 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+
+          {topAttr && (
+            <p className="text-[10px] text-text-muted mt-3">
+              最强属性：
+              <span className={ATTRIBUTE_COLORS[topAttr[0]]}>
+                {ATTRIBUTE_LABELS[topAttr[0]]} Lv.{topAttr[1].level}
+              </span>
+            </p>
           )}
         </div>
       </div>
 
-      {/* 成就面板 */}
-      <div className="bg-white/60 rounded-2xl border border-sage-light/30 p-4">
+      {/* Attributes */}
+      <div className="bg-bg-elevated/60 border border-border-subtle rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <Target size={14} className="text-accent" />
+          <h3 className="text-[11px] font-semibold text-text-primary uppercase tracking-wider">生活属性</h3>
+        </div>
+        <div className="space-y-0.5">
+          {sortedAttrs.map(([key, val]) => (
+            <StatBar key={key} attribute={key} level={val.level} exp={val.exp} />
+          ))}
+        </div>
+      </div>
+
+      {/* Achievements */}
+      <div className="bg-bg-elevated/60 border border-border-subtle rounded-xl p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-medium text-text-primary text-sm flex items-center gap-2">
-            <Trophy size={16} className="text-warm-gold" /> 成就
-          </h3>
-          <span className="text-xs text-text-muted">
+          <div className="flex items-center gap-2">
+            <Trophy size={14} className="text-gold" />
+            <h3 className="text-[11px] font-semibold text-text-primary uppercase tracking-wider">成就</h3>
+          </div>
+          <span className="text-[10px] text-text-muted tabular-nums">
             {unlockedCount}/{achievements.length} 已解锁
           </span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 stagger-1">
           {achievements.map((a) => (
             <AchievementCard key={a.id} achievement={a} />
           ))}
         </div>
       </div>
 
-      {/* 重置按钮 */}
-      <div className="text-center pt-2 pb-4">
+      {/* Reset */}
+      <div className="text-center pb-4">
         <button
           onClick={handleReset}
-          className="inline-flex items-center gap-1.5 text-xs text-text-muted hover:text-soft-rose transition-colors px-3 py-1.5 rounded-lg hover:bg-soft-rose-light/30"
+          className="inline-flex items-center gap-1.5 text-[10px] text-text-muted hover:text-rose transition-colors px-3 py-1.5 rounded-lg hover:bg-rose-surface/10"
         >
-          <RotateCcw size={14} />
+          <RotateCcw size={12} />
           重置 Demo 数据
         </button>
       </div>
     </div>
   );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="text-center">
+      <p className="text-lg font-bold text-text-primary tabular-nums">{value}</p>
+      <p className="text-[9px] text-text-muted uppercase tracking-widest mt-0.5">{label}</p>
+    </div>
+  );
+}
+
+function Divider() {
+  return <div className="w-px h-8 bg-border-subtle" />;
 }
