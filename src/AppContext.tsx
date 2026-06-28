@@ -9,7 +9,7 @@ import {
 import type { AppState, Task, JournalEntry, QuestLine, Achievement } from "./types";
 import { createDefaultAppState } from "./data/defaultData";
 import { loadAppState, saveAppState, resetAppState } from "./utils/storage";
-import { today } from "./utils/date";
+import { localTimestamp, today } from "./utils/date";
 import { checkAchievements } from "./utils/achievements";
 import { calcLevel, getPlayerTitle, calcAttributeLevel } from "./utils/exp";
 import { genId } from "./utils/id";
@@ -44,10 +44,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const completeTask = useCallback(
     (taskId: string) => {
       setState((prev) => {
-        const newState = { ...prev, tasks: prev.tasks.map((t) => (t.id === taskId ? { ...t, completed: true, completedAt: new Date().toISOString() } : t)) };
-        // 更新经验和属性
         const task = prev.tasks.find((t) => t.id === taskId);
-        if (!task) return prev;
+        if (!task || task.completed) return prev;
+
+        const completedAt = localTimestamp();
+        const newState = {
+          ...prev,
+          tasks: prev.tasks.map((t) =>
+            t.id === taskId ? { ...t, completed: true, completedAt } : t
+          ),
+        };
+        // 更新经验和属性
         const totalExp = prev.player.totalExp + task.expReward;
         const newLevel = calcLevel(totalExp);
         const newAttrs = { ...prev.player.attributes };
@@ -69,7 +76,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
         // Check achievements on the updated state
         const toCheck = { ...newState, player: updatedPlayer };
-        const unlocked = checkAchievements(toCheck);
+        const { achievements, newlyUnlocked: unlocked } = checkAchievements(toCheck);
+        toCheck.achievements = achievements;
         if (unlocked.length > 0) {
           toCheck.player.unlockedAchievements = [
             ...toCheck.player.unlockedAchievements,
@@ -101,7 +109,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           journalEntries: [...prev.journalEntries, newEntry],
         };
         // Check achievements
-        const unlocked = checkAchievements(newState);
+        const { achievements, newlyUnlocked: unlocked } = checkAchievements(newState);
+        newState.achievements = achievements;
         if (unlocked.length > 0) {
           newState.player = {
             ...newState.player,

@@ -1,8 +1,13 @@
 import type { Achievement, AppState } from "../types";
-import { today } from "./date";
+import { formatDate, today } from "./date";
+
+interface AchievementCheckResult {
+  achievements: Achievement[];
+  newlyUnlocked: Achievement[];
+}
 
 /** 检查并解锁成就，返回新解锁的成就列表 */
-export function checkAchievements(state: AppState): Achievement[] {
+export function checkAchievements(state: AppState): AchievementCheckResult {
   const { tasks, journalEntries, achievements } = state;
   const completedTasks = tasks.filter((t) => t.completed);
   const newlyUnlocked: Achievement[] = [];
@@ -66,7 +71,7 @@ export function checkAchievements(state: AppState): Achievement[] {
         for (let i = 1; i <= 3; i++) {
           const d = new Date(lastCompleted);
           d.setDate(d.getDate() - i);
-          const dayStr = d.toISOString().split("T")[0];
+          const dayStr = formatDate(d);
           const hasTask = completedTasks.some(
             (t) => t.completedAt && t.completedAt.startsWith(dayStr)
           );
@@ -84,11 +89,8 @@ export function checkAchievements(state: AppState): Achievement[] {
     return a;
   });
 
-  // Check if any new unlocks
-  if (newlyUnlocked.length > 0) {
-    // Update state in-place (caller should save)
-    state.achievements = updatedAchievements;
-  }
-
-  return newlyUnlocked;
+  return {
+    achievements: updatedAchievements,
+    newlyUnlocked,
+  };
 }
