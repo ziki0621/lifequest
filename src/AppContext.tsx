@@ -1,15 +1,13 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
-import type { AppState, MainQuest, QuestStage, DailyTask, SideQuest, JournalEntry, Achievement, CompletionContext, LifeAttribute } from "./types";
+import type { AppState, MainQuest, QuestStage, DailyTask, SideQuest, JournalEntry, Achievement, CompletionContext, AttributeReward } from "./types";
 import { AppContext } from "./context";
 import { createDefaultAppState } from "./data/defaultData";
 import { loadAppState, saveAppState, resetAppState } from "./utils/storage";
 import { localTimestamp, today, isDailyTaskDue } from "./utils/date";
 import { checkAchievements } from "./utils/achievements";
-import { calcLevel, getPlayerTitle, calcAttributeLevel } from "./utils/exp";
+import { calcLevel, getPlayerTitle, calcAttributeLevel, getMainStageReward } from "./utils/exp";
 import { genId } from "./utils/id";
 import { loadTheme, saveTheme, getTheme } from "./utils/theme";
-
-export { useApp } from "./hooks/useApp";
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(() => {
@@ -28,15 +26,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => { saveAppState(state); }, [state]);
 
   // ── Shared reward application ──
-  const applyRewards = useCallback((prev: AppState, expReward: number, attributeRewards: { attribute: string; exp: number }[]) => {
+  const applyRewards = useCallback((prev: AppState, expReward: number, attributeRewards: AttributeReward[]) => {
     const totalExp = prev.player.totalExp + expReward;
     const newLevel = calcLevel(totalExp);
     const newAttrs = { ...prev.player.attributes };
     attributeRewards.forEach((ar) => {
-      const cur = newAttrs[ar.attribute as keyof typeof newAttrs];
-      if (!cur) return;
+      const cur = newAttrs[ar.attribute];
       const newExp = cur.exp + ar.exp;
-      newAttrs[ar.attribute as keyof typeof newAttrs] = { level: calcAttributeLevel(newExp), exp: newExp };
+      newAttrs[ar.attribute] = { level: calcAttributeLevel(newExp), exp: newExp };
     });
     return {
       ...prev.player,
@@ -73,22 +70,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         ...q, stages: newStages, status: allDone ? "completed" as const : q.status,
       } : q);
 
-      // Rewards from stage difficulty (use easy/normal/hard based on stage order)
-      const difficulties: Array<"easy" | "normal" | "hard"> = ["easy", "normal"];
-      const diff = difficulties[stageIdx] || "normal";
-      const expMap = { easy: 15, normal: 25, hard: 35 };
-      const expReward = expMap[diff];
       const stage = mq.stages[stageIdx];
-      const attrMap: Record<string, LifeAttribute> = {
-        body: "stamina", mind: "mind", relationship: "connection", home: "order",
-        exploration: "perception", interest: "creativity", learning: "knowledge",
-        career: "order", finance: "order",
-      };
-      const attributeRewards = [{ attribute: attrMap[mq.domain] || "mind", exp: expReward }];
+      const { expReward, attributeRewards } = getMainStageReward(mq, stageIdx);
 
       const newState = { ...prev, mainQuests: newMqs, player: applyRewards(prev, expReward, attributeRewards) };
       processUnlocks(newState);
-      ctx = { itemType: "mainStage" as const, title: stage.title, expReward, attributeRewards };
+      ctx = { itemType: "mainStage" as const, itemId: stage.id, title: stage.title, expReward, attributeRewards };
       return newState;
     });
     return ctx;
@@ -100,10 +87,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const dt = prev.dailyTasks.find((d) => d.id === dailyTaskId);
       if (!dt || !dt.active) return prev;
       const t = today();
+      if (!isDailyTaskDue(dt.completions, dt.period, dt.targetCount, dt.active, t, dt.daysOfWeek, dt.timesPerDay)) {
+        return prev;
+      }
       const newDailys = prev.dailyTasks.map((d) => d.id === dailyTaskId ? { ...d, completions: [...d.completions, t] } : d);
       const newState = { ...prev, dailyTasks: newDailys, player: applyRewards(prev, dt.expReward, dt.attributeRewards) };
       processUnlocks(newState);
-      ctx = { itemType: "daily" as const, title: dt.title, expReward: dt.expReward, attributeRewards: dt.attributeRewards };
+      ctx = { itemType: "daily" as const, itemId: dt.id, title: dt.title, expReward: dt.expReward, attributeRewards: dt.attributeRewards };
       return newState;
     });
     return ctx;
@@ -118,7 +108,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const newSides = prev.sideQuests.map((s) => s.id === sideQuestId ? { ...s, completed: true, completedAt } : s);
       const newState = { ...prev, sideQuests: newSides, player: applyRewards(prev, sq.expReward, sq.attributeRewards) };
       processUnlocks(newState);
-      ctx = { itemType: "sideQuest" as const, title: sq.title, expReward: sq.expReward, attributeRewards: sq.attributeRewards };
+      ctx = { itemType: "sideQuest" as const, itemId: sq.id, title: sq.title, expReward: sq.expReward, attributeRewards: sq.attributeRewards };
       return newState;
     });
     return ctx;

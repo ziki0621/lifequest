@@ -84,6 +84,7 @@ export interface LinkedTask {
 // ====== Completion context for modals ======
 export interface CompletionContext {
   itemType: "mainStage" | "daily" | "sideQuest";
+  itemId: string;
   title: string;
   expReward: number;
   attributeRewards: AttributeReward[];

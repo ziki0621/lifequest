@@ -1,4 +1,4 @@
-import type { LifeAttribute, AttributeState } from "../types";
+import type { AttributeReward, AttributeState, LifeAttribute, MainQuest } from "../types";
 import type { Difficulty } from "../types";
 
 /** 每100总经验升1级 */
@@ -28,6 +28,29 @@ export function difficultyExp(difficulty: Difficulty): number {
     case "hard": return 35;
     default: return 10;
   }
+}
+
+export function getMainStageReward(
+  mainQuest: Pick<MainQuest, "domain">,
+  stageIndex: number
+): { expReward: number; attributeRewards: AttributeReward[] } {
+  const expReward = stageIndex === 0 ? 15 : 25;
+  const attrMap: Record<MainQuest["domain"], LifeAttribute> = {
+    body: "stamina",
+    mind: "mind",
+    relationship: "connection",
+    home: "order",
+    exploration: "perception",
+    interest: "creativity",
+    learning: "knowledge",
+    career: "order",
+    finance: "order",
+  };
+
+  return {
+    expReward,
+    attributeRewards: [{ attribute: attrMap[mainQuest.domain], exp: expReward }],
+  };
 }
 
 /** 根据属性经验创建 AttributeState */

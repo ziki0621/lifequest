@@ -35,7 +35,7 @@ export default function TasksPage() {
   };
   const handleSaveJournal = (content: string, mood: Mood, energy: EnergyLevel) => {
     if (completionCtx && content.trim())
-      addJournal({ date: today(), mood, energy, content: content.trim(), tags: [] });
+      addJournal({ date: today(), taskId: completionCtx.itemId, mood, energy, content: content.trim(), tags: [] });
     setCompletionCtx(null);
   };
 
