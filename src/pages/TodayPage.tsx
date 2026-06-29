@@ -11,7 +11,8 @@ import EditSideQuestModal from "../components/EditSideQuestModal";
 import DailyShareCardModal from "../components/DailyShareCardModal";
 import NpcAgentPanel from "../components/NpcAgentPanel";
 import { NPCS } from "../data/npcs";
-import { getTodayRecommendation } from "../services/todayRecommendAgent";
+import { getTodayRecommendation, getLLMTodayRecommendation } from "../services/todayRecommendAgent";
+import { loadLLMConfig } from "../utils/llmConfig";
 import type { CompletionContext, Mood, EnergyLevel, DailyTask, SideQuest } from "../types";
 import { today } from "../utils/date";
 
@@ -28,6 +29,7 @@ export default function TodayPage() {
   const [editingSide, setEditingSide] = useState<SideQuest | null>(null);
   const [showShareCard, setShowShareCard] = useState(false);
   const [lumiMessage, setLumiMessage] = useState("欢迎来到今日营地。今天也从一个很小的行动开始吧。");
+  const [lumiLoading, setLumiLoading] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,8 +79,19 @@ export default function TodayPage() {
       <NpcAgentPanel
         npc={NPCS.lumi}
         message={lumiMessage}
-        actionLabel="推荐一个任务"
-        onAction={() => setLumiMessage(getTodayRecommendation(state).npcReply)}
+        actionLabel={lumiLoading ? "正在思考…" : "推荐一个任务"}
+        onAction={async () => {
+          setLumiLoading(true);
+          try {
+            const config = loadLLMConfig();
+            const rec = await getLLMTodayRecommendation(state, config);
+            setLumiMessage(rec.npcReply);
+          } catch {
+            const rec = getTodayRecommendation(state);
+            setLumiMessage(rec.npcReply);
+          }
+          setLumiLoading(false);
+        }}
         secondaryLabel="我今天有点累"
         onSecondary={() => setLumiMessage("那今天不要挑战太多。完成一个 easy 行动就已经很好了。")}
       />
