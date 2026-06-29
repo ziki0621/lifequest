@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Plus, Target, CheckCircle2, ListTodo } from "lucide-react";
+import { Plus, Target, CheckCircle2, ListTodo, Sparkles, Zap } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import DailyTaskCard from "../components/DailyTaskCard";
 import CompleteTaskModal from "../components/CompleteTaskModal";
@@ -8,10 +8,11 @@ import CreateSideQuestModal from "../components/CreateSideQuestModal";
 import CreateMainQuestModal from "../components/CreateMainQuestModal";
 import EditDailyTaskModal from "../components/EditDailyTaskModal";
 import EditSideQuestModal from "../components/EditSideQuestModal";
+import DailyShareCardModal from "../components/DailyShareCardModal";
 import type { CompletionContext, Mood, EnergyLevel, DailyTask, SideQuest } from "../types";
 import { today } from "../utils/date";
 
-export default function TodayPage() {
+export default function TodayPage({ onOpenPlanner }: { onOpenPlanner?: () => void }) {
   const { state, completeMainStage, completeDailyTask, completeSideQuest,
     addJournal, addMainQuest, addDailyTask, addSideQuest, toggleDailyActive,
     updateDailyTask, updateSideQuest,
@@ -22,6 +23,7 @@ export default function TodayPage() {
   const [createModal, setCreateModal] = useState<"main" | "daily" | "side" | null>(null);
   const [editingDaily, setEditingDaily] = useState<DailyTask | null>(null);
   const [editingSide, setEditingSide] = useState<SideQuest | null>(null);
+  const [showShareCard, setShowShareCard] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function TodayPage() {
   }, []);
 
   const activeStages = state.mainQuests
-    .filter((q) => q.status === "active")
+    .filter((q) => q.status === "active" && !q.archived)
     .map((q) => {
       const stage = q.stages.find((s) => !s.completed);
       return stage ? { quest: q, stage } : null;
@@ -66,6 +68,23 @@ export default function TodayPage() {
 
   return (
     <div className="space-y-6 pb-24 animate-in">
+
+      {/* AI Planner + Share bar */}
+      <div className="flex gap-3">
+        <button onClick={onOpenPlanner} className="flex-1 glass rounded-3xl p-4 hover:-translate-y-0.5 transition-all">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-full bg-theme text-white flex items-center justify-center flex-shrink-0"><Sparkles size={15} /></div>
+            <div className="text-left">
+              <p className="text-[12px] font-black text-navy">AI 任务线生成器</p>
+              <p className="text-[9px] text-navy/40 mt-0.5">把模糊目标变成主线、日常和支线</p>
+            </div>
+          </div>
+        </button>
+        <button onClick={() => setShowShareCard(true)} className="glass rounded-3xl p-4 flex items-center gap-2 hover:-translate-y-0.5 transition-all">
+          <div className="w-9 h-9 rounded-full bg-coral text-white flex items-center justify-center flex-shrink-0"><Zap size={15} /></div>
+          <span className="text-[11px] font-black text-navy">今日总结</span>
+        </button>
+      </div>
 
       {isEmpty ? (
         <div className="glass rounded-3xl p-10 text-center">
@@ -197,6 +216,7 @@ export default function TodayPage() {
       {createModal === "side" && <CreateSideQuestModal mainQuests={state.mainQuests} onClose={() => setCreateModal(null)} onCreate={addSideQuest} />}
       {editingDaily && <EditDailyTaskModal task={editingDaily} onClose={() => setEditingDaily(null)} onUpdate={updateDailyTask} />}
       {editingSide && <EditSideQuestModal quest={editingSide} mainQuests={state.mainQuests} onClose={() => setEditingSide(null)} onUpdate={updateSideQuest} />}
+      {showShareCard && <DailyShareCardModal onClose={() => setShowShareCard(false)} />}
     </div>
   );
 }

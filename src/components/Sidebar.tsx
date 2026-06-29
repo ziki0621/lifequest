@@ -1,5 +1,6 @@
 import { Home, Map, BookOpen, User, Sparkles, Settings } from "lucide-react";
 import { useApp } from "../hooks/useApp";
+import PlayerAvatar from "./PlayerAvatar";
 
 interface SidebarProps { currentPage: string; onNavigate: (page: string) => void; }
 
@@ -52,13 +53,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         </nav>
 
         <div className="mt-auto pt-6 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-coral/10 flex items-center justify-center">
-            <User size={16} className="text-coral" />
-          </div>
-          <div>
-            <div className="font-bold text-navy text-xs tracking-wide">{player.name}</div>
-            <div className="text-[10px] font-bold text-coral tracking-wider">Lv.{player.level} · {player.title}</div>
-          </div>
+          <PlayerAvatar level={player.level} title={player.title} size="sm" />
         </div>
       </aside>
 
@@ -77,6 +72,12 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
             </button>
           );
         })}
+        <button
+          onClick={() => onNavigate("settings")}
+          className={`p-2.5 rounded-full transition-colors ${currentPage === "settings" ? "bg-white/20" : "text-white/50"}`}
+        >
+          <Settings size={18} strokeWidth={currentPage === "settings" ? 2.5 : 2} />
+        </button>
       </nav>
     </>
   );

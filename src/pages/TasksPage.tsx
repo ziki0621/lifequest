@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, ArrowLeft, Target, ListTodo, CheckCircle2 } from "lucide-react";
+import { Plus, ArrowLeft, Target, ListTodo, CheckCircle2, Sparkles } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import DailyTaskCard from "../components/DailyTaskCard";
 import SideQuestCard from "../components/SideQuestCard";
@@ -15,7 +15,7 @@ import EditSideQuestModal from "../components/EditSideQuestModal";
 import type { CompletionContext, Mood, EnergyLevel, MainQuest, DailyTask, SideQuest } from "../types";
 import { today } from "../utils/date";
 
-export default function TasksPage() {
+export default function TasksPage({ onOpenPlanner }: { onOpenPlanner?: () => void }) {
   const { state, completeMainStage, completeDailyTask, completeSideQuest,
     addJournal, addMainQuest, addDailyTask, addSideQuest, addMainStage, toggleDailyActive,
     updateMainQuest, updateDailyTask, updateSideQuest } = useApp();
@@ -101,27 +101,32 @@ export default function TasksPage() {
   }
 
   // ── Panel List View ──
-  const activeDaily = state.dailyTasks.filter((dt) => dt.active);
-  const pendingSides = state.sideQuests.filter((sq) => !sq.completed);
+  const activeDaily = state.dailyTasks.filter((dt) => dt.active && !dt.archived);
+  const pendingSides = state.sideQuests.filter((sq) => !sq.completed && !sq.archived);
 
   return (
     <div className="space-y-6 pb-24 animate-in">
-      <div className="pt-2">
-        <p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">任务线</p>
-        <h2 className="text-2xl font-black text-navy tracking-tight serif">全部任务</h2>
+      <div className="pt-2 flex items-center justify-between">
+        <div>
+          <p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">任务线</p>
+          <h2 className="text-2xl font-black text-navy tracking-tight serif">全部任务</h2>
+        </div>
+        <button onClick={onOpenPlanner} className="btn btn-primary !py-2 !px-4 !text-[10px] !tracking-widest">
+          <Sparkles size={13} /> AI 生成任务线
+        </button>
       </div>
 
       {/* ── 主线面板 ── */}
       <Panel
         icon={<Target size={15} />} title="主线"
         accentBar="bg-theme" accent="border-navy/10"
-        badge={`${state.mainQuests.length} 条`}
+        badge={`${state.mainQuests.filter((q) => !q.archived).length} 条`}
         onAdd={() => setCreateModal("main")}
       >
-        {state.mainQuests.length === 0 ? (
+        {state.mainQuests.filter((q) => !q.archived).length === 0 ? (
           <Empty>还没有主线任务。</Empty>
         ) : (
-          state.mainQuests.map((mq) => {
+          state.mainQuests.filter((q) => !q.archived).map((mq) => {
             const completed = mq.stages.filter((s) => s.completed).length;
             const total = mq.stages.length;
             return (
@@ -162,10 +167,10 @@ export default function TasksPage() {
         badge={`${activeDaily.length} 活跃`}
         onAdd={() => setCreateModal("daily")}
       >
-        {state.dailyTasks.length === 0 ? (
+        {state.dailyTasks.filter((d) => !d.archived).length === 0 ? (
           <Empty>还没有日常任务。</Empty>
         ) : (
-          state.dailyTasks.map((dt) => (
+          state.dailyTasks.filter((d) => !d.archived).map((dt) => (
             <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} onEdit={setEditingDaily} />
           ))
         )}
@@ -178,10 +183,10 @@ export default function TasksPage() {
         badge={`${pendingSides.length} 待完成`}
         onAdd={() => setCreateModal("side")}
       >
-        {state.sideQuests.length === 0 ? (
+        {state.sideQuests.filter((s) => !s.archived).length === 0 ? (
           <Empty>还没有支线任务。</Empty>
         ) : (
-          state.sideQuests.map((sq) => (
+          state.sideQuests.filter((s) => !s.archived).map((sq) => (
             <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} onEdit={setEditingSide} />
           ))
         )}

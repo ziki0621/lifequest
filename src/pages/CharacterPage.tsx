@@ -1,7 +1,8 @@
-import { Trophy, Zap, Target } from "lucide-react";
+import { Trophy, Target } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import StatBar from "../components/StatBar";
 import AchievementCard from "../components/AchievementCard";
+import PlayerAvatar from "../components/PlayerAvatar";
 import { ATTRIBUTE_LABELS, ATTR_COLOR } from "../types";
 import type { LifeAttribute } from "../types";
 import { expToNextLevel } from "../utils/exp";
@@ -47,14 +48,10 @@ export default function CharacterPage() {
 
   return (
     <div className="space-y-10 animate-in pb-24">
-      {/* Avatar card */}
+      {/* Avatar */}
       <div className="flex flex-col items-center text-center">
-        <div className="w-28 h-28 rounded-[2rem] rotate-3 bg-coral/20 p-1 mb-6 shadow-xl shadow-coral/10">
-          <div className="w-full h-full bg-white rounded-[1.7rem] -rotate-3 flex items-center justify-center">
-            <Zap size={32} className="text-navy" />
-          </div>
-        </div>
-        <h2 className="text-2xl font-black text-navy tracking-tight serif">{player.name}</h2>
+        <PlayerAvatar level={player.level} title={player.title} size="lg" />
+        <h2 className="text-2xl font-black text-navy tracking-tight serif mt-3">{player.name}</h2>
         <p className="text-coral font-bold text-xs tracking-widest uppercase mt-2">Lv.{player.level} · {player.title}</p>
       </div>
 
@@ -63,6 +60,7 @@ export default function CharacterPage() {
         <StatCard label="等级" value={player.level.toString()} />
         <StatCard label="总经验" value={player.totalExp.toString()} />
         <StatCard label="地球天数" value={daysSince(player.startDate).toString()} />
+        <StatCard label="成就" value={`${unlocked}/${achievements.length}`} />
       </div>
 
       {/* Sub stats */}

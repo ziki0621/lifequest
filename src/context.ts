@@ -1,7 +1,7 @@
 import { createContext } from "react";
 import type {
   AppState, JournalEntry, MainQuest, QuestStage, DailyTask, SideQuest,
-  Achievement, CompletionContext,
+  Achievement, CompletionContext, QuestPlanDraft,
 } from "./types";
 import type { ThemeConfig } from "./utils/theme";
 
@@ -21,6 +21,15 @@ export interface AppContextType {
   updateDailyTask: (id: string, dt: Partial<DailyTask>) => void;
   updateSideQuest: (id: string, sq: Partial<SideQuest>) => void;
   toggleDailyActive: (id: string) => void;
+  applyQuestPlan: (plan: QuestPlanDraft) => void;
+  archiveMainQuest: (id: string) => void;
+  archiveDailyTask: (id: string) => void;
+  archiveSideQuest: (id: string) => void;
+  deleteMainQuest: (id: string) => void;
+  deleteDailyTask: (id: string) => void;
+  deleteSideQuest: (id: string) => void;
+  undoLastMutation: () => void;
+  lastUndoLabel: string | null;
   resetData: () => void;
   todayDailyTasks: DailyTask[];
   todaySideQuests: SideQuest[];

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
-import type { AppState, MainQuest, QuestStage, DailyTask, SideQuest, JournalEntry, Achievement, CompletionContext, AttributeReward } from "./types";
+import type { AppState, MainQuest, QuestStage, DailyTask, SideQuest, JournalEntry, Achievement, CompletionContext, AttributeReward, QuestPlanDraft } from "./types";
 import { AppContext } from "./context";
 import { createDefaultAppState } from "./data/defaultData";
 import { loadAppState, saveAppState, resetAppState } from "./utils/storage";
@@ -17,6 +17,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement[]>([]);
   const [themeId, setThemeId] = useState<string>(loadTheme);
   const theme = getTheme(themeId);
+  const [undoState, setUndoState] = useState<{ label: string; previousState: AppState } | null>(null);
 
   const setTheme = useCallback((id: string) => {
     setThemeId(id);
@@ -24,6 +25,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => { saveAppState(state); }, [state]);
+
+  // ── Undo helper ──
+  const pushUndo = useCallback((label: string, previousState: AppState) => {
+    setUndoState({ label, previousState });
+    setTimeout(() => setUndoState((cur) => cur?.previousState === previousState ? null : cur), 6000);
+  }, []);
 
   // ── Shared reward application ──
   const applyRewards = useCallback((prev: AppState, expReward: number, attributeRewards: AttributeReward[]) => {
@@ -41,16 +48,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const processUnlocks = useCallback((newState: AppState) => {
-    const { achievements, newlyUnlocked: unlocked } = checkAchievements(newState);
-    newState.achievements = achievements;
-    if (unlocked.length > 0) {
-      newState.player.unlockedAchievements = [...newState.player.unlockedAchievements, ...unlocked.map((a) => a.id)];
-      setTimeout(() => setNewlyUnlocked(unlocked), 100);
-    }
+  const applyAchievementUpdates = useCallback((s: AppState): AppState => {
+    const { achievements, newlyUnlocked: unlocked } = checkAchievements(s);
+    const existing = new Set(s.player.unlockedAchievements);
+    const newIds = unlocked.map((a) => a.id).filter((id) => !existing.has(id));
+    if (unlocked.length > 0) setTimeout(() => setNewlyUnlocked(unlocked), 100);
+    return {
+      ...s,
+      achievements,
+      player: {
+        ...s.player,
+        unlockedAchievements: [...s.player.unlockedAchievements, ...newIds],
+      },
+    };
   }, []);
 
-  // ── Complete actions (return CompletionContext for modal) ──
+  // ── Complete actions ──
 
   const completeMainStage = useCallback((mainQuestId: string, stageId: string): CompletionContext | null => {
     let ctx: CompletionContext | null = null;
@@ -59,27 +72,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!mq) return prev;
       const stageIdx = mq.stages.findIndex((s) => s.id === stageId);
       if (stageIdx === -1 || mq.stages[stageIdx].completed) return prev;
-      // Only allow completing the first uncompleted stage
       const firstUncompleted = mq.stages.findIndex((s) => !s.completed);
       if (stageIdx !== firstUncompleted) return prev;
-
       const completedAt = localTimestamp();
       const newStages = mq.stages.map((s, i) => i === stageIdx ? { ...s, completed: true, completedAt } : s);
       const allDone = newStages.every((s) => s.completed);
-      const newMqs = prev.mainQuests.map((q) => q.id === mainQuestId ? {
-        ...q, stages: newStages, status: allDone ? "completed" as const : q.status,
-      } : q);
-
+      const newMqs = prev.mainQuests.map((q) => q.id === mainQuestId ? { ...q, stages: newStages, status: allDone ? "completed" as const : q.status } : q);
       const stage = mq.stages[stageIdx];
       const { expReward, attributeRewards } = getMainStageReward(mq, stageIdx);
-
-      const newState = { ...prev, mainQuests: newMqs, player: applyRewards(prev, expReward, attributeRewards) };
-      processUnlocks(newState);
       ctx = { itemType: "mainStage" as const, itemId: stage.id, title: stage.title, expReward, attributeRewards };
-      return newState;
+      return applyAchievementUpdates({ ...prev, mainQuests: newMqs, player: applyRewards(prev, expReward, attributeRewards) });
     });
     return ctx;
-  }, [applyRewards, processUnlocks]);
+  }, [applyRewards, applyAchievementUpdates]);
 
   const completeDailyTask = useCallback((dailyTaskId: string): CompletionContext | null => {
     let ctx: CompletionContext | null = null;
@@ -87,17 +92,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const dt = prev.dailyTasks.find((d) => d.id === dailyTaskId);
       if (!dt || !dt.active) return prev;
       const t = today();
-      if (!isDailyTaskDue(dt.completions, dt.period, dt.targetCount, dt.active, t, dt.daysOfWeek, dt.timesPerDay)) {
-        return prev;
-      }
-      const newDailys = prev.dailyTasks.map((d) => d.id === dailyTaskId ? { ...d, completions: [...d.completions, t] } : d);
-      const newState = { ...prev, dailyTasks: newDailys, player: applyRewards(prev, dt.expReward, dt.attributeRewards) };
-      processUnlocks(newState);
+      if (!isDailyTaskDue(dt.completions, dt.period, dt.targetCount, dt.active, t, dt.daysOfWeek, dt.timesPerDay)) return prev;
       ctx = { itemType: "daily" as const, itemId: dt.id, title: dt.title, expReward: dt.expReward, attributeRewards: dt.attributeRewards };
-      return newState;
+      const newDailys = prev.dailyTasks.map((d) => d.id === dailyTaskId ? { ...d, completions: [...d.completions, t] } : d);
+      return applyAchievementUpdates({ ...prev, dailyTasks: newDailys, player: applyRewards(prev, dt.expReward, dt.attributeRewards) });
     });
     return ctx;
-  }, [applyRewards, processUnlocks]);
+  }, [applyRewards, applyAchievementUpdates]);
 
   const completeSideQuest = useCallback((sideQuestId: string): CompletionContext | null => {
     let ctx: CompletionContext | null = null;
@@ -105,25 +106,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const sq = prev.sideQuests.find((s) => s.id === sideQuestId);
       if (!sq || sq.completed) return prev;
       const completedAt = localTimestamp();
-      const newSides = prev.sideQuests.map((s) => s.id === sideQuestId ? { ...s, completed: true, completedAt } : s);
-      const newState = { ...prev, sideQuests: newSides, player: applyRewards(prev, sq.expReward, sq.attributeRewards) };
-      processUnlocks(newState);
       ctx = { itemType: "sideQuest" as const, itemId: sq.id, title: sq.title, expReward: sq.expReward, attributeRewards: sq.attributeRewards };
-      return newState;
+      const newSides = prev.sideQuests.map((s) => s.id === sideQuestId ? { ...s, completed: true, completedAt } : s);
+      return applyAchievementUpdates({ ...prev, sideQuests: newSides, player: applyRewards(prev, sq.expReward, sq.attributeRewards) });
     });
     return ctx;
-  }, [applyRewards, processUnlocks]);
+  }, [applyRewards, applyAchievementUpdates]);
 
   // ── Creation actions ──
 
   const addJournal = useCallback((entry: Omit<JournalEntry, "id" | "createdAt">) => {
     setState((prev) => {
       const newEntry: JournalEntry = { ...entry, id: genId(), createdAt: new Date().toISOString() };
-      const newState = { ...prev, journalEntries: [...prev.journalEntries, newEntry] };
-      processUnlocks(newState);
-      return newState;
+      return applyAchievementUpdates({ ...prev, journalEntries: [...prev.journalEntries, newEntry] });
     });
-  }, [processUnlocks]);
+  }, [applyAchievementUpdates]);
 
   const addMainQuest = useCallback((mq: Omit<MainQuest, "id" | "createdAt">) => {
     setState((prev) => ({
@@ -164,25 +161,55 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const updateMainQuest = useCallback((id: string, mq: Partial<MainQuest>) => {
-    setState((prev) => ({
-      ...prev,
-      mainQuests: prev.mainQuests.map((q) => q.id === id ? { ...q, ...mq } : q),
-    }));
+    setState((prev) => ({ ...prev, mainQuests: prev.mainQuests.map((q) => q.id === id ? { ...q, ...mq } : q) }));
   }, []);
-
   const updateDailyTask = useCallback((id: string, dt: Partial<DailyTask>) => {
-    setState((prev) => ({
-      ...prev,
-      dailyTasks: prev.dailyTasks.map((d) => d.id === id ? { ...d, ...dt } : d),
-    }));
+    setState((prev) => ({ ...prev, dailyTasks: prev.dailyTasks.map((d) => d.id === id ? { ...d, ...dt } : d) }));
+  }, []);
+  const updateSideQuest = useCallback((id: string, sq: Partial<SideQuest>) => {
+    setState((prev) => ({ ...prev, sideQuests: prev.sideQuests.map((s) => s.id === id ? { ...s, ...sq } : s) }));
   }, []);
 
-  const updateSideQuest = useCallback((id: string, sq: Partial<SideQuest>) => {
-    setState((prev) => ({
-      ...prev,
-      sideQuests: prev.sideQuests.map((s) => s.id === id ? { ...s, ...sq } : s),
-    }));
+  // ── Quest Plan ──
+  const applyQuestPlan = useCallback((plan: QuestPlanDraft) => {
+    setState((prev) => {
+      const now = new Date().toISOString();
+      const mainId = genId();
+      const mainQuest: MainQuest = {
+        ...plan.mainQuest, id: mainId, createdAt: now,
+        stages: plan.mainQuest.stages.map((stage, index) => ({ ...stage, id: genId(), completed: false, completedAt: undefined, order: index })),
+      };
+      const dailyTasks: DailyTask[] = plan.dailyTasks.map((task) => ({ ...task, id: genId(), completions: [], createdAt: now }));
+      const sideQuests: SideQuest[] = plan.sideQuests.map((quest) => ({
+        ...quest, id: genId(), createdAt: now, completed: false, completedAt: undefined,
+        mainQuestId: quest.mainQuestId === "__new_main__" ? mainId : quest.mainQuestId,
+      }));
+      return { ...prev, mainQuests: [...prev.mainQuests, mainQuest], dailyTasks: [...prev.dailyTasks, ...dailyTasks], sideQuests: [...prev.sideQuests, ...sideQuests] };
+    });
   }, []);
+
+  // ── Archive / Delete / Undo ──
+  const archiveMainQuest = useCallback((id: string) => {
+    setState((prev) => { pushUndo("已归档主线任务", prev); return { ...prev, mainQuests: prev.mainQuests.map((q) => q.id === id ? { ...q, archived: true, archivedAt: new Date().toISOString() } : q) }; });
+  }, [pushUndo]);
+  const archiveDailyTask = useCallback((id: string) => {
+    setState((prev) => { pushUndo("已归档日常任务", prev); return { ...prev, dailyTasks: prev.dailyTasks.map((d) => d.id === id ? { ...d, archived: true, archivedAt: new Date().toISOString(), active: false } : d) }; });
+  }, [pushUndo]);
+  const archiveSideQuest = useCallback((id: string) => {
+    setState((prev) => { pushUndo("已归档支线任务", prev); return { ...prev, sideQuests: prev.sideQuests.map((s) => s.id === id ? { ...s, archived: true, archivedAt: new Date().toISOString() } : s) }; });
+  }, [pushUndo]);
+  const deleteMainQuest = useCallback((id: string) => {
+    setState((prev) => { pushUndo("已删除主线任务", prev); return { ...prev, mainQuests: prev.mainQuests.filter((q) => q.id !== id) }; });
+  }, [pushUndo]);
+  const deleteDailyTask = useCallback((id: string) => {
+    setState((prev) => { pushUndo("已删除日常任务", prev); return { ...prev, dailyTasks: prev.dailyTasks.filter((d) => d.id !== id) }; });
+  }, [pushUndo]);
+  const deleteSideQuest = useCallback((id: string) => {
+    setState((prev) => { pushUndo("已删除支线任务", prev); return { ...prev, sideQuests: prev.sideQuests.filter((s) => s.id !== id) }; });
+  }, [pushUndo]);
+  const undoLastMutation = useCallback(() => {
+    if (!undoState) return; setState(undoState.previousState); setUndoState(null);
+  }, [undoState]);
 
   const resetData = useCallback(() => {
     resetAppState();
@@ -194,8 +221,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // ── Computed ──
   const t = today();
-  const todayDailyTasks = state.dailyTasks.filter((dt) => isDailyTaskDue(dt.completions, dt.period, dt.targetCount, dt.active, t, dt.daysOfWeek, dt.timesPerDay));
-  const todaySideQuests = state.sideQuests.filter((sq) => !sq.completed);
+  const todayDailyTasks = state.dailyTasks.filter((dt) => !dt.archived && isDailyTaskDue(dt.completions, dt.period, dt.targetCount, dt.active, t, dt.daysOfWeek, dt.timesPerDay));
+  const todaySideQuests = state.sideQuests.filter((sq) => !sq.completed && !sq.archived);
   const todayCompletedCount =
     state.dailyTasks.reduce((sum, dt) => sum + dt.completions.filter((c) => c === t).length, 0) +
     state.mainQuests.reduce((sum, mq) => sum + mq.stages.filter((s) => s.completed && s.completedAt?.startsWith(t)).length, 0) +
@@ -206,7 +233,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       state, completeMainStage, completeDailyTask, completeSideQuest,
       addJournal, addMainQuest, addMainStage, addDailyTask, addSideQuest,
       updateMainQuest, updateDailyTask, updateSideQuest,
-      toggleDailyActive, resetData,
+      toggleDailyActive, applyQuestPlan,
+      archiveMainQuest, archiveDailyTask, archiveSideQuest,
+      deleteMainQuest, deleteDailyTask, deleteSideQuest,
+      undoLastMutation, lastUndoLabel: undoState?.label ?? null,
+      resetData,
       todayDailyTasks, todaySideQuests, todayCompletedCount,
       theme, setTheme,
       newlyUnlocked, clearNewlyUnlocked,

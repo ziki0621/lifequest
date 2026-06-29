@@ -33,6 +33,7 @@ export interface QuestStage {
 export interface MainQuest {
   id: string; title: string; description: string; domain: LifeDomain;
   status: MainQuestStatus; stages: QuestStage[]; createdAt: string;
+  archived?: boolean; archivedAt?: string;
 }
 
 // ── 日常任务 ──
@@ -43,6 +44,7 @@ export interface DailyTask {
   daysOfWeek?: number[];   // 0=Sun..6=Sat, only for period="daily". undefined = every day
   timesPerDay?: number;    // only for period="daily". target completions per active day. default 1
   active: boolean; createdAt: string;
+  archived?: boolean; archivedAt?: string;
 }
 
 // ── 支线任务 ──
@@ -51,6 +53,7 @@ export interface SideQuest {
   domain: LifeDomain; difficulty: Difficulty; expReward: number;
   attributeRewards: AttributeReward[]; dueDate?: string;
   completed: boolean; completedAt?: string; createdAt: string;
+  archived?: boolean; archivedAt?: string;
 }
 
 // ── 日志 & 成就 ──
@@ -62,6 +65,24 @@ export interface JournalEntry {
 export interface Achievement {
   id: string; title: string; description: string; conditionText: string;
   unlocked: boolean; unlockedAt?: string;
+}
+
+// ====== AI Quest Planner ======
+export type PlannerIntensity = "gentle" | "normal" | "challenge";
+
+export interface QuestPlannerInput {
+  goal: string;
+  currentSituation?: string;
+  timeRange: "3days" | "1week" | "2weeks" | "1month";
+  intensity: PlannerIntensity;
+  focusDomains: LifeDomain[];
+}
+
+export interface QuestPlanDraft {
+  mainQuest: Omit<MainQuest, "id" | "createdAt">;
+  dailyTasks: Omit<DailyTask, "id" | "createdAt" | "completions">[];
+  sideQuests: Omit<SideQuest, "id" | "createdAt" | "completed" | "completedAt">[];
+  rationale?: string;
 }
 
 // ====== App State ======

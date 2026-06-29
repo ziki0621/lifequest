@@ -6,13 +6,15 @@ import { DOMAIN_LABELS, WEEKDAY_LABELS } from "../types";
 interface Props {
   task: DailyTask; onClose: () => void;
   onUpdate: (id: string, data: Partial<DailyTask>) => void;
+  onArchive?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 const domains: LifeDomain[] = ["body", "mind", "relationship", "home", "exploration", "interest", "learning", "career", "finance"];
 const periods: RecurrencePeriod[] = ["daily", "weekly", "monthly"];
 const periodLabels: Record<RecurrencePeriod, string> = { daily: "每天", weekly: "每周", monthly: "每月" };
 
-export default function EditDailyTaskModal({ task, onClose, onUpdate }: Props) {
+export default function EditDailyTaskModal({ task, onClose, onUpdate, onArchive, onDelete }: Props) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
   const [domain, setDomain] = useState<LifeDomain>(task.domain);
@@ -106,6 +108,23 @@ export default function EditDailyTaskModal({ task, onClose, onUpdate }: Props) {
 
         <button onClick={handleSubmit} disabled={!title.trim()}
           className="btn btn-primary w-full !rounded-full disabled:opacity-30">保存</button>
+
+        <div className="pt-3 border-t border-navy/5 space-y-2">
+          <p className="text-[9px] font-bold text-navy/20 uppercase tracking-widest">危险操作</p>
+          <div className="flex gap-2">
+            {onArchive && (
+              <button onClick={() => onArchive(task.id)} className="btn btn-ghost !text-[10px] !py-1.5 flex-1 text-coral/60 hover:text-coral">
+                归档任务
+              </button>
+            )}
+            {onDelete && (
+              <button onClick={() => { if (window.confirm("确定要删除吗？这个操作会移除该任务，但可以在几秒内撤销。")) onDelete(task.id); }}
+                className="btn btn-ghost !text-[10px] !py-1.5 flex-1 text-coral/60 hover:text-coral">
+                删除任务
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
