@@ -229,9 +229,9 @@ export default function TodayPage() {
       )}
       {createModal === "main" && <CreateMainQuestModal onClose={() => setCreateModal(null)} onCreate={addMainQuest} />}
       {createModal === "daily" && <CreateDailyTaskModal onClose={() => setCreateModal(null)} onCreate={addDailyTask} />}
-      {createModal === "side" && <CreateSideQuestModal mainQuests={state.mainQuests} onClose={() => setCreateModal(null)} onCreate={addSideQuest} />}
+      {createModal === "side" && <CreateSideQuestModal onClose={() => setCreateModal(null)} onCreate={addSideQuest} />}
       {editingDaily && <EditDailyTaskModal task={editingDaily} onClose={() => setEditingDaily(null)} onUpdate={updateDailyTask} />}
-      {editingSide && <EditSideQuestModal quest={editingSide} mainQuests={state.mainQuests} onClose={() => setEditingSide(null)} onUpdate={updateSideQuest} />}
+      {editingSide && <EditSideQuestModal quest={editingSide} onClose={() => setEditingSide(null)} onUpdate={updateSideQuest} />}
       {showShareCard && <DailyShareCardModal onClose={() => setShowShareCard(false)} />}
     </div>
   );

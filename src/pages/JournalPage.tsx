@@ -210,7 +210,7 @@ export default function JournalPage() {
       </button>
 
       {showCreate && <CreateJournalModal defaultDate={today()} onClose={() => setShowCreate(false)} onSave={handleSave} />}
-      {showNiaChat && <AgentChatModal npc={NPCS.nia} title="写入旅人日志" intro="说一句今天的状态就好。不需要总结，也不需要漂亮。" placeholder="例如：今天很累，但是还是完成了一点点事情。" onClose={() => setShowNiaChat(false)} onSubmit={handleNiaSubmit} />}
+      {showNiaChat && <AgentChatModal npc={NPCS.nia} title="写入旅人日志" intro="说一句今天的状态就好。不需要总结，也不需要漂亮。" placeholder="例如：今天很累，但是还是完成了一点点事情。" taskTypes={[]} onClose={() => setShowNiaChat(false)} onSubmit={(text) => handleNiaSubmit(text)} />}
     </div>
   );
 }

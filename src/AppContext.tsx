@@ -213,7 +213,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const exp = difficultyExp(quest.difficulty);
         return {
           id: genId(), title: quest.title, description: quest.description,
-          mainQuestId: mainId, domain: quest.domain, difficulty: quest.difficulty,
+          domain: quest.domain, difficulty: quest.difficulty,
           expReward: exp, attributeRewards: getDefaultRewards(quest.domain, exp),
           dueDate: quest.dueDate, completed: false, createdAt: now,
         };

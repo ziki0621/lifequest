@@ -49,7 +49,7 @@ export interface DailyTask {
 
 // ── 支线任务 ──
 export interface SideQuest {
-  id: string; title: string; description?: string; mainQuestId?: string;
+  id: string; title: string; description?: string;
   domain: LifeDomain; difficulty: Difficulty; expReward: number;
   attributeRewards: AttributeReward[]; dueDate?: string;
   completed: boolean; completedAt?: string; createdAt: string;

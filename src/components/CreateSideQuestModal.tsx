@@ -4,30 +4,22 @@ import type { SideQuest, LifeDomain, LifeAttribute, AttributeReward } from "../t
 import { DOMAIN_LABELS } from "../types";
 import { difficultyExp } from "../utils/exp";
 
-interface Props {
-  onClose: () => void; mainQuests: { id: string; title: string }[];
-  onCreate: (sq: Omit<SideQuest, "id" | "createdAt" | "completed" | "completedAt">) => void;
-}
+interface Props { onClose: () => void; onCreate: (sq: Omit<SideQuest, "id" | "createdAt" | "completed" | "completedAt">) => void; }
 
 const domains: LifeDomain[] = ["body", "mind", "relationship", "home", "exploration", "interest", "learning", "career", "finance"];
 
-export default function CreateSideQuestModal({ onClose, mainQuests, onCreate }: Props) {
+export default function CreateSideQuestModal({ onClose, onCreate }: Props) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [domain, setDomain] = useState<LifeDomain>("exploration");
   const [difficulty, setDifficulty] = useState<"easy" | "normal" | "hard">("easy");
-  const [mainQuestId, setMainQuestId] = useState("");
   const [dueDate, setDueDate] = useState("");
 
   const handleSubmit = () => {
     if (!title.trim()) return;
     const exp = difficultyExp(difficulty);
     const rewards = getDefaultRewards(domain, exp);
-    onCreate({
-      title: title.trim(), description: description.trim() || undefined,
-      mainQuestId: mainQuestId || undefined, domain, difficulty,
-      expReward: exp, attributeRewards: rewards, dueDate: dueDate || undefined,
-    });
+    onCreate({ title: title.trim(), description: description.trim() || undefined, domain, difficulty, expReward: exp, attributeRewards: rewards, dueDate: dueDate || undefined });
     onClose();
   };
 
@@ -51,8 +43,7 @@ export default function CreateSideQuestModal({ onClose, mainQuests, onCreate }: 
           <F label="难度">
             <div className="flex gap-1.5">
               {(["easy", "normal", "hard"] as const).map((d) => (
-                <button key={d} onClick={() => setDifficulty(d)}
-                  className={`text-[10px] px-2.5 py-1.5 rounded-full font-bold transition-all ${difficulty === d ? "bg-theme text-white" : "bg-navy/5 text-navy/40"}`}>
+                <button key={d} onClick={() => setDifficulty(d)} className={`text-[10px] px-2.5 py-1.5 rounded-full font-bold transition-all ${difficulty === d ? "bg-theme text-white" : "bg-navy/5 text-navy/40"}`}>
                   {d === "easy" ? "+10" : d === "normal" ? "+20" : "+35"}
                 </button>
               ))}
@@ -60,19 +51,11 @@ export default function CreateSideQuestModal({ onClose, mainQuests, onCreate }: 
           </F>
         </div>
 
-        <F label="关联主线（可选）">
-          <select value={mainQuestId} onChange={(e) => setMainQuestId(e.target.value)} className="input">
-            <option value="">不关联主线</option>
-            {mainQuests.map((q) => <option key={q.id} value={q.id}>{q.title}</option>)}
-          </select>
-        </F>
-
         <F label="截止日期（可选）">
           <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="input" />
         </F>
 
-        <button onClick={handleSubmit} disabled={!title.trim()}
-          className="btn btn-primary w-full !rounded-full disabled:opacity-30">创建支线任务</button>
+        <button onClick={handleSubmit} disabled={!title.trim()} className="btn btn-primary w-full !rounded-full disabled:opacity-30">创建支线任务</button>
       </div>
     </div>
   );

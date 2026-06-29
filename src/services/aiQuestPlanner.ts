@@ -32,7 +32,7 @@ function buildMockQuestPlan(input: QuestPlannerInput): QuestPlanDraft {
       { title: "做一个 10 分钟生活行动", description: "整理桌面、出门走走、喝水、洗澡都可以。", domain, difficulty: "easy", expReward: expEasy, attributeRewards: getDefaultRewards(domain, expEasy), period: "daily", targetCount: 1, timesPerDay: 1, active: true },
     ],
     sideQuests: [
-      { title: "给未来三天的自己留一张便签", description: "写下一个很小、很具体、不会让你有压力的提醒。", domain: "mind", difficulty: "normal", expReward: expNormal, attributeRewards: getDefaultRewards("mind", expNormal), mainQuestId: "__new_main__" },
+      { title: "给未来三天的自己留一张便签", description: "写下一个很小、很具体、不会让你有压力的提醒。", domain: "mind", difficulty: "normal", expReward: expNormal, attributeRewards: getDefaultRewards("mind", expNormal) },
     ],
   };
 }

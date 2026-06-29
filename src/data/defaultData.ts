@@ -61,7 +61,7 @@ export function createDefaultAppState(): AppState {
   // ── Side Quests ──
   const sideQuests = [
     {
-      id: genId(), title: "探索一个新的街区", description: "周末去一个没去过的区域走走", mainQuestId: mainQuests[1].id,
+      id: genId(), title: "探索一个新的街区", description: "周末去一个没去过的区域走走",
       domain: "exploration" as const, difficulty: "normal" as const, expReward: 20,
       attributeRewards: [{ attribute: "perception" as const, exp: 15 }, { attribute: "creativity" as const, exp: 5 }],
       completed: false, createdAt: now,
@@ -73,7 +73,7 @@ export function createDefaultAppState(): AppState {
       completed: false, createdAt: now,
     },
     {
-      id: genId(), title: "和朋友约一次饭", description: "约一位很久没见的朋友吃顿饭", mainQuestId: mainQuests[2].id,
+      id: genId(), title: "和朋友约一次饭", description: "约一位很久没见的朋友吃顿饭",
       domain: "relationship" as const, difficulty: "normal" as const, expReward: 20,
       attributeRewards: [{ attribute: "connection" as const, exp: 20 }],
       completed: false, createdAt: now,
