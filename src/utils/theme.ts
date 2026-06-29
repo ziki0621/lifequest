@@ -17,8 +17,8 @@ export const THEMES: ThemeConfig[] = [
     blob1: "#FFD6E0",
     blob2: "#E8D1FF",
     blob3: "#FFE5EC",
-    primary: "#3D2C3A",
-    primaryLight: "#F0E4EC",
+    primary: "#D44D7A",
+    primaryLight: "#FAD4E2",
   },
   {
     id: "forest",
@@ -27,8 +27,8 @@ export const THEMES: ThemeConfig[] = [
     blob1: "#C5E0B4",
     blob2: "#A8D8B9",
     blob3: "#E0F0D4",
-    primary: "#2D5A3D",
-    primaryLight: "#E4F0E8",
+    primary: "#4A9B5E",
+    primaryLight: "#D4EEDB",
   },
   {
     id: "ocean",
@@ -37,8 +37,8 @@ export const THEMES: ThemeConfig[] = [
     blob1: "#B4D4F0",
     blob2: "#A0C8E8",
     blob3: "#D4E8F8",
-    primary: "#1A3A5C",
-    primaryLight: "#E0EAF2",
+    primary: "#4A8CC7",
+    primaryLight: "#D2E8F8",
   },
   {
     id: "dusk",
@@ -47,8 +47,8 @@ export const THEMES: ThemeConfig[] = [
     blob1: "#F0C4A8",
     blob2: "#E0B8D0",
     blob3: "#F8E0CC",
-    primary: "#6B3A2E",
-    primaryLight: "#F2E4DC",
+    primary: "#D4785C",
+    primaryLight: "#F8DDD2",
   },
   {
     id: "moon",
@@ -57,8 +57,8 @@ export const THEMES: ThemeConfig[] = [
     blob1: "#C4C4E0",
     blob2: "#B0B8D8",
     blob3: "#E0E0F0",
-    primary: "#3D3D5C",
-    primaryLight: "#E8E8F0",
+    primary: "#8B7AB8",
+    primaryLight: "#E4DEF0",
   },
 ];
 
