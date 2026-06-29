@@ -2,9 +2,9 @@ import { Check } from "lucide-react";
 import type { SideQuest } from "../types";
 import { DOMAIN_ICONS, DOMAIN_LABELS, ATTRIBUTE_ICONS, ATTRIBUTE_LABELS, ATTR_COLOR } from "../types";
 
-interface Props { quest: SideQuest; onComplete: (id: string) => void; }
+interface Props { quest: SideQuest; onComplete: (id: string) => void; onEdit?: (quest: SideQuest) => void; }
 
-export default function SideQuestCard({ quest, onComplete }: Props) {
+export default function SideQuestCard({ quest, onComplete, onEdit }: Props) {
   const DomainIcon = DOMAIN_ICONS[quest.domain];
   const diffLabel = quest.difficulty === "easy" ? "EASY" : quest.difficulty === "normal" ? "NORMAL" : "HARD";
   const diffColor = quest.difficulty === "easy" ? "text-leaf" : quest.difficulty === "normal" ? "text-navy" : "text-coral";
@@ -12,7 +12,10 @@ export default function SideQuestCard({ quest, onComplete }: Props) {
   return (
     <div className={`glass rounded-3xl transition-all duration-300 group ${quest.completed ? "opacity-50" : "hover:-translate-y-1"}`}>
       <div className="p-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div
+          onClick={() => onEdit?.(quest)}
+          className={`flex items-center gap-3 flex-1 min-w-0 ${onEdit ? "cursor-pointer" : ""}`}
+        >
           <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white ${quest.completed ? "bg-navy/30" : "bg-theme"}`}>
             {quest.completed ? <Check size={16} /> : <DomainIcon size={15} strokeWidth={1.5} />}
           </div>

@@ -1,10 +1,10 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Pencil } from "lucide-react";
 import type { MainQuest } from "../types";
 import { DOMAIN_ICONS, DOMAIN_LABELS } from "../types";
 
-interface Props { quest: MainQuest; onSelect: (id: string) => void; }
+interface Props { quest: MainQuest; onSelect: (id: string) => void; onEdit: (quest: MainQuest) => void; }
 
-export default function MainQuestCard({ quest, onSelect }: Props) {
+export default function MainQuestCard({ quest, onSelect, onEdit }: Props) {
   const DomainIcon = DOMAIN_ICONS[quest.domain];
   const total = quest.stages.length;
   const completed = quest.stages.filter((s) => s.completed).length;
@@ -12,8 +12,9 @@ export default function MainQuestCard({ quest, onSelect }: Props) {
   const statusLabel = quest.status === "active" ? "进行中" : quest.status === "paused" ? "已暂停" : "已完成";
 
   return (
-    <button onClick={() => onSelect(quest.id)}
-      className="w-full text-left glass rounded-3xl p-5 transition-all duration-300 hover:-translate-y-1">
+    <div className="relative group">
+      <button onClick={() => onSelect(quest.id)}
+        className="w-full text-left glass rounded-3xl p-5 pr-14 transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3 flex-1 min-w-0">
           <div className="w-11 h-11 rounded-full bg-theme text-white flex items-center justify-center flex-shrink-0">
@@ -31,7 +32,14 @@ export default function MainQuestCard({ quest, onSelect }: Props) {
         <span className="text-[10px] font-bold text-navy/30">{statusLabel}</span>
         <span className="text-[10px] font-bold text-coral">{completed}/{total}</span>
       </div>
-      <div className="mt-2.5 ml-14 progress"><div className="progress-fill" style={{ width: `${progress}%`, background: "#0B192C" }} /></div>
-    </button>
+      <div className="mt-2.5 ml-14 progress"><div className="progress-fill" style={{ width: `${progress}%` }} /></div>
+      </button>
+      <button
+        onClick={(e) => { e.stopPropagation(); onEdit(quest); }}
+        className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/50 hover:bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-navy/30 hover:text-navy"
+      >
+        <Pencil size={13} />
+      </button>
+    </div>
   );
 }

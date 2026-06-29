@@ -17,6 +17,9 @@ export interface AppContextType {
   addMainStage: (mainQuestId: string, stage: Omit<QuestStage, "id">) => void;
   addDailyTask: (dt: Omit<DailyTask, "id" | "createdAt" | "completions">) => void;
   addSideQuest: (sq: Omit<SideQuest, "id" | "createdAt" | "completed" | "completedAt">) => void;
+  updateMainQuest: (id: string, mq: Partial<MainQuest>) => void;
+  updateDailyTask: (id: string, dt: Partial<DailyTask>) => void;
+  updateSideQuest: (id: string, sq: Partial<SideQuest>) => void;
   toggleDailyActive: (id: string) => void;
   resetData: () => void;
   todayDailyTasks: DailyTask[];

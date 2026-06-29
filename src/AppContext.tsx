@@ -163,6 +163,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const updateMainQuest = useCallback((id: string, mq: Partial<MainQuest>) => {
+    setState((prev) => ({
+      ...prev,
+      mainQuests: prev.mainQuests.map((q) => q.id === id ? { ...q, ...mq } : q),
+    }));
+  }, []);
+
+  const updateDailyTask = useCallback((id: string, dt: Partial<DailyTask>) => {
+    setState((prev) => ({
+      ...prev,
+      dailyTasks: prev.dailyTasks.map((d) => d.id === id ? { ...d, ...dt } : d),
+    }));
+  }, []);
+
+  const updateSideQuest = useCallback((id: string, sq: Partial<SideQuest>) => {
+    setState((prev) => ({
+      ...prev,
+      sideQuests: prev.sideQuests.map((s) => s.id === id ? { ...s, ...sq } : s),
+    }));
+  }, []);
+
   const resetData = useCallback(() => {
     resetAppState();
     setState(createDefaultAppState());
@@ -184,6 +205,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       state, completeMainStage, completeDailyTask, completeSideQuest,
       addJournal, addMainQuest, addMainStage, addDailyTask, addSideQuest,
+      updateMainQuest, updateDailyTask, updateSideQuest,
       toggleDailyActive, resetData,
       todayDailyTasks, todaySideQuests, todayCompletedCount,
       theme, setTheme,

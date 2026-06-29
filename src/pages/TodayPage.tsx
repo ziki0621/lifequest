@@ -6,17 +6,22 @@ import CompleteTaskModal from "../components/CompleteTaskModal";
 import CreateDailyTaskModal from "../components/CreateDailyTaskModal";
 import CreateSideQuestModal from "../components/CreateSideQuestModal";
 import CreateMainQuestModal from "../components/CreateMainQuestModal";
-import type { CompletionContext, Mood, EnergyLevel } from "../types";
+import EditDailyTaskModal from "../components/EditDailyTaskModal";
+import EditSideQuestModal from "../components/EditSideQuestModal";
+import type { CompletionContext, Mood, EnergyLevel, DailyTask, SideQuest } from "../types";
 import { today } from "../utils/date";
 
 export default function TodayPage() {
   const { state, completeMainStage, completeDailyTask, completeSideQuest,
     addJournal, addMainQuest, addDailyTask, addSideQuest, toggleDailyActive,
+    updateDailyTask, updateSideQuest,
     todayDailyTasks, todaySideQuests } = useApp();
 
   const [completionCtx, setCompletionCtx] = useState<CompletionContext | null>(null);
   const [showFab, setShowFab] = useState(false);
   const [createModal, setCreateModal] = useState<"main" | "daily" | "side" | null>(null);
+  const [editingDaily, setEditingDaily] = useState<DailyTask | null>(null);
+  const [editingSide, setEditingSide] = useState<SideQuest | null>(null);
   const fabRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -119,7 +124,7 @@ export default function TodayPage() {
               <PanelEmpty>今天没有需要打卡的日常。</PanelEmpty>
             ) : (
               todayDailyTasks.map((dt) => (
-                <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} />
+                <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} onEdit={setEditingDaily} />
               ))
             )}
           </PanelShell>
@@ -139,7 +144,10 @@ export default function TodayPage() {
               todaySideQuests.slice(0, 6).map((sq) => (
                 <SubFrame key={sq.id}>
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex-1 min-w-0">
+                    <div
+                      className="flex-1 min-w-0 cursor-pointer"
+                      onClick={() => setEditingSide(sq)}
+                    >
                       <h4 className="text-[13px] font-black text-navy">{sq.title}</h4>
                       {sq.description && (
                         <p className="text-[10px] text-navy/35 mt-0.5 line-clamp-1">{sq.description}</p>
@@ -187,6 +195,8 @@ export default function TodayPage() {
       {createModal === "main" && <CreateMainQuestModal onClose={() => setCreateModal(null)} onCreate={addMainQuest} />}
       {createModal === "daily" && <CreateDailyTaskModal onClose={() => setCreateModal(null)} onCreate={addDailyTask} />}
       {createModal === "side" && <CreateSideQuestModal mainQuests={state.mainQuests} onClose={() => setCreateModal(null)} onCreate={addSideQuest} />}
+      {editingDaily && <EditDailyTaskModal task={editingDaily} onClose={() => setEditingDaily(null)} onUpdate={updateDailyTask} />}
+      {editingSide && <EditSideQuestModal quest={editingSide} mainQuests={state.mainQuests} onClose={() => setEditingSide(null)} onUpdate={updateSideQuest} />}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, ArrowLeft, Target, ListTodo, CheckCircle2 } from "lucide-react";
+import { Plus, ArrowLeft, Pencil, Target, ListTodo, CheckCircle2 } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import DailyTaskCard from "../components/DailyTaskCard";
 import SideQuestCard from "../components/SideQuestCard";
@@ -9,17 +9,24 @@ import CreateMainQuestModal from "../components/CreateMainQuestModal";
 import CreateDailyTaskModal from "../components/CreateDailyTaskModal";
 import CreateSideQuestModal from "../components/CreateSideQuestModal";
 import CreateStageModal from "../components/CreateStageModal";
-import type { CompletionContext, Mood, EnergyLevel } from "../types";
+import EditMainQuestModal from "../components/EditMainQuestModal";
+import EditDailyTaskModal from "../components/EditDailyTaskModal";
+import EditSideQuestModal from "../components/EditSideQuestModal";
+import type { CompletionContext, Mood, EnergyLevel, MainQuest, DailyTask, SideQuest } from "../types";
 import { today } from "../utils/date";
 
 export default function TasksPage() {
   const { state, completeMainStage, completeDailyTask, completeSideQuest,
-    addJournal, addMainQuest, addDailyTask, addSideQuest, addMainStage, toggleDailyActive } = useApp();
+    addJournal, addMainQuest, addDailyTask, addSideQuest, addMainStage, toggleDailyActive,
+    updateMainQuest, updateDailyTask, updateSideQuest } = useApp();
 
   const [selectedMQ, setSelectedMQ] = useState<string | null>(null);
   const [completionCtx, setCompletionCtx] = useState<CompletionContext | null>(null);
   const [createModal, setCreateModal] = useState<"main" | "daily" | "side" | null>(null);
   const [showAddStage, setShowAddStage] = useState(false);
+  const [editingMain, setEditingMain] = useState<MainQuest | null>(null);
+  const [editingDaily, setEditingDaily] = useState<DailyTask | null>(null);
+  const [editingSide, setEditingSide] = useState<SideQuest | null>(null);
 
   const handleMainStageComplete = (mqId: string, sId: string) => {
     const ctx = completeMainStage(mqId, sId);
@@ -56,7 +63,13 @@ export default function TasksPage() {
           <p className="text-coral font-bold text-xs tracking-widest uppercase">
             {mq.status === "active" ? "进行中" : mq.status === "paused" ? "已暂停" : "已完成"}
           </p>
-          <h2 className="text-2xl font-black text-navy tracking-tight serif">{mq.title}</h2>
+          <div className="flex items-center justify-center gap-2">
+            <h2 className="text-2xl font-black text-navy tracking-tight serif">{mq.title}</h2>
+            <button onClick={() => setEditingMain(mq)}
+              className="p-1 rounded-full hover:bg-white/50 text-navy/20 hover:text-navy transition-colors">
+              <Pencil size={14} />
+            </button>
+          </div>
           <p className="text-[12px] text-navy/50 font-medium leading-relaxed serif">{mq.description}</p>
         </div>
         <div className="glass rounded-3xl p-4">
@@ -75,7 +88,7 @@ export default function TasksPage() {
             <h3 className="text-[10px] font-bold text-navy/30 uppercase tracking-widest mb-2">关联支线</h3>
             <div className="space-y-2">
               {state.sideQuests.filter((sq) => sq.mainQuestId === mq.id).map((sq) => (
-                <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} />
+                <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} onEdit={setEditingSide} />
               ))}
             </div>
           </section>
@@ -83,6 +96,9 @@ export default function TasksPage() {
         {completionCtx && <CompleteTaskModal ctx={completionCtx} onClose={() => setCompletionCtx(null)} onSaveJournal={handleSaveJournal} />}
         {showAddStage && <CreateStageModal onClose={() => setShowAddStage(false)}
           onCreate={(stage) => addMainStage(mq.id, stage)} />}
+        {editingMain && <EditMainQuestModal quest={editingMain} onClose={() => setEditingMain(null)} onUpdate={updateMainQuest} />}
+        {editingDaily && <EditDailyTaskModal task={editingDaily} onClose={() => setEditingDaily(null)} onUpdate={updateDailyTask} />}
+        {editingSide && <EditSideQuestModal quest={editingSide} mainQuests={state.mainQuests} onClose={() => setEditingSide(null)} onUpdate={updateSideQuest} />}
       </div>
     );
   }
@@ -124,6 +140,12 @@ export default function TasksPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setEditingMain(mq); }}
+                      className="p-1.5 rounded-full hover:bg-white/50 text-navy/20 hover:text-navy transition-colors"
+                    >
+                      <Pencil size={12} />
+                    </button>
                     <div className="text-right">
                       <span className="text-[11px] font-black text-navy tabular-nums">
                         {total > 0 ? Math.round((completed / total) * 100) : 0}%
@@ -153,7 +175,7 @@ export default function TasksPage() {
           <Empty>还没有日常任务。</Empty>
         ) : (
           state.dailyTasks.map((dt) => (
-            <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} />
+            <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} onEdit={setEditingDaily} />
           ))
         )}
       </Panel>
@@ -169,7 +191,7 @@ export default function TasksPage() {
           <Empty>还没有支线任务。</Empty>
         ) : (
           state.sideQuests.map((sq) => (
-            <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} />
+            <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} onEdit={setEditingSide} />
           ))
         )}
       </Panel>
@@ -184,6 +206,9 @@ export default function TasksPage() {
       {createModal === "main" && <CreateMainQuestModal onClose={() => setCreateModal(null)} onCreate={addMainQuest} />}
       {createModal === "daily" && <CreateDailyTaskModal onClose={() => setCreateModal(null)} onCreate={addDailyTask} />}
       {createModal === "side" && <CreateSideQuestModal mainQuests={state.mainQuests} onClose={() => setCreateModal(null)} onCreate={addSideQuest} />}
+      {editingMain && <EditMainQuestModal quest={editingMain} onClose={() => setEditingMain(null)} onUpdate={updateMainQuest} />}
+      {editingDaily && <EditDailyTaskModal task={editingDaily} onClose={() => setEditingDaily(null)} onUpdate={updateDailyTask} />}
+      {editingSide && <EditSideQuestModal quest={editingSide} mainQuests={state.mainQuests} onClose={() => setEditingSide(null)} onUpdate={updateSideQuest} />}
     </div>
   );
 }

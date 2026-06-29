@@ -3,9 +3,9 @@ import type { DailyTask } from "../types";
 import { DOMAIN_ICONS, PERIOD_LABELS, ATTRIBUTE_ICONS, ATTR_COLOR, WEEKDAY_FULL } from "../types";
 import { today, countCompletionsInPeriod, countTodayCompletions } from "../utils/date";
 
-interface Props { task: DailyTask; onComplete: (id: string) => void; onToggle: (id: string) => void; }
+interface Props { task: DailyTask; onComplete: (id: string) => void; onToggle: (id: string) => void; onEdit?: (task: DailyTask) => void; }
 
-export default function DailyTaskCard({ task, onComplete, onToggle }: Props) {
+export default function DailyTaskCard({ task, onComplete, onToggle, onEdit }: Props) {
   const DomainIcon = DOMAIN_ICONS[task.domain];
   const t = today();
 
@@ -36,7 +36,10 @@ export default function DailyTaskCard({ task, onComplete, onToggle }: Props) {
   return (
     <div className={`glass rounded-3xl p-4 transition-all duration-300 ${!task.active ? "opacity-40" : "hover:-translate-y-0.5"}`}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div
+          onClick={() => onEdit?.(task)}
+          className={`flex items-center gap-3 flex-1 min-w-0 ${onEdit ? "cursor-pointer" : ""}`}
+        >
           <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${task.active ? "bg-theme text-white" : "bg-navy/20 text-navy/40"}`}>
             <DomainIcon size={15} strokeWidth={1.5} />
           </div>
