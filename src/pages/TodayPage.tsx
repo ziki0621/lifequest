@@ -2,7 +2,6 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { Zap, Plus, Target, CheckCircle2, ListTodo } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import DailyTaskCard from "../components/DailyTaskCard";
-import SideQuestCard from "../components/SideQuestCard";
 import CompleteTaskModal from "../components/CompleteTaskModal";
 import CreateDailyTaskModal from "../components/CreateDailyTaskModal";
 import CreateSideQuestModal from "../components/CreateSideQuestModal";
@@ -28,7 +27,6 @@ export default function TodayPage() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Get active main quest stages (first uncompleted of each active quest)
   const activeStages = state.mainQuests
     .filter((q) => q.status === "active")
     .map((q) => {
@@ -62,8 +60,10 @@ export default function TodayPage() {
   const earthDays = daysSince(state.player.startDate);
   const status = todayCompletedCount >= 3 ? "今天过得不错" : todayCompletedCount >= 1 ? "已经开始行动了" : "适合轻量推进";
 
+  const isEmpty = activeStages.length === 0 && todayDailyTasks.length === 0 && todaySideQuests.length === 0;
+
   return (
-    <div className="space-y-10 pb-24 animate-in">
+    <div className="space-y-6 pb-24 animate-in">
       {/* Hero */}
       <div className="pt-2 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
@@ -79,72 +79,99 @@ export default function TodayPage() {
         </div>
       </div>
 
-      {/* 主线当前阶段 */}
-      {activeStages.length > 0 && (
-        <section>
-          <div className="flex items-center gap-3 mb-3">
-            <Target size={14} className="text-navy" />
-            <h3 className="text-[11px] font-bold text-navy/40 uppercase tracking-widest">主线推进</h3>
-            <div className="flex-1 h-px bg-navy/5" />
-          </div>
-          <div className="space-y-2 stagger-1">
-            {activeStages.map(({ quest, stage }) => (
-              <div key={stage.id} className="glass rounded-3xl p-4 transition-all hover:-translate-y-0.5">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <span className="text-[9px] font-bold text-navy/30 uppercase tracking-widest">{quest.title}</span>
-                    <h4 className="text-[14px] font-black text-navy">{stage.title}</h4>
-                    {stage.description && <p className="text-[10px] text-navy/40 mt-0.5">{stage.description}</p>}
-                  </div>
-                  <button onClick={() => handleMainStageComplete(quest.id, stage.id)}
-                    className="btn btn-primary !py-2 !px-5 !text-[10px] flex-shrink-0">
-                    完成
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 日常任务 */}
-      {todayDailyTasks.length > 0 && (
-        <section>
-          <div className="flex items-center gap-3 mb-3">
-            <ListTodo size={14} className="text-coral" />
-            <h3 className="text-[11px] font-bold text-navy/40 uppercase tracking-widest">今日日常</h3>
-            <div className="flex-1 h-px bg-navy/5" />
-          </div>
-          <div className="space-y-2 stagger-1">
-            {todayDailyTasks.map((dt) => (
-              <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 支线任务 */}
-      {todaySideQuests.length > 0 && (
-        <section>
-          <div className="flex items-center gap-3 mb-3">
-            <CheckCircle2 size={14} className="text-leaf" />
-            <h3 className="text-[11px] font-bold text-navy/40 uppercase tracking-widest">支线任务</h3>
-            <div className="flex-1 h-px bg-navy/5" />
-          </div>
-          <div className="space-y-2 stagger-1">
-            {todaySideQuests.slice(0, 5).map((sq) => (
-              <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Empty state */}
-      {activeStages.length === 0 && todayDailyTasks.length === 0 && todaySideQuests.length === 0 && (
+      {isEmpty ? (
         <div className="glass rounded-3xl p-10 text-center">
           <p className="text-navy/40 font-bold text-xs tracking-widest uppercase">今天还没有任务</p>
           <p className="text-navy/30 text-[11px] font-medium mt-1">可以为自己安排一个很小的生活行动。</p>
         </div>
+      ) : (
+        <>
+          {/* ── 主线面板 ── */}
+          <PanelShell
+            icon={<Target size={15} />}
+            title="主线推进"
+            accent="border-navy/10"
+            accentBar="bg-navy"
+            badge={`${activeStages.length} 条`}
+            onAdd={() => setCreateModal("main")}
+          >
+            {activeStages.length === 0 ? (
+              <PanelEmpty>暂无进行中的主线阶段。</PanelEmpty>
+            ) : (
+              activeStages.map(({ quest, stage }) => (
+                <SubFrame key={stage.id}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-[9px] font-bold text-navy/25 uppercase tracking-widest">{quest.title}</span>
+                      <h4 className="text-[13px] font-black text-navy mt-0.5">{stage.title}</h4>
+                      {stage.description && (
+                        <p className="text-[10px] text-navy/35 mt-0.5 line-clamp-1">{stage.description}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {stage.anchorDate && (
+                        <span className="text-[9px] text-navy/25 font-mono">{stage.anchorDate}</span>
+                      )}
+                      <button onClick={() => handleMainStageComplete(quest.id, stage.id)}
+                        className="btn btn-primary !py-1.5 !px-4 !text-[10px] !tracking-widest flex-shrink-0">
+                        <CheckCircle2 size={12} /> 完成
+                      </button>
+                    </div>
+                  </div>
+                </SubFrame>
+              ))
+            )}
+          </PanelShell>
+
+          {/* ── 日常面板 ── */}
+          <PanelShell
+            icon={<ListTodo size={15} />}
+            title="今日日常"
+            accent="border-coral/15"
+            accentBar="bg-coral"
+            badge={`${todayDailyTasks.filter((dt) => dt.active).length} 项`}
+            onAdd={() => setCreateModal("daily")}
+          >
+            {todayDailyTasks.length === 0 ? (
+              <PanelEmpty>今天没有需要打卡的日常。</PanelEmpty>
+            ) : (
+              todayDailyTasks.map((dt) => (
+                <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} />
+              ))
+            )}
+          </PanelShell>
+
+          {/* ── 支线面板 ── */}
+          <PanelShell
+            icon={<CheckCircle2 size={15} />}
+            title="支线任务"
+            accent="border-leaf/15"
+            accentBar="bg-leaf"
+            badge={`${todaySideQuests.length} 项`}
+            onAdd={() => setCreateModal("side")}
+          >
+            {todaySideQuests.length === 0 ? (
+              <PanelEmpty>暂无待完成的支线任务。</PanelEmpty>
+            ) : (
+              todaySideQuests.slice(0, 6).map((sq) => (
+                <SubFrame key={sq.id}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-[13px] font-black text-navy">{sq.title}</h4>
+                      {sq.description && (
+                        <p className="text-[10px] text-navy/35 mt-0.5 line-clamp-1">{sq.description}</p>
+                      )}
+                    </div>
+                    <button onClick={() => handleSideComplete(sq.id)}
+                      className="btn btn-primary !py-1.5 !px-4 !text-[10px] !tracking-widest flex-shrink-0">
+                      <CheckCircle2 size={12} /> 完成
+                    </button>
+                  </div>
+                </SubFrame>
+              ))
+            )}
+          </PanelShell>
+        </>
       )}
 
       {/* FAB */}
@@ -177,6 +204,53 @@ export default function TodayPage() {
       {createModal === "main" && <CreateMainQuestModal onClose={() => setCreateModal(null)} onCreate={addMainQuest} />}
       {createModal === "daily" && <CreateDailyTaskModal onClose={() => setCreateModal(null)} onCreate={addDailyTask} />}
       {createModal === "side" && <CreateSideQuestModal mainQuests={state.mainQuests} onClose={() => setCreateModal(null)} onCreate={addSideQuest} />}
+    </div>
+  );
+}
+
+// ── Panel layout primitives ──
+
+function PanelShell({
+  icon, title, accent, accentBar, badge, onAdd, children,
+}: {
+  icon: React.ReactNode; title: string; accent: string; accentBar: string;
+  badge: string; onAdd: () => void; children: React.ReactNode;
+}) {
+  return (
+    <section className={`glass rounded-3xl border ${accent} overflow-hidden`}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-3.5 border-b border-navy/5">
+        <div className="flex items-center gap-2.5">
+          <div className={`w-1 h-4 rounded-full ${accentBar}`} />
+          {icon}
+          <h3 className="text-[11px] font-black text-navy uppercase tracking-widest">{title}</h3>
+          <span className="text-[9px] font-bold text-navy/25 bg-navy/5 px-2 py-0.5 rounded-full">{badge}</span>
+        </div>
+        <button onClick={onAdd}
+          className="flex items-center gap-1 text-[10px] font-bold text-navy/30 hover:text-navy transition-colors">
+          <Plus size={13} /> 添加
+        </button>
+      </div>
+      {/* Body */}
+      <div className="p-3 space-y-2">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function SubFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="bg-white/40 rounded-2xl border border-navy/5 p-3 transition-all duration-200 hover:border-navy/10 hover:bg-white/60">
+      {children}
+    </div>
+  );
+}
+
+function PanelEmpty({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="text-center py-6">
+      <p className="text-[10px] font-medium text-navy/25">{children}</p>
     </div>
   );
 }
