@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Component, type ReactNode } from "react";
 import { Plus, ArrowLeft, Target, ListTodo, CheckCircle2 } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import DailyTaskCard from "../components/DailyTaskCard";
@@ -49,14 +49,19 @@ export default function TasksPage() {
   const [showMaroChat, setShowMaroChat] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [planDraft, setPlanDraft] = useState<AgentQuestPlanDraft | null>(null);
+  const [maroError, setMaroError] = useState<string | null>(null);
 
   const handleGeneratePlan = async (goal: string, taskType: string) => {
     setGenerating(true);
-    const genType = taskType as QuestGenType;
+    setMaroError(null);
+    setPlanDraft(null);
     try {
       const config = loadLLMConfig();
-      const plan = await generateQuestPlan({ goal, timeRange: "1week", intensity: "gentle" }, config, genType);
+      const plan = await generateQuestPlan({ goal, timeRange: "1week", intensity: "gentle" }, config, taskType as QuestGenType);
       setPlanDraft(plan);
+      setShowMaroChat(false);
+    } catch (e) {
+      setMaroError((e as Error).message || "生成失败");
       setShowMaroChat(false);
     } finally { setGenerating(false); }
   };
@@ -129,6 +134,7 @@ export default function TasksPage() {
       </div>
 
       {/* Maro NPC */}
+      <ErrorBoundary>
       <NpcAgentPanel
         npc={NPCS.maro}
         message="欢迎来到冒险公会。告诉我你想生成什么类型的任务，我来帮你规划。"
@@ -189,7 +195,20 @@ export default function TasksPage() {
           onSubmit={handleGeneratePlan}
         />
       )}
+      {maroError && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30 backdrop-blur-sm animate-fade">
+          <div className="glass rounded-3xl shadow-2xl p-6 text-center max-w-sm w-full animate-scale">
+            <p className="text-sm font-bold text-coral">生成失败</p>
+            <p className="text-[11px] text-navy/50 mt-2 leading-relaxed">{maroError}</p>
+            <div className="flex gap-2 mt-4 justify-center">
+              <button onClick={() => { setMaroError(null); setShowMaroChat(true); }} className="btn btn-ghost !text-[10px]">重试</button>
+              <button onClick={() => setMaroError(null)} className="btn btn-primary !text-[10px]">关闭</button>
+            </div>
+          </div>
+        </div>
+      )}
       {planDraft && <QuestPlanPreview plan={planDraft} onConfirm={handleApplyPlan} onClose={() => setPlanDraft(null)} onRegenerate={() => { setPlanDraft(null); setShowMaroChat(true); }} />}
+      </ErrorBoundary>
     </div>
   );
 }
@@ -212,4 +231,21 @@ function SubFrame({ children, onClick, clickable }: { children: React.ReactNode;
 
 function Empty({ children }: { children: React.ReactNode }) {
   return <div className="text-center py-6"><p className="text-[10px] font-medium text-navy/25">{children}</p></div>;
+}
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="glass rounded-3xl p-8 text-center animate-fade">
+          <p className="text-sm font-bold text-coral">页面出错了</p>
+          <p className="text-[11px] text-navy/50 mt-2 leading-relaxed">{this.state.error.message}</p>
+          <button onClick={() => this.setState({ error: null })} className="btn btn-primary !text-[10px] mt-4">重试</button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
