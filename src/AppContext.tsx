@@ -188,14 +188,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const now = new Date().toISOString();
       const mainId = genId();
 
-      const mainQuest: MainQuest = {
+      const mainQuest: MainQuest | null = plan.mainQuest ? {
         id: mainId, title: plan.mainQuest.title, description: plan.mainQuest.description,
-        domain: plan.mainQuest.domain, status: "active", createdAt: now,
+        domain: plan.mainQuest.domain, status: "active" as const, createdAt: now,
         stages: plan.mainQuest.stages.map((stage, index) => ({
           id: genId(), title: stage.title, description: stage.description,
           anchorDate: stage.anchorDate, completed: false, order: index,
         })),
-      };
+      } : null;
 
       const dailyTasks: DailyTask[] = plan.dailyTasks.map((task) => {
         const exp = difficultyExp(task.difficulty);
@@ -219,7 +219,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         };
       });
 
-      return { ...prev, mainQuests: [...prev.mainQuests, mainQuest], dailyTasks: [...prev.dailyTasks, ...dailyTasks], sideQuests: [...prev.sideQuests, ...sideQuests] };
+      return { ...prev, mainQuests: mainQuest ? [...prev.mainQuests, mainQuest] : prev.mainQuests, dailyTasks: [...prev.dailyTasks, ...dailyTasks], sideQuests: [...prev.sideQuests, ...sideQuests] };
     });
   }, []);
 

@@ -41,7 +41,7 @@ export interface QuestPlanSideQuestDraft {
 
 export interface QuestPlanDraft {
   npcReply: string; rationale: string;
-  mainQuest: QuestPlanMainQuestDraft;
+  mainQuest?: QuestPlanMainQuestDraft;
   dailyTasks: QuestPlanDailyTaskDraft[];
   sideQuests: QuestPlanSideQuestDraft[];
 }

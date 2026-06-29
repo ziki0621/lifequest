@@ -55,6 +55,7 @@ export default function AIQuestPlannerModal({ onClose }: Props) {
           <div className="space-y-3 border-t border-navy/5 pt-4">
             {draft.rationale && <p className="text-[11px] text-navy/50 leading-relaxed">{draft.rationale}</p>}
 
+            {draft.mainQuest && (
             <div className="space-y-2">
               <h4 className="text-[10px] font-bold text-navy/30 uppercase tracking-widest flex items-center gap-1.5"><Target size={12} /> 主线任务</h4>
               <div className="bg-white/20 rounded-2xl border border-navy/5 p-3">
@@ -67,6 +68,7 @@ export default function AIQuestPlannerModal({ onClose }: Props) {
                 </div>
               </div>
             </div>
+            )}
 
             <div className="space-y-2">
               <h4 className="text-[10px] font-bold text-navy/30 uppercase tracking-widest flex items-center gap-1.5"><ListTodo size={12} /> 日常任务</h4>
