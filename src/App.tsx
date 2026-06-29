@@ -8,7 +8,9 @@ import CalendarPage from "./pages/CalendarPage";
 import JournalPage from "./pages/JournalPage";
 import CharacterPage from "./pages/CharacterPage";
 import SettingsPage from "./pages/SettingsPage";
+import FluidBackground from "./components/FluidBackground";
 import { Sparkles, Trophy, Zap, Target, BookOpen, ArrowRight } from "lucide-react";
+import type { ThemeConfig } from "./utils/theme";
 
 const WELCOMED_KEY = "earthguide-welcomed";
 
@@ -22,7 +24,7 @@ function AppContent() {
     setShowWelcome(false);
   }, []);
 
-  if (showWelcome) return <WelcomeScreen onStart={handleStart} themeBg={theme.bg} />;
+  if (showWelcome) return <WelcomeScreen onStart={handleStart} theme={theme} />;
 
   return (
     <Layout currentPage={page} onNavigate={setPage}>
@@ -53,14 +55,10 @@ function AppContent() {
   );
 }
 
-function WelcomeScreen({ onStart, themeBg }: { onStart: () => void; themeBg: string }) {
+function WelcomeScreen({ onStart, theme }: { onStart: () => void; theme: ThemeConfig }) {
   return (
-    <div className="min-h-screen flex items-center justify-center relative p-6" style={{ background: themeBg }}>
-      <div className="fluid-bg" style={{ background: themeBg }}>
-        <div className="blob-tr" />
-        <div className="blob-bl" />
-        <div className="blob-center" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center relative p-6" style={{ background: theme.bg }}>
+      <FluidBackground theme={theme} />
       <div className="relative z-10 text-center max-w-sm animate-scale">
         <div className="w-16 h-16 mx-auto rounded-2xl bg-navy text-white flex items-center justify-center mb-6 shadow-xl shadow-navy/20">
           <Sparkles size={26} />
