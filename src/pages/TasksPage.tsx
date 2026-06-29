@@ -1,146 +1,188 @@
 import { useState } from "react";
-import { Plus, ArrowLeft, CheckCircle2, Lock, Zap } from "lucide-react";
+import { Plus, ArrowLeft, Target, ListTodo, CheckCircle2 } from "lucide-react";
 import { useApp } from "../hooks/useApp";
-import QuestLineCard from "../components/QuestLineCard";
-import TaskCard from "../components/TaskCard";
+import MainQuestCard from "../components/MainQuestCard";
+import DailyTaskCard from "../components/DailyTaskCard";
+import SideQuestCard from "../components/SideQuestCard";
+import Timeline from "../components/Timeline";
 import CompleteTaskModal from "../components/CompleteTaskModal";
-import CreateTaskModal from "../components/CreateTaskModal";
-import CreateQuestLineModal from "../components/CreateQuestLineModal";
-import type { Task, Mood, EnergyLevel } from "../types";
+import CreateMainQuestModal from "../components/CreateMainQuestModal";
+import CreateDailyTaskModal from "../components/CreateDailyTaskModal";
+import CreateSideQuestModal from "../components/CreateSideQuestModal";
+import CreateStageModal from "../components/CreateStageModal";
+import type { CompletionContext, Mood, EnergyLevel } from "../types";
 import { today } from "../utils/date";
 
+type Tab = "main" | "daily" | "side";
+
 export default function TasksPage() {
-  const { state, completeTask, addJournal, addTask, addQuestLine } = useApp();
-  const [selectedQL, setSelectedQL] = useState<string | null>(null);
-  const [completedTask, setCompletedTask] = useState<Task | null>(null);
-  const [showNewTask, setShowNewTask] = useState(false);
-  const [showNewQL, setShowNewQL] = useState(false);
+  const { state, completeMainStage, completeDailyTask, completeSideQuest,
+    addJournal, addMainQuest, addDailyTask, addSideQuest, addMainStage, toggleDailyActive } = useApp();
 
-  const handleComplete = (taskId: string) => {
-    const task = state.tasks.find((t) => t.id === taskId);
-    if (task) { completeTask(taskId); setCompletedTask(task); }
+  const [tab, setTab] = useState<Tab>("main");
+  const [selectedMQ, setSelectedMQ] = useState<string | null>(null);
+  const [completionCtx, setCompletionCtx] = useState<CompletionContext | null>(null);
+  const [createModal, setCreateModal] = useState<"main" | "daily" | "side" | null>(null);
+  const [showAddStage, setShowAddStage] = useState(false);
+
+  const handleMainStageComplete = (mqId: string, sId: string) => {
+    const ctx = completeMainStage(mqId, sId);
+    if (ctx) setCompletionCtx(ctx);
   };
+
+  const handleDailyComplete = (id: string) => {
+    const ctx = completeDailyTask(id);
+    if (ctx) setCompletionCtx(ctx);
+  };
+
+  const handleSideComplete = (id: string) => {
+    const ctx = completeSideQuest(id);
+    if (ctx) setCompletionCtx(ctx);
+  };
+
   const handleSaveJournal = (content: string, mood: Mood, energy: EnergyLevel) => {
-    if (completedTask && content.trim()) addJournal({ date: today(), taskId: completedTask.id, mood, energy, content: content.trim(), tags: [] });
-    setCompletedTask(null);
+    if (completionCtx && content.trim()) {
+      addJournal({ date: today(), mood, energy, content: content.trim(), tags: [] });
+    }
+    setCompletionCtx(null);
   };
 
-  // QuestLine detail view — editorial vertical journey
-  if (selectedQL) {
-    const ql = state.questLines.find((q) => q.id === selectedQL);
-    if (!ql) return null;
-    const qlTasks = state.tasks.filter((t) => t.questLineId === selectedQL);
-    const completed = qlTasks.filter((t) => t.completed).length;
+  // ── Main Quest Detail ──
+  if (selectedMQ) {
+    const mq = state.mainQuests.find((q) => q.id === selectedMQ);
+    if (!mq) return null;
+    const completed = mq.stages.filter((s) => s.completed).length;
+    const progress = mq.stages.length > 0 ? Math.round((completed / mq.stages.length) * 100) : 0;
 
     return (
-      <div className="space-y-8 animate-fade max-w-lg mx-auto">
-        <button onClick={() => setSelectedQL(null)}
-          className="flex items-center gap-1.5 text-[11px] font-bold text-navy/40 uppercase tracking-widest hover:text-navy transition-colors">
+      <div className="space-y-6 animate-fade pb-24">
+        <button onClick={() => setSelectedMQ(null)}
+          className="flex items-center gap-1.5 text-[11px] font-bold text-navy/40 uppercase tracking-widest hover:text-navy">
           <ArrowLeft size={14} /> 返回
         </button>
 
-        <div className="text-center space-y-3">
-          <p className="text-coral font-bold text-xs tracking-widest uppercase">{ql.status === "active" ? "进行中" : ql.status}</p>
-          <h2 className="text-2xl font-black text-navy tracking-tight serif">{ql.title}</h2>
-          <p className="text-[12px] text-navy/50 font-medium leading-relaxed serif">{ql.description}</p>
-          <div className="text-[10px] font-bold text-navy/30 uppercase tracking-widest">{completed}/{qlTasks.length} 已完成</div>
+        <div className="text-center space-y-2">
+          <p className="text-coral font-bold text-xs tracking-widest uppercase">
+            {mq.status === "active" ? "进行中" : mq.status === "paused" ? "已暂停" : "已完成"}
+          </p>
+          <h2 className="text-2xl font-black text-navy tracking-tight serif">{mq.title}</h2>
+          <p className="text-[12px] text-navy/50 font-medium leading-relaxed serif">{mq.description}</p>
         </div>
 
-        {/* Vertical journey line */}
-        <div className="relative flex flex-col items-center gap-10 py-6">
-          <div className="absolute top-0 bottom-0 w-px bg-navy/8 left-1/2 -translate-x-1/2 z-0" />
-          {qlTasks.map((t, i) => {
-            const isCurrent = !t.completed && (i === 0 || qlTasks[i - 1].completed);
-            return (
-              <div key={t.id} className="relative z-10 flex items-center gap-8 w-full">
-                <div className={`flex-1 text-right ${i % 2 === 0 ? "" : "invisible"}`}>
-                  {i % 2 === 0 && (
-                    <span className="text-[10px] font-bold tracking-widest uppercase" style={{ color: t.completed ? "#0B192C" : "#FF4D6D" }}>
-                      {t.completed ? "已完成" : isCurrent ? "当前" : ""}
-                    </span>
-                  )}
-                </div>
-                <button
-                  onClick={() => !t.completed && handleComplete(t.id)}
-                  className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-500 flex-shrink-0 ${
-                    t.completed ? "bg-navy/10 text-navy" :
-                    isCurrent ? "bg-navy text-white scale-110 shadow-xl shadow-navy/30" :
-                    "bg-white/50 border border-navy/10 text-navy/20"
-                  }`}
-                >
-                  {t.completed ? <CheckCircle2 size={22} /> : isCurrent ? <Zap size={20} /> : <Lock size={18} />}
-                </button>
-                <div className={`flex-1 ${i % 2 === 1 ? "" : "invisible"}`}>
-                  {i % 2 === 1 && (
-                    <div>
-                      <span className={`text-[11px] font-black tracking-wide ${isCurrent ? "text-navy" : t.completed ? "text-navy/60" : "text-navy/30"}`}>
-                        {t.title}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+        <div className="glass rounded-3xl p-4">
+          <div className="flex justify-between text-[9px] font-bold text-navy/30 uppercase tracking-widest mb-1 px-2">
+            <span>进度</span><span>{completed}/{mq.stages.length}</span>
+          </div>
+          <div className="progress"><div className="progress-fill" style={{ width: `${progress}%`, background: "#0B192C" }} /></div>
         </div>
 
-        <button onClick={() => setShowNewTask(true)}
-          className="w-full py-3 border-2 border-dashed border-navy/15 rounded-3xl text-[11px] font-bold text-navy/40 uppercase tracking-widest hover:text-navy hover:border-navy/30 transition-all flex items-center justify-center gap-1.5">
-          <Plus size={14} /> 添加支线
-        </button>
+        <Timeline stages={mq.stages} onComplete={(stageId) => handleMainStageComplete(mq.id, stageId)} />
 
-        {completedTask && <CompleteTaskModal task={completedTask} onClose={() => setCompletedTask(null)} onSaveJournal={handleSaveJournal} />}
-        {showNewTask && <CreateTaskModal questLineId={selectedQL} questLines={state.questLines} onClose={() => setShowNewTask(false)} onCreate={addTask} />}
+        <div className="flex gap-2">
+          <button onClick={() => setShowAddStage(true)}
+            className="flex-1 py-2.5 border-2 border-dashed border-navy/15 rounded-3xl text-[10px] font-bold text-navy/40 hover:text-navy hover:border-navy/30 transition-all">
+            + 添加阶段
+          </button>
+        </div>
+
+        {/* Linked side quests */}
+        {state.sideQuests.filter((sq) => sq.mainQuestId === mq.id).length > 0 && (
+          <section>
+            <h3 className="text-[10px] font-bold text-navy/30 uppercase tracking-widest mb-2">关联支线</h3>
+            <div className="space-y-2">
+              {state.sideQuests.filter((sq) => sq.mainQuestId === mq.id).map((sq) => (
+                <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {completionCtx && <CompleteTaskModal ctx={completionCtx} onClose={() => setCompletionCtx(null)} onSaveJournal={handleSaveJournal} />}
+        {showAddStage && <CreateStageModal onClose={() => setShowAddStage(false)}
+          onCreate={(stage) => addMainStage(mq.id, stage)} />}
       </div>
     );
   }
 
-  // Main view
-  const orphanTasks = state.tasks.filter((t) => !t.questLineId);
-
+  // ── Tab-based list view ──
   return (
-    <div className="space-y-8 animate-in pb-24">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">任务线</p>
-          <h2 className="text-2xl font-black text-navy tracking-tight serif">主线任务</h2>
-        </div>
-        <button onClick={() => setShowNewQL(true)}
-          className="btn btn-primary !py-2 !px-5 !text-[10px] !tracking-widest">
-          <Plus size={14} /> 新建主线
-        </button>
+    <div className="space-y-6 animate-in pb-24">
+      {/* Tabs */}
+      <div className="flex bg-white/30 rounded-full p-1">
+        {([
+          { id: "main" as Tab, label: "主线", icon: Target },
+          { id: "daily" as Tab, label: "日常", icon: ListTodo },
+          { id: "side" as Tab, label: "支线", icon: CheckCircle2 },
+        ]).map(({ id, label, icon: Icon }) => (
+          <button key={id} onClick={() => setTab(id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold rounded-full transition-all tracking-widest ${
+              tab === id ? "bg-white text-navy shadow-sm" : "text-navy/30 hover:text-navy/50"}`}>
+            <Icon size={13} /> {label}
+          </button>
+        ))}
       </div>
 
-      {state.questLines.length > 0 ? (
-        <div className="space-y-4 stagger-1">
-          {state.questLines.map((ql) => {
-            const tasks = state.tasks.filter((t) => t.questLineId === ql.id);
-            return <QuestLineCard key={ql.id} questLine={ql} tasks={tasks} onSelect={setSelectedQL} />;
-          })}
-        </div>
-      ) : (
-        <div className="glass rounded-3xl p-10 text-center">
-          <p className="text-navy/40 font-bold text-xs tracking-widest uppercase">还没有主线任务</p>
-          <p className="text-navy/30 text-[11px] font-medium mt-1">试着创建一条和生活有关的主线。</p>
-          <button onClick={() => setShowNewQL(true)} className="btn btn-primary mt-4 !text-[10px]">创建第一条主线</button>
-        </div>
-      )}
-
-      {orphanTasks.length > 0 && (
+      {/* 主线 Tab */}
+      {tab === "main" && (
         <>
-          <h3 className="text-[11px] font-bold text-navy/40 uppercase tracking-widest mt-8">独立任务</h3>
-          <div className="space-y-3 stagger-1">{orphanTasks.map((t) => <TaskCard key={t.id} task={t} onComplete={handleComplete} />)}</div>
+          {state.mainQuests.length > 0 ? (
+            <div className="space-y-3 stagger-1">
+              {state.mainQuests.map((mq) => <MainQuestCard key={mq.id} quest={mq} onSelect={setSelectedMQ} />)}
+            </div>
+          ) : (
+            <Empty text="还没有主线任务。创建一条和生活有关的主线。" />
+          )}
         </>
       )}
 
-      <button onClick={() => setShowNewTask(true)}
+      {/* 日常 Tab */}
+      {tab === "daily" && (
+        <>
+          {state.dailyTasks.length > 0 ? (
+            <div className="space-y-3 stagger-1">
+              {state.dailyTasks.map((dt) => (
+                <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} />
+              ))}
+            </div>
+          ) : (
+            <Empty text="还没有日常任务。创建一个循环打卡的习惯。" />
+          )}
+        </>
+      )}
+
+      {/* 支线 Tab */}
+      {tab === "side" && (
+        <>
+          {state.sideQuests.length > 0 ? (
+            <div className="space-y-3 stagger-1">
+              {state.sideQuests.map((sq) => (
+                <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} />
+              ))}
+            </div>
+          ) : (
+            <Empty text="还没有支线任务。添加一些一次性的小目标。" />
+          )}
+        </>
+      )}
+
+      {/* FAB */}
+      <button onClick={() => setCreateModal(tab)}
         className="fixed bottom-20 md:bottom-6 right-4 md:right-6 w-12 h-12 bg-navy text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-40">
         <Plus size={20} strokeWidth={2.5} />
       </button>
 
-      {completedTask && <CompleteTaskModal task={completedTask} onClose={() => setCompletedTask(null)} onSaveJournal={handleSaveJournal} />}
-      {showNewTask && <CreateTaskModal questLines={state.questLines} onClose={() => setShowNewTask(false)} onCreate={addTask} />}
-      {showNewQL && <CreateQuestLineModal onClose={() => setShowNewQL(false)} onCreate={addQuestLine} />}
+      {completionCtx && <CompleteTaskModal ctx={completionCtx} onClose={() => setCompletionCtx(null)} onSaveJournal={handleSaveJournal} />}
+      {createModal === "main" && <CreateMainQuestModal onClose={() => setCreateModal(null)} onCreate={addMainQuest} />}
+      {createModal === "daily" && <CreateDailyTaskModal onClose={() => setCreateModal(null)} onCreate={addDailyTask} />}
+      {createModal === "side" && <CreateSideQuestModal mainQuests={state.mainQuests} onClose={() => setCreateModal(null)} onCreate={addSideQuest} />}
+    </div>
+  );
+}
+
+function Empty({ text }: { text: string }) {
+  return (
+    <div className="glass rounded-3xl p-10 text-center">
+      <p className="text-navy/30 font-bold text-xs tracking-widest uppercase">{text}</p>
     </div>
   );
 }

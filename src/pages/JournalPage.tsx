@@ -3,13 +3,29 @@ import { Plus, Edit3, BookOpen } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import JournalCard from "../components/JournalCard";
 import CreateJournalModal from "../components/CreateJournalModal";
-import type { Mood, EnergyLevel } from "../types";
+import type { Mood, EnergyLevel, LinkedTask } from "../types";
 import { today } from "../utils/date";
 
 export default function JournalPage() {
   const { state, addJournal } = useApp();
   const [tab, setTab] = useState<"diary" | "log">("diary");
   const [showCreate, setShowCreate] = useState(false);
+
+  // Lookup helper for any task type
+  const findLinked = (taskId: string): LinkedTask | undefined => {
+    // Main quest stages
+    for (const mq of state.mainQuests) {
+      const stage = mq.stages.find((s) => s.id === taskId);
+      if (stage) return { type: "mainStage", title: stage.title, attributeRewards: [] };
+    }
+    // Daily tasks
+    const dt = state.dailyTasks.find((t) => t.id === taskId);
+    if (dt) return { type: "daily", title: dt.title, attributeRewards: dt.attributeRewards };
+    // Side quests
+    const sq = state.sideQuests.find((s) => s.id === taskId);
+    if (sq) return { type: "sideQuest", title: sq.title, attributeRewards: sq.attributeRewards };
+    return undefined;
+  };
 
   const diaryEntries = state.journalEntries.filter((j) => !j.taskId)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -34,7 +50,6 @@ export default function JournalPage() {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="flex bg-white/30 rounded-full p-1">
         <button onClick={() => setTab("diary")}
           className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold rounded-full transition-all tracking-widest ${
@@ -52,7 +67,7 @@ export default function JournalPage() {
         <div className="space-y-4 stagger-1 md:ml-10">
           {entries.map((entry) => (
             <JournalCard key={entry.id} entry={entry}
-              task={entry.taskId ? state.tasks.find((t) => t.id === entry.taskId) : undefined} />
+              linkedItem={entry.taskId ? findLinked(entry.taskId) : undefined} />
           ))}
         </div>
       ) : (

@@ -1,18 +1,15 @@
 import { Zap } from "lucide-react";
-import type { JournalEntry, Task } from "../types";
+import type { JournalEntry, LinkedTask } from "../types";
 import { MOOD_LABELS, ENERGY_LABELS, ATTRIBUTE_LABELS, ATTR_COLOR } from "../types";
 import { readableDate } from "../utils/date";
 
-interface JournalCardProps { entry: JournalEntry; task?: Task; }
+interface Props { entry: JournalEntry; linkedItem?: LinkedTask; }
 
-export default function JournalCard({ entry, task }: JournalCardProps) {
+export default function JournalCard({ entry, linkedItem }: Props) {
   return (
     <div className="glass rounded-3xl p-6 transition-all duration-300 hover:-translate-y-0.5 animate-in relative group">
-      {/* Date marker */}
       <div className="absolute -left-10 top-8 hidden md:flex flex-col items-center">
-        <span className="text-[9px] font-bold text-navy/30 uppercase tracking-widest">
-          {entry.date.slice(5, 7)}月
-        </span>
+        <span className="text-[9px] font-bold text-navy/30 uppercase tracking-widest">{entry.date.slice(5, 7)}月</span>
         <span className="text-xl font-black text-navy">{entry.date.slice(8, 10)}</span>
       </div>
 
@@ -22,12 +19,12 @@ export default function JournalCard({ entry, task }: JournalCardProps) {
           <span className="text-[9px] font-bold text-coral uppercase tracking-widest">{MOOD_LABELS[entry.mood]}</span>
           <span className="text-[9px] font-bold text-navy/40 uppercase tracking-widest">{ENERGY_LABELS[entry.energy]}</span>
         </div>
-
         <p className="text-[14px] text-navy/80 font-medium leading-relaxed serif">{entry.content}</p>
 
-        {task && (
+        {linkedItem && (
           <div className="flex gap-3 pt-2 border-t border-navy/5">
-            {task.attributeRewards.map((ar) => (
+            <span className="text-[10px] font-bold text-navy/30 uppercase tracking-widest">{linkedItem.title}</span>
+            {linkedItem.attributeRewards.map((ar) => (
               <span key={ar.attribute} className="text-[10px] font-bold tracking-widest uppercase flex items-center gap-1" style={{ color: ATTR_COLOR[ar.attribute] }}>
                 <Zap size={12} /> {ATTRIBUTE_LABELS[ar.attribute]} +{ar.exp}
               </span>

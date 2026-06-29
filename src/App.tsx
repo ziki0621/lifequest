@@ -7,7 +7,7 @@ import TasksPage from "./pages/TasksPage";
 import CalendarPage from "./pages/CalendarPage";
 import JournalPage from "./pages/JournalPage";
 import CharacterPage from "./pages/CharacterPage";
-import { Sparkles, Trophy, Zap, BookOpen, ArrowRight, Target } from "lucide-react";
+import { Sparkles, Trophy, Zap, Target, BookOpen, ArrowRight } from "lucide-react";
 
 function AppContent() {
   const [page, setPage] = useState("today");
@@ -29,12 +29,10 @@ function AppContent() {
       {page === "journal" && <JournalPage />}
       {page === "character" && <CharacterPage />}
 
-      {/* Achievement toast */}
       {newlyUnlocked.length > 0 && (
         <div className="fixed bottom-24 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-72 z-50 space-y-2">
           {newlyUnlocked.map((a) => (
-            <div key={a.id}
-              className="glass rounded-2xl shadow-xl p-3 flex items-center gap-3 animate-slide border border-coral/20">
+            <div key={a.id} className="glass rounded-2xl shadow-xl p-3 flex items-center gap-3 animate-slide border border-coral/20">
               <div className="w-9 h-9 rounded-full bg-coral text-white flex items-center justify-center flex-shrink-0">
                 <Trophy size={15} />
               </div>
@@ -54,40 +52,26 @@ function AppContent() {
 function WelcomeScreen({ onStart }: { onStart: () => void }) {
   return (
     <div className="min-h-screen flex items-center justify-center relative bg-[#FFF0F3] p-6">
-      {/* Fluid BG */}
       <div className="fluid-bg">
-        <div className="blob-tr" />
-        <div className="blob-bl" />
-        <div className="blob-center" />
+        <div className="blob-tr" /><div className="blob-bl" /><div className="blob-center" />
       </div>
-
       <div className="relative z-10 text-center max-w-sm animate-scale">
-        {/* Logo */}
         <div className="w-16 h-16 mx-auto rounded-2xl bg-navy text-white flex items-center justify-center mb-6 shadow-xl shadow-navy/20">
           <Sparkles size={26} />
         </div>
-
         <h1 className="text-3xl font-black text-navy tracking-tight serif mb-1">人生支线</h1>
         <p className="text-[10px] font-bold text-coral uppercase tracking-widest">LifeQuest</p>
-
-        <p className="text-[14px] text-navy/60 font-medium leading-relaxed serif mt-6">
-          把现实生活变成一场温和的 RPG。
-        </p>
-
+        <p className="text-[14px] text-navy/60 font-medium leading-relaxed serif mt-6">把现实生活变成一场温和的 RPG。</p>
         <div className="mt-8 space-y-3 text-left">
-          <Feature icon={<Zap size={14} />} color="text-coral" text="完成生活中的小事，获得经验与成长" />
-          <Feature icon={<Target size={14} />} color="text-navy" text="提升七种生活属性，解锁专属成就" />
-          <Feature icon={<BookOpen size={14} />} color="text-leaf" text="记录每一天的感受，留下生活痕迹" />
+          <Feature icon={<Target size={14} />} color="text-navy" text="主线任务：分阶段推进，做成时间线，完成每个阶段" />
+          <Feature icon={<Zap size={14} />} color="text-coral" text="日常任务：循环打卡，追踪每周/每月的完成进度" />
+          <Feature icon={<BookOpen size={14} />} color="text-leaf" text="支线任务：一次完成，记录生活中的小冒险" />
         </div>
-
         <button onClick={onStart}
           className="btn btn-primary w-full mt-10 !py-3.5 !text-[13px] !tracking-widest shadow-xl shadow-navy/20">
           开始今天的生活冒险 <ArrowRight size={16} />
         </button>
-
-        <p className="text-[10px] font-bold text-navy/20 uppercase tracking-widest mt-4">
-          没有 KPI，没有压力，只是一个温柔的陪伴。
-        </p>
+        <p className="text-[10px] font-bold text-navy/20 uppercase tracking-widest mt-4">没有 KPI，没有压力，只是一个温柔的陪伴。</p>
       </div>
     </div>
   );
@@ -96,18 +80,12 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
 function Feature({ icon, color, text }: { icon: React.ReactNode; color: string; text: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className={`w-8 h-8 rounded-full bg-white/60 flex items-center justify-center flex-shrink-0 ${color}`}>
-        {icon}
-      </div>
+      <div className={`w-8 h-8 rounded-full bg-white/60 flex items-center justify-center flex-shrink-0 ${color}`}>{icon}</div>
       <span className="text-[12px] text-navy/70 font-medium leading-snug">{text}</span>
     </div>
   );
 }
 
 export default function App() {
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
-  );
+  return <AppProvider><AppContent /></AppProvider>;
 }

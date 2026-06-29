@@ -1,4 +1,5 @@
-import type { LifeAttribute, AttributeState, Task } from "../types";
+import type { LifeAttribute, AttributeState } from "../types";
+import type { Difficulty } from "../types";
 
 /** 每100总经验升1级 */
 export function calcLevel(totalExp: number): number {
@@ -20,14 +21,12 @@ export function attributeExpToNextLevel(exp: number): number {
 }
 
 /** 任务难度 -> 基础经验 */
-export function difficultyExp(difficulty: Task["difficulty"]): number {
+export function difficultyExp(difficulty: Difficulty): number {
   switch (difficulty) {
-    case "easy":
-      return 10;
-    case "normal":
-      return 20;
-    case "hard":
-      return 35;
+    case "easy": return 10;
+    case "normal": return 20;
+    case "hard": return 35;
+    default: return 10;
   }
 }
 

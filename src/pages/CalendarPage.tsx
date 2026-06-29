@@ -1,15 +1,18 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useApp } from "../hooks/useApp";
-import TaskCard from "../components/TaskCard";
+import CompletionCard from "../components/CompletionCard";
 import JournalCard from "../components/JournalCard";
-import type { Task, JournalEntry } from "../types";
+import type { CompletionContext, JournalEntry, LinkedTask } from "../types";
 import { daysInMonth, firstDayOfMonth, formatDate, today as todayStr } from "../utils/date";
 
-interface DayData { tasks: Task[]; journals: JournalEntry[]; }
+interface DayData {
+  completions: { ctx: CompletionContext; date: string }[];
+  journals: (JournalEntry & { linked?: LinkedTask })[];
+}
 
 export default function CalendarPage() {
-  const { state, completeTask } = useApp();
+  const { state } = useApp();
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth());
@@ -24,22 +27,80 @@ export default function CalendarPage() {
   for (let i = 0; i < firstDay; i++) cells.push(null);
   for (let d = 1; d <= days; d++) cells.push(d);
 
+  // Build date→data map from all 3 types
   const dateToData = new Map<string, DayData>();
-  for (const t of state.tasks) {
-    const dates = new Set<string>();
-    if (t.dueDate) dates.add(t.dueDate);
-    if (t.completedAt) dates.add(t.completedAt.split("T")[0]);
-    dates.forEach((d) => {
-      if (!dateToData.has(d)) dateToData.set(d, { tasks: [], journals: [] });
-      dateToData.get(d)!.tasks.push(t);
-    });
-  }
-  for (const j of state.journalEntries) {
-    if (!dateToData.has(j.date)) dateToData.set(j.date, { tasks: [], journals: [] });
-    dateToData.get(j.date)!.journals.push(j);
-  }
 
-  const sel = selectedDate ? (dateToData.get(selectedDate) || { tasks: [], journals: [] }) : { tasks: [], journals: [] };
+  const ensure = (d: string) => {
+    if (!dateToData.has(d)) dateToData.set(d, { completions: [], journals: [] });
+    return dateToData.get(d)!;
+  };
+
+  // Main quest stages
+  state.mainQuests.forEach((mq) => {
+    mq.stages.forEach((s) => {
+      if (s.completed && s.completedAt) {
+        const d = s.completedAt.slice(0, 10);
+        ensure(d).completions.push({
+          ctx: {
+            itemType: "mainStage", title: s.title, expReward: 25,
+            attributeRewards: [{ attribute: "stamina" as const, exp: 25 }],
+          },
+          date: d,
+        });
+      }
+    });
+  });
+
+  // Daily task completions
+  state.dailyTasks.forEach((dt) => {
+    dt.completions.forEach((d) => {
+      ensure(d).completions.push({
+        ctx: { itemType: "daily", title: dt.title, expReward: dt.expReward, attributeRewards: dt.attributeRewards },
+        date: d,
+      });
+    });
+  });
+
+  // Side quests
+  state.sideQuests.forEach((sq) => {
+    if (sq.completed && sq.completedAt) {
+      const d = sq.completedAt.slice(0, 10);
+      ensure(d).completions.push({
+        ctx: { itemType: "sideQuest", title: sq.title, expReward: sq.expReward, attributeRewards: sq.attributeRewards },
+        date: d,
+      });
+    }
+    if (sq.dueDate) {
+      // Show due dates too
+      ensure(sq.dueDate).completions.push({
+        ctx: { itemType: "sideQuest", title: sq.title, expReward: sq.expReward, attributeRewards: sq.attributeRewards },
+        date: sq.dueDate,
+      });
+    }
+  });
+
+  // Journals
+  state.journalEntries.forEach((j) => {
+    // Find linked item
+    let linked: LinkedTask | undefined;
+    if (j.taskId) {
+      for (const mq of state.mainQuests) {
+        const stage = mq.stages.find((s) => s.id === j.taskId);
+        if (stage) { linked = { type: "mainStage", title: stage.title, attributeRewards: [] }; break; }
+      }
+      if (!linked) {
+        const dt = state.dailyTasks.find((t) => t.id === j.taskId);
+        if (dt) linked = { type: "daily", title: dt.title, attributeRewards: dt.attributeRewards };
+      }
+      if (!linked) {
+        const sq = state.sideQuests.find((s) => s.id === j.taskId);
+        if (sq) linked = { type: "sideQuest", title: sq.title, attributeRewards: sq.attributeRewards };
+      }
+    }
+    ensure(j.date).journals.push({ ...j, linked });
+  });
+
+  const sel = selectedDate ? (dateToData.get(selectedDate) || { completions: [], journals: [] }) : { completions: [], journals: [] };
 
   return (
     <div className="space-y-8 animate-in pb-24">
@@ -53,13 +114,10 @@ export default function CalendarPage() {
         </div>
       </div>
 
-      {/* Calendar grid */}
       <div className="glass rounded-3xl p-5">
         <div className="flex items-center justify-between mb-4">
           <button onClick={prevMonth} className="p-2 rounded-full hover:bg-navy/5 text-navy/50"><ChevronLeft size={16} /></button>
-          <span className="text-xs font-black text-navy/40 uppercase tracking-widest">
-            {year}年 {month + 1}月
-          </span>
+          <span className="text-xs font-black text-navy/40 uppercase tracking-widest">{year}年 {month + 1}月</span>
           <button onClick={nextMonth} className="p-2 rounded-full hover:bg-navy/5 text-navy/50"><ChevronRight size={16} /></button>
         </div>
 
@@ -71,28 +129,22 @@ export default function CalendarPage() {
             if (day === null) return <div key={`e-${i}`} />;
             const date = formatDate(new Date(year, month, day));
             const data = dateToData.get(date);
-            const hasTask = data?.tasks.some((t) => !t.completed) ?? false;
-            const hasDone = data?.tasks.some((t) => t.completed) ?? false;
+            const hasCompletion = (data?.completions.length ?? 0) > 0;
             const hasJournal = (data?.journals.length ?? 0) > 0;
             const selected = date === selectedDate;
             const isToday = date === todayStr();
 
             return (
               <div key={day} className="flex justify-center">
-                <button
-                  onClick={() => setSelectedDate(date)}
-                  className={`w-9 h-9 flex items-center justify-center rounded-full text-xs font-bold transition-all duration-300 ${
+                <button onClick={() => setSelectedDate(date)}
+                  className={`w-9 h-9 flex items-center justify-center rounded-full text-xs font-bold transition-all duration-300 relative ${
                     selected ? "bg-navy text-white shadow-lg shadow-navy/20 scale-110" :
                     isToday ? "bg-coral/10 text-coral font-black" :
-                    hasDone ? "bg-coral/5 text-coral" :
-                    hasTask ? "text-navy/70" : "text-navy/30 hover:bg-white/60"
-                  }`}
-                >
+                    hasCompletion || hasJournal ? "text-navy/70" : "text-navy/30 hover:bg-white/60"}`}>
                   <div className="relative">
                     {day}
                     <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
-                      {hasTask && !hasDone && <div className="w-1 h-1 rounded-full bg-leaf" />}
-                      {hasDone && <div className="w-1 h-1 rounded-full bg-coral" />}
+                      {hasCompletion && <div className="w-1 h-1 rounded-full bg-coral" />}
                       {hasJournal && <div className="w-1 h-1 rounded-full bg-navy" />}
                     </div>
                   </div>
@@ -103,24 +155,22 @@ export default function CalendarPage() {
         </div>
 
         <div className="flex items-center gap-4 mt-5 pt-3 border-t border-navy/5 text-[9px] font-bold text-navy/30 uppercase tracking-widest">
-          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-leaf" /> 任务</span>
-          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-coral" /> 完成</span>
-          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-navy" /> 日记</span>
+          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-coral" /> 有记录</span>
+          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-navy" /> 有日记</span>
         </div>
       </div>
 
-      {/* Selected date detail */}
       {selectedDate && (
         <div className="space-y-3">
           <h3 className="text-[11px] font-bold text-navy/40 uppercase tracking-widest">{selectedDate}</h3>
-          {sel.tasks.length === 0 && sel.journals.length === 0 ? (
+          {sel.completions.length === 0 && sel.journals.length === 0 ? (
             <div className="glass rounded-3xl p-8 text-center">
               <p className="text-navy/30 font-bold text-[11px] tracking-widest">这一天还没有安排。空白也是生活的一部分。</p>
             </div>
           ) : (
             <>
-              {sel.tasks.map((t) => <TaskCard key={t.id} task={t} onComplete={completeTask} />)}
-              {sel.journals.map((j) => <JournalCard key={j.id} entry={j} task={state.tasks.find((t) => t.id === j.taskId)} />)}
+              {sel.completions.map((c, i) => <CompletionCard key={`comp-${i}`} ctx={c.ctx} date={c.date} />)}
+              {sel.journals.map((j) => <JournalCard key={j.id} entry={j} linkedItem={j.linked} />)}
             </>
           )}
         </div>

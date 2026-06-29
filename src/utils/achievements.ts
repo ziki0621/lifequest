@@ -1,96 +1,83 @@
-import type { Achievement, AppState } from "../types";
-import { formatDate, today } from "./date";
+import type { AppState, Achievement } from "../types";
+import { today } from "./date";
 
 interface AchievementCheckResult {
   achievements: Achievement[];
   newlyUnlocked: Achievement[];
 }
 
-/** 检查并解锁成就，返回新解锁的成就列表 */
 export function checkAchievements(state: AppState): AchievementCheckResult {
-  const { tasks, journalEntries, achievements } = state;
-  const completedTasks = tasks.filter((t) => t.completed);
+  const { mainQuests, dailyTasks, sideQuests, journalEntries, achievements } = state;
   const newlyUnlocked: Achievement[] = [];
+
+  // Flatten all completions + their dates for cross-type queries
+  const allCompletions: { domain: string; date: string }[] = [];
+
+  // Main stages
+  mainQuests.forEach((mq) => {
+    mq.stages.forEach((s) => {
+      if (s.completed && s.completedAt) {
+        allCompletions.push({ domain: mq.domain, date: s.completedAt.slice(0, 10) });
+      }
+    });
+  });
+  // Daily task completions
+  dailyTasks.forEach((dt) => {
+    dt.completions.forEach((c) => allCompletions.push({ domain: dt.domain, date: c }));
+  });
+  // Side quests
+  sideQuests.forEach((sq) => {
+    if (sq.completed && sq.completedAt) {
+      allCompletions.push({ domain: sq.domain, date: sq.completedAt.slice(0, 10) });
+    }
+  });
+
+  const totalCompletions = allCompletions.length;
+  const explorationCompletions = allCompletions.filter((c) => c.domain === "exploration").length;
+  const homeCompletions = allCompletions.filter((c) => c.domain === "home").length;
+  const relationshipCompletions = allCompletions.filter((c) => c.domain === "relationship").length;
+  const hasJournal = journalEntries.length >= 1;
+
+  // Check any single day has 3+ distinct domains
+  const domainsByDay = new Map<string, Set<string>>();
+  allCompletions.forEach((c) => {
+    if (!domainsByDay.has(c.date)) domainsByDay.set(c.date, new Set());
+    domainsByDay.get(c.date)!.add(c.domain);
+  });
+  const hasBalancedDay = Array.from(domainsByDay.values()).some((s) => s.size >= 3);
+
+  // Gentle restart: check for 3+ day gap before most recent completion
+  let hasRestart = false;
+  if (totalCompletions >= 1) {
+    const sortedDates = [...new Set(allCompletions.map((c) => c.date))].sort();
+    if (sortedDates.length >= 2) {
+      const last = sortedDates[sortedDates.length - 1];
+      const prev = sortedDates[sortedDates.length - 2];
+      const d1 = new Date(prev);
+      const d2 = new Date(last);
+      const gapDays = Math.round((d2.getTime() - d1.getTime()) / 86400000);
+      hasRestart = gapDays >= 4; // 4+ days between any two completion dates
+    }
+  }
 
   const updatedAchievements = achievements.map((a) => {
     if (a.unlocked) return a;
-    let shouldUnlock = false;
-
+    let unlock = false;
     switch (a.id) {
-      case "first-task": {
-        shouldUnlock = completedTasks.length >= 1;
-        break;
-      }
-      case "explorer-1": {
-        shouldUnlock =
-          completedTasks.filter((t) => t.domain === "exploration" || t.type === "exploration").length >= 3;
-        break;
-      }
-      case "balanced-day": {
-        // 同一天完成3个不同domain的任务
-        const domainsByDay = new Map<string, Set<string>>();
-        completedTasks.forEach((t) => {
-          if (t.completedAt) {
-            const day = t.completedAt.split("T")[0];
-            if (!domainsByDay.has(day)) domainsByDay.set(day, new Set());
-            domainsByDay.get(day)!.add(t.domain);
-          }
-        });
-        shouldUnlock = Array.from(domainsByDay.values()).some(
-          (domains) => domains.size >= 3
-        );
-        break;
-      }
-      case "organizer": {
-        shouldUnlock =
-          completedTasks.filter((t) => t.domain === "home" || t.type === "home").length >= 3;
-        break;
-      }
-      case "reconnect": {
-        shouldUnlock =
-          completedTasks.filter((t) => t.domain === "relationship" || t.type === "relationship").length >= 2;
-        break;
-      }
-      case "first-journal": {
-        shouldUnlock = journalEntries.length >= 1;
-        break;
-      }
-      case "gentle-restart": {
-        // 连续3天没完成任务后重新完成一个
-        if (completedTasks.length === 0) break;
-        const sorted = [...completedTasks].sort(
-          (a, b) =>
-            new Date(b.completedAt!).getTime() -
-            new Date(a.completedAt!).getTime()
-        );
-        const lastCompleted = new Date(sorted[0].completedAt!);
-        const prevDay = new Date(lastCompleted);
-        prevDay.setDate(prevDay.getDate() - 4);
-        // Check if there was a gap >= 3 days before the latest completion
-        let gapDays = 0;
-        for (let i = 1; i <= 3; i++) {
-          const d = new Date(lastCompleted);
-          d.setDate(d.getDate() - i);
-          const dayStr = formatDate(d);
-          const hasTask = completedTasks.some(
-            (t) => t.completedAt && t.completedAt.startsWith(dayStr)
-          );
-          if (!hasTask) gapDays++;
-        }
-        shouldUnlock = gapDays >= 3;
-        break;
-      }
+      case "first-task": unlock = totalCompletions >= 1; break;
+      case "explorer-1": unlock = explorationCompletions >= 3; break;
+      case "balanced-day": unlock = hasBalancedDay; break;
+      case "organizer": unlock = homeCompletions >= 3; break;
+      case "reconnect": unlock = relationshipCompletions >= 2; break;
+      case "first-journal": unlock = hasJournal; break;
+      case "gentle-restart": unlock = hasRestart; break;
     }
-
-    if (shouldUnlock) {
+    if (unlock) {
       newlyUnlocked.push({ ...a, unlocked: true, unlockedAt: today() });
       return { ...a, unlocked: true, unlockedAt: today() };
     }
     return a;
   });
 
-  return {
-    achievements: updatedAchievements,
-    newlyUnlocked,
-  };
+  return { achievements: updatedAchievements, newlyUnlocked };
 }
