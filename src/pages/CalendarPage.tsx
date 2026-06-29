@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Circle } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import TaskCard from "../components/TaskCard";
 import JournalCard from "../components/JournalCard";
@@ -15,14 +15,8 @@ export default function CalendarPage() {
   const [month, setMonth] = useState(now.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(todayStr());
 
-  const prevMonth = () => {
-    if (month === 0) { setYear(year - 1); setMonth(11); }
-    else setMonth(month - 1);
-  };
-  const nextMonth = () => {
-    if (month === 11) { setYear(year + 1); setMonth(0); }
-    else setMonth(month + 1);
-  };
+  const prevMonth = () => { if (month === 0) { setYear(year - 1); setMonth(11); } else setMonth(month - 1); };
+  const nextMonth = () => { if (month === 11) { setYear(year + 1); setMonth(0); } else setMonth(month + 1); };
 
   const days = daysInMonth(year, month);
   const firstDay = firstDayOfMonth(year, month);
@@ -45,33 +39,34 @@ export default function CalendarPage() {
     dateToData.get(j.date)!.journals.push(j);
   }
 
-  const selectedData = selectedDate ? (dateToData.get(selectedDate) || { tasks: [], journals: [] }) : { tasks: [], journals: [] };
-
-  const checkToday = (day: number) => formatDate(new Date(year, month, day)) === todayStr();
+  const sel = selectedDate ? (dateToData.get(selectedDate) || { tasks: [], journals: [] }) : { tasks: [], journals: [] };
 
   return (
-    <div className="space-y-6 animate-fade">
-      {/* Month nav */}
-      <div className="flex items-center justify-between">
-        <button onClick={prevMonth} className="p-2 rounded-lg hover:bg-bg-glass transition-colors text-text-secondary">
-          <ChevronLeft size={18} />
-        </button>
-        <h2 className="text-sm font-semibold text-text-primary tabular-nums">
+    <div className="space-y-8 animate-in pb-24">
+      <div className="flex justify-between items-end">
+        <div>
+          <p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">地球时间轴</p>
+          <h2 className="text-2xl font-black text-navy tracking-tight serif">日历</h2>
+        </div>
+        <div className="text-xs font-black tracking-widest text-navy border-b-2 border-navy pb-0.5 uppercase">
           {year}.{String(month + 1).padStart(2, "0")}
-        </h2>
-        <button onClick={nextMonth} className="p-2 rounded-lg hover:bg-bg-glass transition-colors text-text-secondary">
-          <ChevronRight size={18} />
-        </button>
+        </div>
       </div>
 
       {/* Calendar grid */}
-      <div className="bg-bg-elevated border border-border-subtle rounded-xl p-4">
-        <div className="grid grid-cols-7 mb-2">
-          {["日", "一", "二", "三", "四", "五", "六"].map((w) => (
-            <div key={w} className="text-center text-[10px] font-medium text-text-muted py-1 tracking-wider">{w}</div>
-          ))}
+      <div className="glass rounded-3xl p-5">
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={prevMonth} className="p-2 rounded-full hover:bg-navy/5 text-navy/50"><ChevronLeft size={16} /></button>
+          <span className="text-xs font-black text-navy/40 uppercase tracking-widest">
+            {year}年 {month + 1}月
+          </span>
+          <button onClick={nextMonth} className="p-2 rounded-full hover:bg-navy/5 text-navy/50"><ChevronRight size={16} /></button>
         </div>
-        <div className="grid grid-cols-7 gap-1">
+
+        <div className="grid grid-cols-7 gap-y-5 gap-x-1 text-center">
+          {["日", "一", "二", "三", "四", "五", "六"].map((d) => (
+            <div key={d} className="text-[10px] font-bold text-navy/25 uppercase tracking-widest">{d}</div>
+          ))}
           {cells.map((day, i) => {
             if (day === null) return <div key={`e-${i}`} />;
             const date = formatDate(new Date(year, month, day));
@@ -80,52 +75,52 @@ export default function CalendarPage() {
             const hasDone = data?.tasks.some((t) => t.completed) ?? false;
             const hasJournal = (data?.journals.length ?? 0) > 0;
             const selected = date === selectedDate;
-            const isToday = checkToday(day);
+            const isToday = date === todayStr();
 
             return (
-              <button
-                key={day}
-                onClick={() => setSelectedDate(date)}
-                className={`aspect-square rounded-lg flex flex-col items-center justify-center text-[11px] transition-all relative ${
-                  selected
-                    ? "bg-accent text-white font-semibold shadow-lg shadow-accent-glow"
-                    : isToday
-                    ? "bg-accent-surface/30 text-accent font-medium"
-                    : "text-text-secondary hover:bg-bg-glass"
-                }`}
-              >
-                <span className={isToday && !selected ? "font-semibold" : ""}>{day}</span>
-                <div className="flex gap-0.5 mt-0.5">
-                  {hasTask && <Circle size={4} className={`fill-cyan text-cyan ${selected ? "fill-white text-white" : ""}`} />}
-                  {hasDone && <Circle size={4} className={`fill-green text-green ${selected ? "fill-white text-white" : ""}`} />}
-                  {hasJournal && <Circle size={4} className={`fill-purple text-purple ${selected ? "fill-white text-white" : ""}`} />}
-                </div>
-              </button>
+              <div key={day} className="flex justify-center">
+                <button
+                  onClick={() => setSelectedDate(date)}
+                  className={`w-9 h-9 flex items-center justify-center rounded-full text-xs font-bold transition-all duration-300 ${
+                    selected ? "bg-navy text-white shadow-lg shadow-navy/20 scale-110" :
+                    isToday ? "bg-coral/10 text-coral font-black" :
+                    hasDone ? "bg-coral/5 text-coral" :
+                    hasTask ? "text-navy/70" : "text-navy/30 hover:bg-white/60"
+                  }`}
+                >
+                  <div className="relative">
+                    {day}
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
+                      {hasTask && !hasDone && <div className="w-1 h-1 rounded-full bg-leaf" />}
+                      {hasDone && <div className="w-1 h-1 rounded-full bg-coral" />}
+                      {hasJournal && <div className="w-1 h-1 rounded-full bg-navy" />}
+                    </div>
+                  </div>
+                </button>
+              </div>
             );
           })}
         </div>
-        {/* Legend */}
-        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border-subtle text-[10px] text-text-muted">
-          <span className="flex items-center gap-1"><Circle size={4} className="fill-cyan text-cyan" /> 有任务</span>
-          <span className="flex items-center gap-1"><Circle size={4} className="fill-green text-green" /> 有完成</span>
-          <span className="flex items-center gap-1"><Circle size={4} className="fill-purple text-purple" /> 有日记</span>
+
+        <div className="flex items-center gap-4 mt-5 pt-3 border-t border-navy/5 text-[9px] font-bold text-navy/30 uppercase tracking-widest">
+          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-leaf" /> 任务</span>
+          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-coral" /> 完成</span>
+          <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-navy" /> 日记</span>
         </div>
       </div>
 
       {/* Selected date detail */}
       {selectedDate && (
-        <div className="space-y-3 animate-in">
-          <h3 className="text-[11px] font-semibold text-text-primary uppercase tracking-wider">{selectedDate}</h3>
-          {selectedData.tasks.length === 0 && selectedData.journals.length === 0 ? (
-            <p className="text-[11px] text-text-muted bg-bg-elevated/40 rounded-xl p-4 border border-border-subtle border-dashed">
-              这一天还没有安排。空白也是生活的一部分。
-            </p>
+        <div className="space-y-3">
+          <h3 className="text-[11px] font-bold text-navy/40 uppercase tracking-widest">{selectedDate}</h3>
+          {sel.tasks.length === 0 && sel.journals.length === 0 ? (
+            <div className="glass rounded-3xl p-8 text-center">
+              <p className="text-navy/30 font-bold text-[11px] tracking-widest">这一天还没有安排。空白也是生活的一部分。</p>
+            </div>
           ) : (
             <>
-              {selectedData.tasks.map((t) => <TaskCard key={t.id} task={t} onComplete={completeTask} compact />)}
-              {selectedData.journals.map((j) => (
-                <JournalCard key={j.id} entry={j} task={state.tasks.find((t) => t.id === j.taskId)} />
-              ))}
+              {sel.tasks.map((t) => <TaskCard key={t.id} task={t} onComplete={completeTask} />)}
+              {sel.journals.map((j) => <JournalCard key={j.id} entry={j} task={state.tasks.find((t) => t.id === j.taskId)} />)}
             </>
           )}
         </div>

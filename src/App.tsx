@@ -7,24 +7,19 @@ import TasksPage from "./pages/TasksPage";
 import CalendarPage from "./pages/CalendarPage";
 import JournalPage from "./pages/JournalPage";
 import CharacterPage from "./pages/CharacterPage";
-import { Sparkles, Trophy, ArrowRight, Target, BookOpen } from "lucide-react";
+import { Sparkles, Trophy, Zap, BookOpen, ArrowRight, Target } from "lucide-react";
 
 function AppContent() {
   const [page, setPage] = useState("today");
   const { newlyUnlocked, clearNewlyUnlocked } = useApp();
-
-  const [showWelcome, setShowWelcome] = useState(() => {
-    return !localStorage.getItem("lifequest-welcomed");
-  });
+  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem("lifequest-welcomed"));
 
   const handleStart = useCallback(() => {
     localStorage.setItem("lifequest-welcomed", "1");
     setShowWelcome(false);
   }, []);
 
-  if (showWelcome) {
-    return <WelcomeScreen onStart={handleStart} />;
-  }
+  if (showWelcome) return <WelcomeScreen onStart={handleStart} />;
 
   return (
     <Layout currentPage={page} onNavigate={setPage}>
@@ -38,20 +33,16 @@ function AppContent() {
       {newlyUnlocked.length > 0 && (
         <div className="fixed bottom-24 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-72 z-50 space-y-2">
           {newlyUnlocked.map((a) => (
-            <div
-              key={a.id}
-              className="bg-bg-elevated border border-gold/20 rounded-xl shadow-xl shadow-gold/5 p-3 flex items-center gap-3 animate-slide-right backdrop-blur-xl"
-            >
-              <div className="w-9 h-9 rounded-lg bg-gold-surface/30 flex items-center justify-center flex-shrink-0">
-                <Trophy size={15} className="text-gold" />
+            <div key={a.id}
+              className="glass rounded-2xl shadow-xl p-3 flex items-center gap-3 animate-slide border border-coral/20">
+              <div className="w-9 h-9 rounded-full bg-coral text-white flex items-center justify-center flex-shrink-0">
+                <Trophy size={15} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-text-muted font-medium uppercase tracking-wider">成就解锁</p>
-                <p className="text-[11px] text-gold font-semibold truncate">{a.title}</p>
+                <p className="text-[9px] font-bold text-navy/40 uppercase tracking-widest">成就解锁</p>
+                <p className="text-[11px] font-black text-navy truncate">{a.title}</p>
               </div>
-              <button onClick={clearNewlyUnlocked} className="text-text-muted hover:text-text-primary text-[10px]">
-                ✕
-              </button>
+              <button onClick={clearNewlyUnlocked} className="text-navy/30 hover:text-navy text-xs">✕</button>
             </div>
           ))}
         </div>
@@ -62,39 +53,39 @@ function AppContent() {
 
 function WelcomeScreen({ onStart }: { onStart: () => void }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-deep p-6">
-      <div className="text-center max-w-sm animate-scale">
+    <div className="min-h-screen flex items-center justify-center relative bg-[#FFF0F3] p-6">
+      {/* Fluid BG */}
+      <div className="fluid-bg">
+        <div className="blob-tr" />
+        <div className="blob-bl" />
+        <div className="blob-center" />
+      </div>
+
+      <div className="relative z-10 text-center max-w-sm animate-scale">
         {/* Logo */}
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-accent-surface flex items-center justify-center ring-1 ring-accent/20 mb-6">
-          <Sparkles size={28} className="text-accent" />
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-navy text-white flex items-center justify-center mb-6 shadow-xl shadow-navy/20">
+          <Sparkles size={26} />
         </div>
 
-        <h1 className="text-2xl font-bold text-text-primary tracking-tight mb-1">
-          LifeQuest
-        </h1>
-        <p className="text-[11px] text-accent font-medium uppercase tracking-widest">
-          人生支线
-        </p>
+        <h1 className="text-3xl font-black text-navy tracking-tight serif mb-1">人生支线</h1>
+        <p className="text-[10px] font-bold text-coral uppercase tracking-widest">LifeQuest</p>
 
-        <p className="text-[13px] text-text-secondary leading-relaxed mt-6">
+        <p className="text-[14px] text-navy/60 font-medium leading-relaxed serif mt-6">
           把现实生活变成一场温和的 RPG。
         </p>
 
         <div className="mt-8 space-y-3 text-left">
-          <Feature icon={<Sparkles size={14} />} color="text-accent" text="完成生活中的小事，获得经验与成长" />
-          <Feature icon={<Target size={14} />} color="text-green" text="提升七种生活属性，解锁专属成就" />
-          <Feature icon={<BookOpen size={14} />} color="text-purple" text="记录每一天的感受，留下生活痕迹" />
+          <Feature icon={<Zap size={14} />} color="text-coral" text="完成生活中的小事，获得经验与成长" />
+          <Feature icon={<Target size={14} />} color="text-navy" text="提升七种生活属性，解锁专属成就" />
+          <Feature icon={<BookOpen size={14} />} color="text-leaf" text="记录每一天的感受，留下生活痕迹" />
         </div>
 
-        <button
-          onClick={onStart}
-          className="mt-10 w-full py-3 bg-accent hover:bg-accent-soft text-white rounded-xl text-[13px] font-semibold tracking-wide transition-all active:scale-[0.98] shadow-lg shadow-accent-glow flex items-center justify-center gap-2"
-        >
-          开始今天的生活冒险
-          <ArrowRight size={16} />
+        <button onClick={onStart}
+          className="btn btn-primary w-full mt-10 !py-3.5 !text-[13px] !tracking-widest shadow-xl shadow-navy/20">
+          开始今天的生活冒险 <ArrowRight size={16} />
         </button>
 
-        <p className="text-[10px] text-text-muted mt-4">
+        <p className="text-[10px] font-bold text-navy/20 uppercase tracking-widest mt-4">
           没有 KPI，没有压力，只是一个温柔的陪伴。
         </p>
       </div>
@@ -104,11 +95,11 @@ function WelcomeScreen({ onStart }: { onStart: () => void }) {
 
 function Feature({ icon, color, text }: { icon: React.ReactNode; color: string; text: string }) {
   return (
-    <div className="flex items-center gap-2.5">
-      <div className={`w-7 h-7 rounded-lg bg-bg-glass flex items-center justify-center flex-shrink-0 ${color}`}>
+    <div className="flex items-center gap-3">
+      <div className={`w-8 h-8 rounded-full bg-white/60 flex items-center justify-center flex-shrink-0 ${color}`}>
         {icon}
       </div>
-      <span className="text-[11px] text-text-secondary">{text}</span>
+      <span className="text-[12px] text-navy/70 font-medium leading-snug">{text}</span>
     </div>
   );
 }

@@ -1,91 +1,64 @@
-import { Check, Clock } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 import type { Task } from "../types";
-import { TASK_TYPE_LABELS, DOMAIN_ICONS, ATTRIBUTE_ICONS, ATTRIBUTE_COLORS } from "../types";
+import { TASK_TYPE_LABELS, ATTRIBUTE_ICONS, ATTRIBUTE_LABELS, ATTR_COLOR } from "../types";
 
-interface TaskCardProps {
-  task: Task;
-  onComplete: (id: string) => void;
-  compact?: boolean;
-}
+interface TaskCardProps { task: Task; onComplete: (id: string) => void; }
 
-export default function TaskCard({ task, onComplete, compact }: TaskCardProps) {
-  const DomainIcon = DOMAIN_ICONS[task.domain];
-
-  const diffLabel = task.difficulty === "easy" ? "简单" : task.difficulty === "normal" ? "普通" : "困难";
-  const diffColors: Record<string, string> = {
-    easy: "text-green border-green-surface bg-green-surface/30",
-    normal: "text-blue border-blue-surface bg-blue-surface/30",
-    hard: "text-purple border-purple-surface bg-purple-surface/30",
-  };
+export default function TaskCard({ task, onComplete }: TaskCardProps) {
+  const diffLabel = task.difficulty === "easy" ? "EASY" : task.difficulty === "normal" ? "NORMAL" : "HARD";
+  const diffColor = task.difficulty === "easy" ? "text-leaf" : task.difficulty === "normal" ? "text-navy" : "text-coral";
 
   return (
     <div
-      className={`group bg-bg-elevated/60 rounded-xl border transition-all duration-300 p-4 animate-in ${
-        task.completed
-          ? "border-border-subtle opacity-50"
-          : "border-border-subtle hover:border-border-default hover:bg-bg-elevated"
+      className={`glass rounded-3xl transition-all duration-300 group ${
+        task.completed ? "opacity-50" : "hover:-translate-y-1 cursor-pointer"
       }`}
     >
-      <div className="flex items-start gap-3">
-        {/* Domain icon */}
-        <div className={`flex-shrink-0 w-8 h-8 rounded-lg bg-bg-glass flex items-center justify-center mt-0.5 ${task.completed ? "text-text-muted" : "text-text-secondary"}`}>
-          <DomainIcon size={14} strokeWidth={1.5} />
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className={`text-sm font-medium ${task.completed ? "text-text-muted line-through" : "text-text-primary"}`}>
-              {task.title}
-            </span>
-            {task.completed && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-green bg-green-surface/30 px-1.5 py-0.5 rounded font-medium">
-                <Check size={10} /> 已完成
-              </span>
-            )}
+      <div className="p-5 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          {/* Icon circle */}
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 text-white shadow-lg ${
+            task.completed ? "bg-navy/30" : "bg-navy"
+          }`}>
+            {task.completed ? <Check size={20} strokeWidth={2} /> : <ChevronRight size={20} strokeWidth={2} />}
           </div>
-
-          {task.description && !compact && (
-            <p className="text-[11px] text-text-muted mt-1 line-clamp-2 leading-relaxed">
-              {task.description}
-            </p>
-          )}
-
-          <div className="flex items-center gap-2 mt-2.5 flex-wrap">
-            <span className="text-[10px] text-text-muted bg-bg-glass px-2 py-0.5 rounded-full border border-border-subtle">
-              {TASK_TYPE_LABELS[task.type]}
-            </span>
-            <span className={`text-[10px] px-2 py-0.5 rounded-full border ${diffColors[task.difficulty]}`}>
-              {diffLabel}
-            </span>
-            {task.attributeRewards.map((ar) => {
-              const AttrIcon = ATTRIBUTE_ICONS[ar.attribute];
-              return (
-                <span
-                  key={ar.attribute}
-                  className={`inline-flex items-center gap-1 text-[10px] bg-bg-glass border border-border-subtle px-1.5 py-0.5 rounded-full ${ATTRIBUTE_COLORS[ar.attribute]}`}
-                >
-                  <AttrIcon size={10} strokeWidth={1.5} />
-                  +{ar.exp}
-                </span>
-              );
-            })}
-            {task.dueDate && !task.completed && (
-              <span className="inline-flex items-center gap-1 text-[10px] text-text-muted">
-                <Clock size={10} />
-                {task.dueDate}
+          <div className="flex-1 min-w-0">
+            <h4 className={`text-[15px] font-black tracking-wide ${task.completed ? "text-navy/40 line-through" : "text-navy"}`}>
+              {task.title}
+            </h4>
+            <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+              <span className="text-[10px] font-bold text-navy/40 uppercase tracking-widest">
+                {TASK_TYPE_LABELS[task.type]}
               </span>
+              <span className={`text-[10px] font-black uppercase tracking-widest ${diffColor}`}>
+                {diffLabel}
+              </span>
+              <span className="text-[10px] font-bold text-navy/30 tracking-wide">
+                +{task.expReward} XP
+              </span>
+            </div>
+            {task.attributeRewards.length > 0 && (
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {task.attributeRewards.map((ar) => {
+                  const AIcon = ATTRIBUTE_ICONS[ar.attribute];
+                  return (
+                    <span key={ar.attribute} className="inline-flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase" style={{ color: ATTR_COLOR[ar.attribute] }}>
+                      <AIcon size={10} strokeWidth={2} />
+                      {ATTRIBUTE_LABELS[ar.attribute]} +{ar.exp}
+                    </span>
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>
 
         {!task.completed && (
           <button
-            onClick={() => onComplete(task.id)}
-            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 bg-accent-surface text-accent border border-accent/20 hover:bg-accent hover:text-white active:scale-95"
+            onClick={(e) => { e.stopPropagation(); onComplete(task.id); }}
+            className="btn btn-primary !py-2 !px-5 !text-[11px] flex-shrink-0"
           >
-            <Check size={14} />
-            <span className="hidden sm:inline">完成</span>
-            <span className="text-[10px] opacity-60">+{task.expReward}</span>
+            <Check size={14} /> 完成
           </button>
         )}
       </div>

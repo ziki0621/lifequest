@@ -1,17 +1,12 @@
-import {
-  Home, ListTodo, Calendar, BookOpen, User, Sparkles,
-} from "lucide-react";
+import { Home, Map, BookOpen, User, Sparkles } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 
-interface SidebarProps {
-  currentPage: string;
-  onNavigate: (page: string) => void;
-}
+interface SidebarProps { currentPage: string; onNavigate: (page: string) => void; }
 
-const navItems = [
+const items = [
   { id: "today", label: "今日", icon: Home },
-  { id: "tasks", label: "任务", icon: ListTodo },
-  { id: "calendar", label: "日历", icon: Calendar },
+  { id: "tasks", label: "任务", icon: Map },
+  { id: "calendar", label: "日历", icon: Sparkles },
   { id: "journal", label: "日志", icon: BookOpen },
   { id: "character", label: "角色", icon: User },
 ];
@@ -22,83 +17,57 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
 
   return (
     <>
-      {/* Desktop sidebar */}
-      <aside className="hidden md:flex flex-col w-56 min-h-screen bg-bg-elevated/80 backdrop-blur-xl border-r border-border-subtle p-4 gap-1">
-        {/* Logo */}
-        <div className="mb-8 px-3 pt-2">
-          <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-8 h-8 rounded-lg bg-accent-surface flex items-center justify-center ring-1 ring-accent/20">
-              <Sparkles size={16} className="text-accent" />
-            </div>
-            <div>
-              <h1 className="text-sm font-semibold text-text-primary tracking-tight leading-none">
-                LifeQuest
-              </h1>
-              <p className="text-[10px] text-text-muted mt-0.5 leading-none">人生支线</p>
-            </div>
-          </div>
+      {/* Desktop */}
+      <aside className="hidden md:flex w-64 flex-col sticky top-0 h-screen p-6 z-10 border-r border-white/30 bg-white/20 backdrop-blur-sm">
+        <div className="mb-10">
+          <h1 className="text-xl font-black text-navy tracking-widest serif">人生支线</h1>
+          <p className="text-[10px] font-bold text-navy/40 tracking-widest uppercase mt-0.5">LifeQuest</p>
         </div>
 
-        {/* Nav */}
-        <nav className="flex flex-col gap-0.5">
-          {navItems.map((item) => {
+        <nav className="flex-1 flex flex-col gap-1">
+          {items.map((item) => {
             const Icon = item.icon;
             const active = currentPage === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                className={`flex items-center gap-3 px-5 py-3 rounded-full font-bold transition-all duration-300 tracking-widest text-xs ${
                   active
-                    ? "bg-accent-surface text-accent ring-1 ring-accent/20"
-                    : "text-text-secondary hover:bg-bg-glass hover:text-text-primary"
+                    ? "bg-white text-navy shadow-sm"
+                    : "text-navy/40 hover:text-navy hover:bg-white/40"
                 }`}
               >
-                <Icon size={15} strokeWidth={active ? 2 : 1.5} />
-                {item.label}
+                <Icon size={17} strokeWidth={active ? 2.5 : 2} />
+                <span>{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Player mini */}
-        <div className="mt-auto pt-6">
-          <div className="px-3 py-3 rounded-lg bg-bg-glass border border-border-subtle">
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full bg-accent-surface flex items-center justify-center">
-                <User size={12} className="text-accent" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-text-primary font-medium truncate leading-none">
-                  {player.name}
-                </p>
-                <p className="text-[10px] text-text-muted mt-0.5 leading-none">
-                  Lv.{player.level} · {player.title}
-                </p>
-              </div>
-            </div>
+        <div className="mt-auto pt-6 flex items-center gap-3 cursor-pointer group">
+          <div className="w-10 h-10 rounded-full bg-coral/10 flex items-center justify-center">
+            <User size={16} className="text-coral" />
           </div>
-          <p className="text-[10px] text-text-muted mt-3 px-3 leading-relaxed">
-            把现实生活变成一场温和的 RPG。
-          </p>
+          <div>
+            <div className="font-bold text-navy text-xs tracking-wide">{player.name}</div>
+            <div className="text-[10px] font-bold text-coral tracking-wider">Lv.{player.level} · {player.title}</div>
+          </div>
         </div>
       </aside>
 
-      {/* Mobile bottom tab bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-bg-elevated/90 backdrop-blur-xl border-t border-border-subtle z-50 flex justify-around py-2.5 px-2">
-        {navItems.map((item) => {
+      {/* Mobile bottom nav */}
+      <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-navy text-white rounded-full flex justify-around py-3 px-2 z-50 shadow-2xl shadow-navy/20">
+        {items.slice(0, 5).map((item) => {
           const Icon = item.icon;
           const active = currentPage === item.id;
           return (
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`flex flex-col items-center gap-1 px-3 py-1 rounded-md text-[10px] transition-all ${
-                active ? "text-accent font-medium" : "text-text-muted"
-              }`}
+              className={`p-2.5 rounded-full transition-colors ${active ? "bg-white/20" : "text-white/50"}`}
             >
-              <Icon size={18} strokeWidth={active ? 2 : 1.5} />
-              {item.label}
+              <Icon size={18} strokeWidth={active ? 2.5 : 2} />
             </button>
           );
         })}
