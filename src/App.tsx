@@ -87,7 +87,7 @@ function WelcomeScreen({ onStart, theme }: { onStart: () => void; theme: ThemeCo
 function Feature({ icon, color, text }: { icon: React.ReactNode; color: string; text: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className={`w-8 h-8 rounded-full bg-white/60 flex items-center justify-center flex-shrink-0 ${color}`}>{icon}</div>
+      <div className={`w-8 h-8 rounded-full bg-white/30 flex items-center justify-center flex-shrink-0 ${color}`}>{icon}</div>
       <span className="text-[12px] text-navy/70 font-medium leading-snug">{text}</span>
     </div>
   );

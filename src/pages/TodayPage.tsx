@@ -224,7 +224,7 @@ function PanelShell({
 
 function SubFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-white/40 rounded-2xl border border-navy/5 p-3 transition-all duration-200 hover:border-navy/10 hover:bg-white/60">
+    <div className="bg-white/20 rounded-2xl border border-navy/5 p-3 transition-all duration-200 hover:border-navy/10 hover:bg-white/35">
       {children}
     </div>
   );

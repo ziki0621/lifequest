@@ -25,7 +25,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         className={`flex items-center gap-3 px-5 py-3 rounded-full font-bold transition-all duration-300 tracking-widest text-xs ${
           active
             ? "bg-white text-navy shadow-sm"
-            : "text-navy/40 hover:text-navy hover:bg-white/40"
+            : "text-navy/40 hover:text-navy hover:bg-white/20"
         }`}
       >
         <Icon size={17} strokeWidth={active ? 2.5 : 2} />

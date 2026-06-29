@@ -219,7 +219,7 @@ function SubFrame({ children, onClick, clickable }: { children: React.ReactNode;
   return (
     <div
       onClick={onClick}
-      className={`bg-white/40 rounded-2xl border border-navy/5 p-3 transition-all duration-200 ${clickable ? "cursor-pointer hover:border-navy/10 hover:bg-white/60" : ""}`}
+      className={`bg-white/20 rounded-2xl border border-navy/5 p-3 transition-all duration-200 ${clickable ? "cursor-pointer hover:border-navy/10 hover:bg-white/35" : ""}`}
     >
       {children}
     </div>
