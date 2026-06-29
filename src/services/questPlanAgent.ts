@@ -126,7 +126,7 @@ function mockQuestPlan(input: QuestPlannerInput, genType: QuestGenType): QuestPl
     all: "这听起来不止一个待办，而更像一条可以慢慢推进的主线。我先为你整理一版温和的任务线。",
   };
 
-  return { npcReply: msgs[genType], rationale: "目标被拆成可执行的小步骤。", mainQuest: main as any, dailyTasks: dailies, sideQuests: sides };
+  return { npcReply: msgs[genType] || msgs.all, rationale: "目标被拆成可执行的小步骤。", mainQuest: main as any, dailyTasks: dailies, sideQuests: sides };
 }
 
 function inferDomain(goal: string): LifeDomain {

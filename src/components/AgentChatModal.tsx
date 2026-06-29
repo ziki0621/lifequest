@@ -69,7 +69,7 @@ export default function AgentChatModal({ npc, title, intro, placeholder, taskTyp
           <>
             <textarea className="input" rows={4} placeholder={placeholder} value={text} onChange={(e) => setText(e.target.value)} />
             <div className="flex justify-end gap-2">
-              <button className="btn btn-ghost !text-[10px]" onClick={() => setStep("type")}>返回</button>
+              {taskTypes.length > 0 && <button className="btn btn-ghost !text-[10px]" onClick={() => setStep("type")}>返回</button>}
               <button className="btn btn-ghost !text-[11px]" onClick={onClose}>取消</button>
               <button className="btn btn-primary !text-[11px]" disabled={!text.trim() || loading} onClick={handleSubmit}>
                 {loading ? "生成中..." : "发送"}
