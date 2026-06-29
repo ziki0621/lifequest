@@ -22,7 +22,7 @@ function AppContent() {
     setShowWelcome(false);
   }, []);
 
-  if (showWelcome) return <WelcomeScreen onStart={handleStart} themeBg={theme.cream} />;
+  if (showWelcome) return <WelcomeScreen onStart={handleStart} themeBg={theme.bg} />;
 
   return (
     <Layout currentPage={page} onNavigate={setPage}>

@@ -1,11 +1,10 @@
 export interface ThemeConfig {
   id: string;
   name: string;
-  bg: string;          // fluid-bg background
-  blob1: string;       // top-right blob color
-  blob2: string;       // bottom-left blob color
-  blob3: string;       // center blob color
-  cream: string;       // welcome page / fallback bg
+  bg: string;
+  blob1: string;
+  blob2: string;
+  blob3: string;
 }
 
 export const THEMES: ThemeConfig[] = [
@@ -16,43 +15,38 @@ export const THEMES: ThemeConfig[] = [
     blob1: "#FFD6E0",
     blob2: "#E8D1FF",
     blob3: "#FFE5EC",
-    cream: "#FFF0F3",
   },
   {
     id: "forest",
     name: "森林",
-    bg: "#F0F5F0",
-    blob1: "#D4E8D0",
-    blob2: "#C8E6C9",
-    blob3: "#E8F0E0",
-    cream: "#F0F5F0",
+    bg: "#F2F6EE",
+    blob1: "#C5E0B4",
+    blob2: "#A8D8B9",
+    blob3: "#E0F0D4",
   },
   {
     id: "ocean",
     name: "海洋",
-    bg: "#F0F4F8",
-    blob1: "#D0E0F0",
-    blob2: "#C8DCF0",
-    blob3: "#E0ECF5",
-    cream: "#F0F4F8",
+    bg: "#F0F4FA",
+    blob1: "#B4D4F0",
+    blob2: "#A0C8E8",
+    blob3: "#D4E8F8",
   },
   {
     id: "dusk",
     name: "暮色",
-    bg: "#F8F4F0",
-    blob1: "#F0D8C8",
-    blob2: "#E8D0E0",
-    blob3: "#F5E8DC",
-    cream: "#F8F4F0",
+    bg: "#FBF5EF",
+    blob1: "#F0C4A8",
+    blob2: "#E0B8D0",
+    blob3: "#F8E0CC",
   },
   {
     id: "moon",
     name: "月光",
-    bg: "#F4F4F8",
-    blob1: "#D8D8E8",
-    blob2: "#D0D0E0",
-    blob3: "#E8E8F0",
-    cream: "#F4F4F8",
+    bg: "#F5F5FA",
+    blob1: "#C4C4E0",
+    blob2: "#B0B8D8",
+    blob3: "#E0E0F0",
   },
 ];
 
