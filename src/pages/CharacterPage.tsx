@@ -1,4 +1,4 @@
-import { RotateCcw, Trophy, Zap, Target } from "lucide-react";
+import { Trophy, Zap, Target } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import StatBar from "../components/StatBar";
 import AchievementCard from "../components/AchievementCard";
@@ -8,7 +8,7 @@ import { expToNextLevel } from "../utils/exp";
 import { daysSince } from "../utils/date";
 
 export default function CharacterPage() {
-  const { state, resetData } = useApp();
+  const { state } = useApp();
   const { player, achievements, mainQuests, dailyTasks, sideQuests } = state;
   const progress = Math.round(((player.totalExp % 100) / 100) * 100);
   const unlocked = achievements.filter((a) => a.unlocked).length;
@@ -110,12 +110,6 @@ export default function CharacterPage() {
         </div>
       </div>
 
-      <div className="text-center">
-        <button onClick={() => { if (window.confirm("确定要重置所有数据吗？")) resetData(); }}
-          className="inline-flex items-center gap-1.5 text-[10px] font-bold text-navy/30 uppercase tracking-widest hover:text-coral transition-colors">
-          <RotateCcw size={11} /> 重置 Demo 数据
-        </button>
-      </div>
     </div>
   );
 }

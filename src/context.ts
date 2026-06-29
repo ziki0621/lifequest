@@ -3,9 +3,12 @@ import type {
   AppState, JournalEntry, MainQuest, QuestStage, DailyTask, SideQuest,
   Achievement, CompletionContext,
 } from "./types";
+import type { ThemeConfig } from "./utils/theme";
 
 export interface AppContextType {
   state: AppState;
+  theme: ThemeConfig;
+  setTheme: (id: string) => void;
   completeMainStage: (mainQuestId: string, stageId: string) => CompletionContext | null;
   completeDailyTask: (dailyTaskId: string) => CompletionContext | null;
   completeSideQuest: (sideQuestId: string) => CompletionContext | null;

@@ -7,6 +7,7 @@ import { localTimestamp, today, isDailyTaskDue } from "./utils/date";
 import { checkAchievements } from "./utils/achievements";
 import { calcLevel, getPlayerTitle, calcAttributeLevel } from "./utils/exp";
 import { genId } from "./utils/id";
+import { loadTheme, saveTheme, getTheme } from "./utils/theme";
 
 export { useApp } from "./hooks/useApp";
 
@@ -16,6 +17,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return saved ?? createDefaultAppState();
   });
   const [newlyUnlocked, setNewlyUnlocked] = useState<Achievement[]>([]);
+  const [themeId, setThemeId] = useState<string>(loadTheme);
+  const theme = getTheme(themeId);
+
+  const setTheme = useCallback((id: string) => {
+    setThemeId(id);
+    saveTheme(id);
+  }, []);
 
   useEffect(() => { saveAppState(state); }, [state]);
 
@@ -188,6 +196,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addJournal, addMainQuest, addMainStage, addDailyTask, addSideQuest,
       toggleDailyActive, resetData,
       todayDailyTasks, todaySideQuests, todayCompletedCount,
+      theme, setTheme,
       newlyUnlocked, clearNewlyUnlocked,
     }}>
       {children}

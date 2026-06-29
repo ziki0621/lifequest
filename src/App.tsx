@@ -7,19 +7,22 @@ import TasksPage from "./pages/TasksPage";
 import CalendarPage from "./pages/CalendarPage";
 import JournalPage from "./pages/JournalPage";
 import CharacterPage from "./pages/CharacterPage";
+import SettingsPage from "./pages/SettingsPage";
 import { Sparkles, Trophy, Zap, Target, BookOpen, ArrowRight } from "lucide-react";
+
+const WELCOMED_KEY = "earthguide-welcomed";
 
 function AppContent() {
   const [page, setPage] = useState("today");
-  const { newlyUnlocked, clearNewlyUnlocked } = useApp();
-  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem("lifequest-welcomed"));
+  const { newlyUnlocked, clearNewlyUnlocked, theme } = useApp();
+  const [showWelcome, setShowWelcome] = useState(() => !localStorage.getItem(WELCOMED_KEY));
 
   const handleStart = useCallback(() => {
-    localStorage.setItem("lifequest-welcomed", "1");
+    localStorage.setItem(WELCOMED_KEY, "1");
     setShowWelcome(false);
   }, []);
 
-  if (showWelcome) return <WelcomeScreen onStart={handleStart} />;
+  if (showWelcome) return <WelcomeScreen onStart={handleStart} themeBg={theme.cream} />;
 
   return (
     <Layout currentPage={page} onNavigate={setPage}>
@@ -28,6 +31,7 @@ function AppContent() {
       {page === "calendar" && <CalendarPage />}
       {page === "journal" && <JournalPage />}
       {page === "character" && <CharacterPage />}
+      {page === "settings" && <SettingsPage />}
 
       {newlyUnlocked.length > 0 && (
         <div className="fixed bottom-24 md:bottom-6 left-4 right-4 md:left-auto md:right-6 md:w-72 z-50 space-y-2">
@@ -49,18 +53,20 @@ function AppContent() {
   );
 }
 
-function WelcomeScreen({ onStart }: { onStart: () => void }) {
+function WelcomeScreen({ onStart, themeBg }: { onStart: () => void; themeBg: string }) {
   return (
-    <div className="min-h-screen flex items-center justify-center relative bg-[#FFF0F3] p-6">
-      <div className="fluid-bg">
-        <div className="blob-tr" /><div className="blob-bl" /><div className="blob-center" />
+    <div className="min-h-screen flex items-center justify-center relative p-6" style={{ background: themeBg }}>
+      <div className="fluid-bg" style={{ background: themeBg }}>
+        <div className="blob-tr" />
+        <div className="blob-bl" />
+        <div className="blob-center" />
       </div>
       <div className="relative z-10 text-center max-w-sm animate-scale">
         <div className="w-16 h-16 mx-auto rounded-2xl bg-navy text-white flex items-center justify-center mb-6 shadow-xl shadow-navy/20">
           <Sparkles size={26} />
         </div>
-        <h1 className="text-3xl font-black text-navy tracking-tight serif mb-1">人生支线</h1>
-        <p className="text-[10px] font-bold text-coral uppercase tracking-widest">LifeQuest</p>
+        <h1 className="text-3xl font-black text-navy tracking-tight serif mb-1">地球生活指南</h1>
+        <p className="text-[10px] font-bold text-coral uppercase tracking-widest">Earth Life Guide</p>
         <p className="text-[14px] text-navy/60 font-medium leading-relaxed serif mt-6">把现实生活变成一场温和的 RPG。</p>
         <div className="mt-8 space-y-3 text-left">
           <Feature icon={<Target size={14} />} color="text-navy" text="主线任务：分阶段推进，做成时间线，完成每个阶段" />
