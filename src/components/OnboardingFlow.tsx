@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Sparkles, ArrowRight } from "lucide-react";
-import type { PlannerIntensity } from "../types";
+type PlannerIntensity = "gentle" | "normal" | "challenge";
 
 interface Props { onFinish: () => void; onSkip: () => void; onGenerate: (goal: string, intensity: PlannerIntensity) => void; }
 

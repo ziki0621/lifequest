@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { X, Sparkles, Target, ListTodo, CheckCircle2, Loader2 } from "lucide-react";
-import type { QuestPlanDraft } from "../types";
-import { generateQuestPlan } from "../services/aiQuestPlanner";
+import type { QuestPlanDraft } from "../types/agent";
+import { generateQuestPlan } from "../services/questPlanAgent";
+import { loadLLMConfig } from "../utils/llmConfig";
 import { useApp } from "../hooks/useApp";
 
 interface Props { onClose: () => void; }
@@ -17,7 +18,8 @@ export default function AIQuestPlannerModal({ onClose }: Props) {
     if (!goal.trim()) return;
     setLoading(true); setError(null);
     try {
-      const result = await generateQuestPlan({ goal: goal.trim(), timeRange: "1week", intensity: "gentle", focusDomains: [] });
+      const config = loadLLMConfig();
+      const result = await generateQuestPlan({ goal: goal.trim(), timeRange: "1week", intensity: "gentle" }, config);
       setDraft(result);
     } catch { setError("生成失败，请重试。"); }
     setLoading(false);
@@ -60,7 +62,7 @@ export default function AIQuestPlannerModal({ onClose }: Props) {
                 <p className="text-[10px] text-navy/40 mt-0.5">{draft.mainQuest.description}</p>
                 <div className="mt-2 space-y-1">
                   {draft.mainQuest.stages.map((s, i) => (
-                    <p key={s.id} className="text-[10px] text-navy/50">{i + 1}. {s.title}</p>
+                    <p key={i} className="text-[10px] text-navy/50">{i + 1}. {s.title}</p>
                   ))}
                 </div>
               </div>

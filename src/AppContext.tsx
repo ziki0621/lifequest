@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
-import type { AppState, MainQuest, QuestStage, DailyTask, SideQuest, JournalEntry, Achievement, CompletionContext, AttributeReward, QuestPlanDraft } from "./types";
+import type { AppState, MainQuest, QuestStage, DailyTask, SideQuest, JournalEntry, Achievement, CompletionContext, AttributeReward, LifeDomain, LifeAttribute } from "./types";
+import type { QuestPlanDraft } from "./types/agent";
 import { AppContext } from "./context";
 import { createDefaultAppState } from "./data/defaultData";
 import { loadAppState, saveAppState, resetAppState } from "./utils/storage";
 import { localTimestamp, today, isDailyTaskDue } from "./utils/date";
 import { checkAchievements } from "./utils/achievements";
-import { calcLevel, getPlayerTitle, calcAttributeLevel, getMainStageReward } from "./utils/exp";
+import { calcLevel, getPlayerTitle, calcAttributeLevel, getMainStageReward, difficultyExp } from "./utils/exp";
 import { genId } from "./utils/id";
 import { loadTheme, saveTheme, getTheme } from "./utils/theme";
 
@@ -171,19 +172,53 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // ── Quest Plan ──
+  const getDefaultRewards = (domain: LifeDomain, totalExp: number): AttributeReward[] => {
+    const map: Partial<Record<LifeDomain, LifeAttribute[]>> = {
+      body: ["stamina"], mind: ["mind"], relationship: ["connection"], home: ["order"],
+      exploration: ["perception"], interest: ["creativity"], learning: ["knowledge"],
+      career: ["order", "knowledge"], finance: ["order"],
+    };
+    const attrs = map[domain] || ["mind"];
+    const per = Math.floor(totalExp / attrs.length);
+    return attrs.map((attribute) => ({ attribute, exp: per }));
+  };
+
   const applyQuestPlan = useCallback((plan: QuestPlanDraft) => {
     setState((prev) => {
       const now = new Date().toISOString();
       const mainId = genId();
+
       const mainQuest: MainQuest = {
-        ...plan.mainQuest, id: mainId, createdAt: now,
-        stages: plan.mainQuest.stages.map((stage, index) => ({ ...stage, id: genId(), completed: false, completedAt: undefined, order: index })),
+        id: mainId, title: plan.mainQuest.title, description: plan.mainQuest.description,
+        domain: plan.mainQuest.domain, status: "active", createdAt: now,
+        stages: plan.mainQuest.stages.map((stage, index) => ({
+          id: genId(), title: stage.title, description: stage.description,
+          anchorDate: stage.anchorDate, completed: false, order: index,
+        })),
       };
-      const dailyTasks: DailyTask[] = plan.dailyTasks.map((task) => ({ ...task, id: genId(), completions: [], createdAt: now }));
-      const sideQuests: SideQuest[] = plan.sideQuests.map((quest) => ({
-        ...quest, id: genId(), createdAt: now, completed: false, completedAt: undefined,
-        mainQuestId: quest.mainQuestId === "__new_main__" ? mainId : quest.mainQuestId,
-      }));
+
+      const dailyTasks: DailyTask[] = plan.dailyTasks.map((task) => {
+        const exp = difficultyExp(task.difficulty);
+        return {
+          id: genId(), title: task.title, description: task.description,
+          domain: task.domain, difficulty: task.difficulty, expReward: exp,
+          attributeRewards: getDefaultRewards(task.domain, exp),
+          period: task.period, targetCount: task.targetCount,
+          daysOfWeek: task.daysOfWeek, timesPerDay: task.timesPerDay,
+          active: true, completions: [], createdAt: now,
+        };
+      });
+
+      const sideQuests: SideQuest[] = plan.sideQuests.map((quest) => {
+        const exp = difficultyExp(quest.difficulty);
+        return {
+          id: genId(), title: quest.title, description: quest.description,
+          mainQuestId: mainId, domain: quest.domain, difficulty: quest.difficulty,
+          expReward: exp, attributeRewards: getDefaultRewards(quest.domain, exp),
+          dueDate: quest.dueDate, completed: false, createdAt: now,
+        };
+      });
+
       return { ...prev, mainQuests: [...prev.mainQuests, mainQuest], dailyTasks: [...prev.dailyTasks, ...dailyTasks], sideQuests: [...prev.sideQuests, ...sideQuests] };
     });
   }, []);

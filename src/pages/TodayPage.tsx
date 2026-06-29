@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Plus, Target, CheckCircle2, ListTodo, Sparkles, Zap } from "lucide-react";
+import { Plus, Target, CheckCircle2, ListTodo, Zap } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import DailyTaskCard from "../components/DailyTaskCard";
 import CompleteTaskModal from "../components/CompleteTaskModal";
@@ -9,10 +9,13 @@ import CreateMainQuestModal from "../components/CreateMainQuestModal";
 import EditDailyTaskModal from "../components/EditDailyTaskModal";
 import EditSideQuestModal from "../components/EditSideQuestModal";
 import DailyShareCardModal from "../components/DailyShareCardModal";
+import NpcAgentPanel from "../components/NpcAgentPanel";
+import { NPCS } from "../data/npcs";
+import { getTodayRecommendation } from "../services/todayRecommendAgent";
 import type { CompletionContext, Mood, EnergyLevel, DailyTask, SideQuest } from "../types";
 import { today } from "../utils/date";
 
-export default function TodayPage({ onOpenPlanner }: { onOpenPlanner?: () => void }) {
+export default function TodayPage() {
   const { state, completeMainStage, completeDailyTask, completeSideQuest,
     addJournal, addMainQuest, addDailyTask, addSideQuest, toggleDailyActive,
     updateDailyTask, updateSideQuest,
@@ -24,6 +27,7 @@ export default function TodayPage({ onOpenPlanner }: { onOpenPlanner?: () => voi
   const [editingDaily, setEditingDaily] = useState<DailyTask | null>(null);
   const [editingSide, setEditingSide] = useState<SideQuest | null>(null);
   const [showShareCard, setShowShareCard] = useState(false);
+  const [lumiMessage, setLumiMessage] = useState("欢迎来到今日营地。今天也从一个很小的行动开始吧。");
   const fabRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -69,22 +73,21 @@ export default function TodayPage({ onOpenPlanner }: { onOpenPlanner?: () => voi
   return (
     <div className="space-y-6 pb-24 animate-in">
 
-      {/* AI Planner + Share bar */}
-      <div className="flex gap-3">
-        <button onClick={onOpenPlanner} className="flex-1 glass rounded-3xl p-4 hover:-translate-y-0.5 transition-all">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-full bg-theme text-white flex items-center justify-center flex-shrink-0"><Sparkles size={15} /></div>
-            <div className="text-left">
-              <p className="text-[12px] font-black text-navy">AI 任务线生成器</p>
-              <p className="text-[9px] text-navy/40 mt-0.5">把模糊目标变成主线、日常和支线</p>
-            </div>
-          </div>
-        </button>
-        <button onClick={() => setShowShareCard(true)} className="glass rounded-3xl p-4 flex items-center gap-2 hover:-translate-y-0.5 transition-all">
-          <div className="w-9 h-9 rounded-full bg-coral text-white flex items-center justify-center flex-shrink-0"><Zap size={15} /></div>
-          <span className="text-[11px] font-black text-navy">今日总结</span>
-        </button>
-      </div>
+      {/* Lumi NPC */}
+      <NpcAgentPanel
+        npc={NPCS.lumi}
+        message={lumiMessage}
+        actionLabel="推荐一个任务"
+        onAction={() => setLumiMessage(getTodayRecommendation(state).npcReply)}
+        secondaryLabel="我今天有点累"
+        onSecondary={() => setLumiMessage("那今天不要挑战太多。完成一个 easy 行动就已经很好了。")}
+      />
+
+      {/* Share button */}
+      <button onClick={() => setShowShareCard(true)} className="glass rounded-3xl p-3 flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all w-full">
+        <Zap size={14} className="text-coral" />
+        <span className="text-[11px] font-black text-navy">今日冒险总结</span>
+      </button>
 
       {isEmpty ? (
         <div className="glass rounded-3xl p-10 text-center">

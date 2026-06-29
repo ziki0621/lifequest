@@ -3,6 +3,10 @@ import { Plus, Edit3, BookOpen, Target, ListTodo, CheckCircle2 } from "lucide-re
 import { useApp } from "../hooks/useApp";
 import JournalCard from "../components/JournalCard";
 import CreateJournalModal from "../components/CreateJournalModal";
+import NpcAgentPanel from "../components/NpcAgentPanel";
+import AgentChatModal from "../components/AgentChatModal";
+import { NPCS } from "../data/npcs";
+import { getNiaReply } from "../services/journalAgent";
 import type { Mood, EnergyLevel, LinkedTask, MainQuest, DailyTask } from "../types";
 import { ATTRIBUTE_ICONS, ATTRIBUTE_LABELS, ATTR_COLOR } from "../types";
 import { today } from "../utils/date";
@@ -11,6 +15,8 @@ export default function JournalPage() {
   const { state, addJournal } = useApp();
   const [tab, setTab] = useState<"diary" | "log">("diary");
   const [showCreate, setShowCreate] = useState(false);
+  const [showNiaChat, setShowNiaChat] = useState(false);
+  const [niaMessage, setNiaMessage] = useState("今天有没有一句话想留下？不需要完整，只要真实。");
 
   // ── Diary entries (no taskId) ──
   const diaryEntries = state.journalEntries
@@ -52,6 +58,13 @@ export default function JournalPage() {
     addJournal({ date: data.date, mood: data.mood, energy: data.energy, content: data.content, tags: data.tags });
   };
 
+  const handleNiaSubmit = (content: string) => {
+    const result = getNiaReply(content);
+    addJournal({ date: today(), mood: result.mood || "calm", energy: result.energy || "normal", content, tags: result.tags || [] });
+    setNiaMessage(result.npcReply);
+    setShowNiaChat(false);
+  };
+
   const findLinked = (taskId: string): LinkedTask | undefined => {
     for (const mq of state.mainQuests) {
       const stage = mq.stages.find((s) => s.id === taskId);
@@ -66,6 +79,9 @@ export default function JournalPage() {
 
   return (
     <div className="space-y-6 pb-24 animate-in">
+      {/* Nia NPC */}
+      <NpcAgentPanel npc={NPCS.nia} message={niaMessage} actionLabel="写一句日志" onAction={() => setShowNiaChat(true)} />
+
       <div className="flex justify-between items-center">
         <div>
           <p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">记录</p>
@@ -194,6 +210,7 @@ export default function JournalPage() {
       </button>
 
       {showCreate && <CreateJournalModal defaultDate={today()} onClose={() => setShowCreate(false)} onSave={handleSave} />}
+      {showNiaChat && <AgentChatModal npc={NPCS.nia} title="写入旅人日志" intro="说一句今天的状态就好。不需要总结，也不需要漂亮。" placeholder="例如：今天很累，但是还是完成了一点点事情。" onClose={() => setShowNiaChat(false)} onSubmit={handleNiaSubmit} />}
     </div>
   );
 }

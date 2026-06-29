@@ -1,8 +1,9 @@
 import { createContext } from "react";
 import type {
   AppState, JournalEntry, MainQuest, QuestStage, DailyTask, SideQuest,
-  Achievement, CompletionContext, QuestPlanDraft,
+  Achievement, CompletionContext,
 } from "./types";
+import type { QuestPlanDraft } from "./types/agent";
 import type { ThemeConfig } from "./utils/theme";
 
 export interface AppContextType {
