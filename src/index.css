@@ -45,6 +45,21 @@
   }
 }
 
+/* ── Theme-reactive primary color ── */
+.bg-theme {
+  background: var(--theme-primary, #0B192C);
+}
+.bg-theme-light {
+  background: var(--theme-primary-light, #E0E0E8);
+}
+.text-theme {
+  color: var(--theme-primary, #0B192C);
+}
+/* Progress fill also uses theme primary */
+.progress-fill {
+  background: var(--theme-primary, #0B192C) !important;
+}
+
 /* ── Glass Card ── */
 .glass {
   background: rgba(255, 255, 255, 0.35);
@@ -72,12 +87,12 @@
   font-size: 0.8125rem;
 }
 .btn-primary {
-  background: var(--color-navy);
+  background: var(--theme-primary, var(--color-navy));
   color: white;
 }
 .btn-primary:hover {
-  background: var(--color-navy-light);
-  box-shadow: 0 8px 24px rgba(11, 25, 44, 0.2);
+  background: var(--theme-primary-light, var(--color-navy-light));
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
 }
 .btn-accent {
   background: var(--color-coral);

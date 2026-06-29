@@ -18,7 +18,7 @@ export default function CompletionCard({ ctx, date }: Props) {
 
   return (
     <div className="glass rounded-2xl p-3 flex items-center gap-3">
-      <div className="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center flex-shrink-0">
+      <div className="w-8 h-8 rounded-full bg-theme text-white flex items-center justify-center flex-shrink-0">
         {iconMap[ctx.itemType]}
       </div>
       <div className="flex-1 min-w-0">

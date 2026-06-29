@@ -108,7 +108,7 @@ export default function JournalPage() {
         /* ── 任务日志：3 面板 ── */
         <div className="space-y-6">
           {/* 已完成主线阶段 */}
-          <Panel icon={<Target size={15} />} title="已完成主线阶段" accent="border-navy/10" accentBar="bg-navy" badge={`${completedStages.length}`}>
+          <Panel icon={<Target size={15} />} title="已完成主线阶段" accent="border-navy/10" accentBar="bg-theme" badge={`${completedStages.length}`}>
             {completedStages.length === 0 ? (
               <Empty>完成主线阶段后，这里会出现记录。</Empty>
             ) : (
@@ -189,7 +189,7 @@ export default function JournalPage() {
       )}
 
       <button onClick={() => setShowCreate(true)}
-        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 w-12 h-12 bg-navy text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-40">
+        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 w-12 h-12 bg-theme text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-40">
         <Plus size={20} strokeWidth={2.5} />
       </button>
 

@@ -16,7 +16,7 @@ export default function MainQuestCard({ quest, onSelect }: Props) {
       className="w-full text-left glass rounded-3xl p-5 transition-all duration-300 hover:-translate-y-1">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-3 flex-1 min-w-0">
-          <div className="w-11 h-11 rounded-full bg-navy text-white flex items-center justify-center flex-shrink-0">
+          <div className="w-11 h-11 rounded-full bg-theme text-white flex items-center justify-center flex-shrink-0">
             <DomainIcon size={17} strokeWidth={1.5} />
           </div>
           <div className="flex-1 min-w-0">

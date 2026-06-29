@@ -59,7 +59,7 @@ export default function CreateDailyTaskModal({ onClose, onCreate }: Props) {
             <div className="flex gap-1.5">
               {(["easy", "normal", "hard"] as const).map((d) => (
                 <button key={d} onClick={() => setDifficulty(d)}
-                  className={`text-[10px] px-2.5 py-1.5 rounded-full font-bold transition-all ${difficulty === d ? "bg-navy text-white" : "bg-navy/5 text-navy/40"}`}>
+                  className={`text-[10px] px-2.5 py-1.5 rounded-full font-bold transition-all ${difficulty === d ? "bg-theme text-white" : "bg-navy/5 text-navy/40"}`}>
                   {d === "easy" ? "+10" : d === "normal" ? "+20" : "+35"}
                 </button>
               ))}
@@ -86,7 +86,7 @@ export default function CreateDailyTaskModal({ onClose, onCreate }: Props) {
                 {[0, 1, 2, 3, 4, 5, 6].map((d) => (
                   <button key={d} onClick={() => toggleDay(d)}
                     className={`w-9 h-9 rounded-full text-[10px] font-bold transition-all ${
-                      daysOfWeek.includes(d) ? "bg-navy text-white" : "bg-navy/5 text-navy/30 hover:bg-navy/10"
+                      daysOfWeek.includes(d) ? "bg-theme text-white" : "bg-navy/5 text-navy/30 hover:bg-navy/10"
                     }`}>
                     {WEEKDAY_LABELS[d]}
                   </button>
@@ -103,7 +103,7 @@ export default function CreateDailyTaskModal({ onClose, onCreate }: Props) {
                   className="w-8 h-8 rounded-full bg-navy/5 text-navy font-bold">−</button>
                 <span className="text-sm font-black text-navy w-8 text-center">{timesPerDay}</span>
                 <button onClick={() => setTimesPerDay(timesPerDay + 1)}
-                  className="w-8 h-8 rounded-full bg-navy text-white font-bold">+</button>
+                  className="w-8 h-8 rounded-full bg-theme text-white font-bold">+</button>
                 <span className="text-[10px] text-navy/30 font-medium">次/天</span>
               </div>
             </F>
@@ -118,7 +118,7 @@ export default function CreateDailyTaskModal({ onClose, onCreate }: Props) {
                 className="w-8 h-8 rounded-full bg-navy/5 text-navy font-bold">−</button>
               <span className="text-sm font-black text-navy w-8 text-center">{targetCount}</span>
               <button onClick={() => setTargetCount(targetCount + 1)}
-                className="w-8 h-8 rounded-full bg-navy text-white font-bold">+</button>
+                className="w-8 h-8 rounded-full bg-theme text-white font-bold">+</button>
               <span className="text-[10px] text-navy/30 font-medium">
                 {period === "weekly" ? "次/周" : "次/月"}
               </span>

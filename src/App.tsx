@@ -63,7 +63,7 @@ function WelcomeScreen({ onStart, theme }: { onStart: () => void; theme: ThemeCo
         <div className="absolute top-[30%] left-[20%] w-[70vw] h-[40vw] rounded-[100%] mix-blend-multiply blur-[100px] opacity-50 rotate-12" style={{ background: theme.blob3 }} />
       </div>
       <div className="relative z-10 text-center max-w-sm animate-scale">
-        <div className="w-16 h-16 mx-auto rounded-2xl bg-navy text-white flex items-center justify-center mb-6 shadow-xl shadow-navy/20">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-theme text-white flex items-center justify-center mb-6 shadow-xl shadow-navy/20">
           <Sparkles size={26} />
         </div>
         <h1 className="text-3xl font-black text-navy tracking-tight serif mb-1">地球生活指南</h1>

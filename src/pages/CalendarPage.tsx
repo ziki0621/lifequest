@@ -139,7 +139,7 @@ export default function CalendarPage() {
               <div key={day} className="flex justify-center">
                 <button onClick={() => setSelectedDate(date)}
                   className={`w-9 h-9 flex items-center justify-center rounded-full text-xs font-bold transition-all duration-300 relative ${
-                    selected ? "bg-navy text-white shadow-lg shadow-navy/20 scale-110" :
+                    selected ? "bg-theme text-white shadow-lg shadow-navy/20 scale-110" :
                     isToday ? "bg-coral/10 text-coral font-black" :
                     hasCompletion || hasDue || hasJournal ? "text-navy/70" : "text-navy/30 hover:bg-white/60"}`}>
                   <div className="relative">
@@ -147,7 +147,7 @@ export default function CalendarPage() {
                     <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">
                       {hasCompletion && <div className="w-1 h-1 rounded-full bg-coral" />}
                       {hasDue && <div className="w-1 h-1 rounded-full bg-leaf" />}
-                      {hasJournal && <div className="w-1 h-1 rounded-full bg-navy" />}
+                      {hasJournal && <div className="w-1 h-1 rounded-full bg-theme" />}
                     </div>
                   </div>
                 </button>

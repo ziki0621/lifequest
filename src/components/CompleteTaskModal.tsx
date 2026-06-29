@@ -26,7 +26,7 @@ export default function CompleteTaskModal({ ctx, onClose, onSaveJournal }: Props
       <div className="glass rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-theme text-white flex items-center justify-center">
               <Check size={15} />
             </div>
             <div>
@@ -40,7 +40,7 @@ export default function CompleteTaskModal({ ctx, onClose, onSaveJournal }: Props
         <p className="text-[13px] text-navy/60 font-medium serif leading-relaxed">你完成了「{ctx.title}」</p>
 
         <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-navy text-white px-3 py-1.5 rounded-full tracking-wider">
+          <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-theme text-white px-3 py-1.5 rounded-full tracking-wider">
             <Sparkles size={10} /> +{ctx.expReward} EXP
           </span>
           {ctx.attributeRewards.map((ar) => {
@@ -60,7 +60,7 @@ export default function CompleteTaskModal({ ctx, onClose, onSaveJournal }: Props
             <div className="flex flex-wrap gap-1.5">
               {moods.map((m) => (
                 <button key={m} onClick={() => setMood(m)}
-                  className={`text-[10px] px-3 py-1.5 rounded-full font-bold tracking-wider transition-all ${mood === m ? "bg-navy text-white" : "bg-navy/5 text-navy/40 hover:bg-navy/10"}`}>
+                  className={`text-[10px] px-3 py-1.5 rounded-full font-bold tracking-wider transition-all ${mood === m ? "bg-theme text-white" : "bg-navy/5 text-navy/40 hover:bg-navy/10"}`}>
                   {MOOD_LABELS[m]}
                 </button>
               ))}

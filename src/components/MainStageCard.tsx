@@ -4,7 +4,7 @@ import type { QuestStage } from "../types";
 interface Props { stage: QuestStage; index: number; isCurrent: boolean; isFuture: boolean; onComplete?: (id: string) => void; }
 
 export default function MainStageCard({ stage, index, isCurrent, isFuture, onComplete }: Props) {
-  const stateClass = isCurrent ? "bg-navy text-white scale-110 shadow-xl shadow-navy/30" :
+  const stateClass = isCurrent ? "bg-theme text-white scale-110 shadow-xl shadow-navy/30" :
     stage.completed ? "bg-navy/10 text-navy" :
     "bg-white/50 border border-navy/10 text-navy/20";
 

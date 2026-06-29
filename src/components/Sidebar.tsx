@@ -63,7 +63,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
       </aside>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-navy text-white rounded-full flex justify-around py-3 px-2 z-50 shadow-2xl shadow-navy/20">
+      <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-theme text-white rounded-full flex justify-around py-3 px-2 z-50 shadow-2xl shadow-navy/20">
         {mainItems.map((item) => {
           const Icon = item.icon;
           const active = currentPage === item.id;

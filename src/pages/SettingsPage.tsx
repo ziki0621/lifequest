@@ -55,7 +55,7 @@ export default function SettingsPage() {
       {/* Data */}
       <section className="glass rounded-3xl border border-navy/10 overflow-hidden">
         <div className="flex items-center gap-2.5 px-5 py-3.5 border-b border-navy/5">
-          <div className="w-1 h-4 rounded-full bg-navy" />
+          <div className="w-1 h-4 rounded-full bg-theme" />
           <RotateCcw size={15} className="text-navy" />
           <h3 className="text-[11px] font-black text-navy uppercase tracking-widest">数据</h3>
         </div>

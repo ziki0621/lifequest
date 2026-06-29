@@ -101,7 +101,7 @@ export default function TasksPage() {
       {/* ── 主线面板 ── */}
       <Panel
         icon={<Target size={15} />} title="主线"
-        accentBar="bg-navy" accent="border-navy/10"
+        accentBar="bg-theme" accent="border-navy/10"
         badge={`${state.mainQuests.length} 条`}
         onAdd={() => setCreateModal("main")}
       >
@@ -176,7 +176,7 @@ export default function TasksPage() {
 
       {/* FAB */}
       <button onClick={() => setCreateModal("main")}
-        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 w-12 h-12 bg-navy text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-40">
+        className="fixed bottom-20 md:bottom-6 right-4 md:right-6 w-12 h-12 bg-theme text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-40">
         <Plus size={20} strokeWidth={2.5} />
       </button>
 

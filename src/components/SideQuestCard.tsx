@@ -13,7 +13,7 @@ export default function SideQuestCard({ quest, onComplete }: Props) {
     <div className={`glass rounded-3xl transition-all duration-300 group ${quest.completed ? "opacity-50" : "hover:-translate-y-1"}`}>
       <div className="p-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white ${quest.completed ? "bg-navy/30" : "bg-navy"}`}>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-white ${quest.completed ? "bg-navy/30" : "bg-theme"}`}>
             {quest.completed ? <Check size={16} /> : <DomainIcon size={15} strokeWidth={1.5} />}
           </div>
           <div className="flex-1 min-w-0">

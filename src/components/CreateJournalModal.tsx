@@ -43,7 +43,7 @@ export default function CreateJournalModal({ defaultDate, onClose, onSave }: Cre
             {moods.map((m) => (
               <button key={m} onClick={() => setMood(m)}
                 className={`text-[10px] px-3 py-1.5 rounded-full font-bold tracking-wider transition-all ${
-                  mood === m ? "bg-navy text-white" : "bg-navy/5 text-navy/40 hover:bg-navy/10"
+                  mood === m ? "bg-theme text-white" : "bg-navy/5 text-navy/40 hover:bg-navy/10"
                 }`}>{MOOD_LABELS[m]}</button>
             ))}
           </div>

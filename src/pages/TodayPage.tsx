@@ -74,7 +74,7 @@ export default function TodayPage() {
             icon={<Target size={15} />}
             title="主线推进"
             accent="border-navy/10"
-            accentBar="bg-navy"
+            accentBar="bg-theme"
             badge={`${activeStages.length} 条`}
             onAdd={() => setCreateModal("main")}
           >
@@ -176,7 +176,7 @@ export default function TodayPage() {
           </div>
         )}
         <button onClick={() => setShowFab(!showFab)}
-          className="w-12 h-12 bg-navy text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95">
+          className="w-12 h-12 bg-theme text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95">
           <Plus size={20} strokeWidth={2.5} />
         </button>
       </div>

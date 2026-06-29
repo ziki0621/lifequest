@@ -37,7 +37,7 @@ export default function DailyTaskCard({ task, onComplete, onToggle }: Props) {
     <div className={`glass rounded-3xl p-4 transition-all duration-300 ${!task.active ? "opacity-40" : "hover:-translate-y-0.5"}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${task.active ? "bg-navy text-white" : "bg-navy/20 text-navy/40"}`}>
+          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${task.active ? "bg-theme text-white" : "bg-navy/20 text-navy/40"}`}>
             <DomainIcon size={15} strokeWidth={1.5} />
           </div>
           <div className="flex-1 min-w-0">

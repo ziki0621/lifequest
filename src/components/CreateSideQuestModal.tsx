@@ -52,7 +52,7 @@ export default function CreateSideQuestModal({ onClose, mainQuests, onCreate }: 
             <div className="flex gap-1.5">
               {(["easy", "normal", "hard"] as const).map((d) => (
                 <button key={d} onClick={() => setDifficulty(d)}
-                  className={`text-[10px] px-2.5 py-1.5 rounded-full font-bold transition-all ${difficulty === d ? "bg-navy text-white" : "bg-navy/5 text-navy/40"}`}>
+                  className={`text-[10px] px-2.5 py-1.5 rounded-full font-bold transition-all ${difficulty === d ? "bg-theme text-white" : "bg-navy/5 text-navy/40"}`}>
                   {d === "easy" ? "+10" : d === "normal" ? "+20" : "+35"}
                 </button>
               ))}

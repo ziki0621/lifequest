@@ -8,7 +8,13 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
   const { theme } = useApp();
 
   return (
-    <div className="flex min-h-screen relative">
+    <div
+      className="flex min-h-screen relative"
+      style={{
+        "--theme-primary": theme.primary,
+        "--theme-primary-light": theme.primaryLight,
+      } as React.CSSProperties}
+    >
       {/* Fluid Background */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10" style={{ background: theme.bg }}>
         <div
