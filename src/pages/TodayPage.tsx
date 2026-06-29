@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Zap, Plus, Target, CheckCircle2, ListTodo } from "lucide-react";
+import { Plus, Target, CheckCircle2, ListTodo } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import DailyTaskCard from "../components/DailyTaskCard";
 import CompleteTaskModal from "../components/CompleteTaskModal";
@@ -7,12 +7,12 @@ import CreateDailyTaskModal from "../components/CreateDailyTaskModal";
 import CreateSideQuestModal from "../components/CreateSideQuestModal";
 import CreateMainQuestModal from "../components/CreateMainQuestModal";
 import type { CompletionContext, Mood, EnergyLevel } from "../types";
-import { readableDate, today, daysSince } from "../utils/date";
+import { today } from "../utils/date";
 
 export default function TodayPage() {
   const { state, completeMainStage, completeDailyTask, completeSideQuest,
     addJournal, addMainQuest, addDailyTask, addSideQuest, toggleDailyActive,
-    todayDailyTasks, todaySideQuests, todayCompletedCount } = useApp();
+    todayDailyTasks, todaySideQuests } = useApp();
 
   const [completionCtx, setCompletionCtx] = useState<CompletionContext | null>(null);
   const [showFab, setShowFab] = useState(false);
@@ -57,27 +57,10 @@ export default function TodayPage() {
     setCompletionCtx(null);
   }, [completionCtx, addJournal]);
 
-  const earthDays = daysSince(state.player.startDate);
-  const status = todayCompletedCount >= 3 ? "今天过得不错" : todayCompletedCount >= 1 ? "已经开始行动了" : "适合轻量推进";
-
   const isEmpty = activeStages.length === 0 && todayDailyTasks.length === 0 && todaySideQuests.length === 0;
 
   return (
     <div className="space-y-6 pb-24 animate-in">
-      {/* Hero */}
-      <div className="pt-2 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-        <div>
-          <p className="text-coral font-bold text-xs tracking-widest uppercase mb-2">今天是你来到地球的第 {earthDays} 天</p>
-          <h2 className="text-3xl md:text-4xl font-black text-navy tracking-tight serif leading-tight">
-            {todayCompletedCount > 0 ? "用心经营你的日常生活" : "选择一个小任务开始"}
-          </h2>
-          <p className="text-[11px] font-bold text-navy/40 uppercase tracking-widest mt-2">{readableDate(today())} · {status}</p>
-        </div>
-        <div className="glass rounded-full px-5 py-2.5 flex items-center gap-2">
-          <Zap size={16} className="text-coral" />
-          <span className="font-black text-navy text-sm">{state.player.totalExp} XP</span>
-        </div>
-      </div>
 
       {isEmpty ? (
         <div className="glass rounded-3xl p-10 text-center">
