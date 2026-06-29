@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, ArrowLeft, Pencil, Target, ListTodo, CheckCircle2 } from "lucide-react";
+import { Plus, ArrowLeft, Target, ListTodo, CheckCircle2 } from "lucide-react";
 import { useApp } from "../hooks/useApp";
 import DailyTaskCard from "../components/DailyTaskCard";
 import SideQuestCard from "../components/SideQuestCard";
@@ -63,13 +63,10 @@ export default function TasksPage() {
           <p className="text-coral font-bold text-xs tracking-widest uppercase">
             {mq.status === "active" ? "进行中" : mq.status === "paused" ? "已暂停" : "已完成"}
           </p>
-          <div className="flex items-center justify-center gap-2">
-            <h2 className="text-2xl font-black text-navy tracking-tight serif">{mq.title}</h2>
-            <button onClick={() => setEditingMain(mq)}
-              className="p-1 rounded-full hover:bg-white/50 text-navy/20 hover:text-navy transition-colors">
-              <Pencil size={14} />
-            </button>
-          </div>
+          <h2
+            className="text-2xl font-black text-navy tracking-tight serif cursor-pointer"
+            onClick={() => setEditingMain(mq)}
+          >{mq.title}</h2>
           <p className="text-[12px] text-navy/50 font-medium leading-relaxed serif">{mq.description}</p>
         </div>
         <div className="glass rounded-3xl p-4">
@@ -140,12 +137,6 @@ export default function TasksPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setEditingMain(mq); }}
-                      className="p-1.5 rounded-full hover:bg-white/50 text-navy/20 hover:text-navy transition-colors"
-                    >
-                      <Pencil size={12} />
-                    </button>
                     <div className="text-right">
                       <span className="text-[11px] font-black text-navy tabular-nums">
                         {total > 0 ? Math.round((completed / total) * 100) : 0}%
