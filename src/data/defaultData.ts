@@ -49,12 +49,12 @@ export function createDefaultAppState(): AppState {
     {
       id: genId(), title: "做一顿认真吃的饭", description: "为自己准备一餐，认真吃", domain: "body" as const,
       difficulty: "normal" as const, expReward: 20, attributeRewards: [{ attribute: "stamina" as const, exp: 10 }, { attribute: "mind" as const, exp: 10 }],
-      period: "daily" as const, targetCount: 1, completions: [] as string[], active: true, createdAt: now,
+      period: "daily" as const, targetCount: 1, timesPerDay: 2, completions: [] as string[], active: true, createdAt: now,
     },
     {
       id: genId(), title: "整理桌面 10 分钟", description: "花10分钟收拾书桌", domain: "home" as const,
       difficulty: "easy" as const, expReward: 10, attributeRewards: [{ attribute: "order" as const, exp: 10 }],
-      period: "daily" as const, targetCount: 1, completions: [] as string[], active: true, createdAt: now,
+      period: "daily" as const, targetCount: 1, daysOfWeek: [1, 2, 3, 4, 5], completions: [] as string[], active: true, createdAt: now,
     },
   ];
 

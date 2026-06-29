@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import type { DailyTask, LifeDomain, RecurrencePeriod, LifeAttribute, AttributeReward } from "../types";
-import { DOMAIN_LABELS } from "../types";
+import { DOMAIN_LABELS, WEEKDAY_LABELS } from "../types";
 import { difficultyExp } from "../utils/exp";
 
 interface Props { onClose: () => void; onCreate: (dt: Omit<DailyTask, "id" | "createdAt" | "completions">) => void; }
@@ -17,25 +17,37 @@ export default function CreateDailyTaskModal({ onClose, onCreate }: Props) {
   const [difficulty, setDifficulty] = useState<"easy" | "normal" | "hard">("easy");
   const [period, setPeriod] = useState<RecurrencePeriod>("daily");
   const [targetCount, setTargetCount] = useState(1);
+  const [daysOfWeek, setDaysOfWeek] = useState<number[]>([]);
+  const [timesPerDay, setTimesPerDay] = useState(1);
+
+  const toggleDay = (d: number) => {
+    setDaysOfWeek((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort());
+  };
 
   const handleSubmit = () => {
     if (!title.trim()) return;
     const exp = difficultyExp(difficulty);
     const rewards = getDefaultRewards(domain, exp);
-    onCreate({ title: title.trim(), description: description.trim() || undefined, domain, difficulty, expReward: exp, attributeRewards: rewards, period, targetCount, active: true });
+    onCreate({
+      title: title.trim(), description: description.trim() || undefined,
+      domain, difficulty, expReward: exp, attributeRewards: rewards,
+      period, targetCount,
+      ...(period === "daily" ? { daysOfWeek: daysOfWeek.length > 0 ? daysOfWeek : undefined, timesPerDay } : {}),
+      active: true,
+    });
     onClose();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30 backdrop-blur-sm animate-fade">
-      <div className="glass rounded-3xl shadow-2xl max-w-md w-full animate-scale p-6 space-y-4">
+      <div className="glass rounded-3xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-black text-navy serif">新建日常任务</h3>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button>
         </div>
 
         <F label="任务标题" required><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例如：每周运动2次" className="input" /></F>
-        <F label="描述"><textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="简短描述…" rows={2} className="input" /></F>
+        <F label="描述"><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="input" /></F>
 
         <div className="grid grid-cols-2 gap-3">
           <F label="领域">
@@ -66,18 +78,53 @@ export default function CreateDailyTaskModal({ onClose, onCreate }: Props) {
           </div>
         </F>
 
-        <F label="目标次数">
-          <div className="flex items-center gap-2">
-            <button onClick={() => setTargetCount(Math.max(1, targetCount - 1))}
-              className="w-8 h-8 rounded-full bg-navy/5 text-navy font-bold">−</button>
-            <span className="text-sm font-black text-navy w-8 text-center">{targetCount}</span>
-            <button onClick={() => setTargetCount(targetCount + 1)}
-              className="w-8 h-8 rounded-full bg-navy text-white font-bold">+</button>
-            <span className="text-[10px] text-navy/30 font-medium">
-              {period === "daily" ? "次/天" : period === "weekly" ? "次/周" : "次/月"}
-            </span>
-          </div>
-        </F>
+        {/* Day-of-week picker — only for daily */}
+        {period === "daily" && (
+          <>
+            <F label="选择周几">
+              <div className="flex gap-1.5">
+                {[0, 1, 2, 3, 4, 5, 6].map((d) => (
+                  <button key={d} onClick={() => toggleDay(d)}
+                    className={`w-9 h-9 rounded-full text-[10px] font-bold transition-all ${
+                      daysOfWeek.includes(d) ? "bg-navy text-white" : "bg-navy/5 text-navy/30 hover:bg-navy/10"
+                    }`}>
+                    {WEEKDAY_LABELS[d]}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[9px] text-navy/25 mt-1">
+                {daysOfWeek.length === 0 ? "未选择 = 每天" : `已选 ${daysOfWeek.length} 天`}
+              </p>
+            </F>
+
+            <F label="每天几次">
+              <div className="flex items-center gap-2">
+                <button onClick={() => setTimesPerDay(Math.max(1, timesPerDay - 1))}
+                  className="w-8 h-8 rounded-full bg-navy/5 text-navy font-bold">−</button>
+                <span className="text-sm font-black text-navy w-8 text-center">{timesPerDay}</span>
+                <button onClick={() => setTimesPerDay(timesPerDay + 1)}
+                  className="w-8 h-8 rounded-full bg-navy text-white font-bold">+</button>
+                <span className="text-[10px] text-navy/30 font-medium">次/天</span>
+              </div>
+            </F>
+          </>
+        )}
+
+        {/* Target count — for weekly/monthly */}
+        {period !== "daily" && (
+          <F label="目标次数">
+            <div className="flex items-center gap-2">
+              <button onClick={() => setTargetCount(Math.max(1, targetCount - 1))}
+                className="w-8 h-8 rounded-full bg-navy/5 text-navy font-bold">−</button>
+              <span className="text-sm font-black text-navy w-8 text-center">{targetCount}</span>
+              <button onClick={() => setTargetCount(targetCount + 1)}
+                className="w-8 h-8 rounded-full bg-navy text-white font-bold">+</button>
+              <span className="text-[10px] text-navy/30 font-medium">
+                {period === "weekly" ? "次/周" : "次/月"}
+              </span>
+            </div>
+          </F>
+        )}
 
         <button onClick={handleSubmit} disabled={!title.trim()}
           className="btn btn-primary w-full !rounded-full disabled:opacity-30">创建日常任务</button>

@@ -175,7 +175,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // ── Computed ──
   const t = today();
-  const todayDailyTasks = state.dailyTasks.filter((dt) => isDailyTaskDue(dt.completions, dt.period, dt.targetCount, dt.active, t));
+  const todayDailyTasks = state.dailyTasks.filter((dt) => isDailyTaskDue(dt.completions, dt.period, dt.targetCount, dt.active, t, dt.daysOfWeek, dt.timesPerDay));
   const todaySideQuests = state.sideQuests.filter((sq) => !sq.completed);
   const todayCompletedCount =
     state.dailyTasks.reduce((sum, dt) => sum + dt.completions.filter((c) => c === t).length, 0) +

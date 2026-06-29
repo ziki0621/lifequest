@@ -40,6 +40,8 @@ export interface DailyTask {
   id: string; title: string; description?: string; domain: LifeDomain;
   difficulty: Difficulty; expReward: number; attributeRewards: AttributeReward[];
   period: RecurrencePeriod; targetCount: number; completions: string[];
+  daysOfWeek?: number[];   // 0=Sun..6=Sat, only for period="daily". undefined = every day
+  timesPerDay?: number;    // only for period="daily". target completions per active day. default 1
   active: boolean; createdAt: string;
 }
 
@@ -130,4 +132,12 @@ export const ENERGY_LABELS: Record<EnergyLevel, string> = {
 
 export const PERIOD_LABELS: Record<RecurrencePeriod, string> = {
   daily: "每天", weekly: "每周", monthly: "每月",
+};
+
+export const WEEKDAY_LABELS: Record<number, string> = {
+  0: "日", 1: "一", 2: "二", 3: "三", 4: "四", 5: "五", 6: "六",
+};
+
+export const WEEKDAY_FULL: Record<number, string> = {
+  0: "周日", 1: "周一", 2: "周二", 3: "周三", 4: "周四", 5: "周五", 6: "周六",
 };

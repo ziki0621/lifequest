@@ -82,7 +82,28 @@ export function countCompletionsInPeriod(completions: string[], period: Recurren
   return completions.filter((c) => c >= start && c <= end).length;
 }
 
-export function isDailyTaskDue(completions: string[], period: RecurrencePeriod, targetCount: number, active: boolean, refDate: string): boolean {
+export function countTodayCompletions(completions: string[], refDate: string): number {
+  return completions.filter((c) => c === refDate).length;
+}
+
+export function isDailyTaskDue(
+  completions: string[], period: RecurrencePeriod, targetCount: number,
+  active: boolean, refDate: string,
+  daysOfWeek?: number[], timesPerDay?: number,
+): boolean {
   if (!active) return false;
+
+  if (period === "daily") {
+    // Check if today is an active day
+    if (daysOfWeek && daysOfWeek.length > 0) {
+      const todayDow = parseLocalDate(refDate).getDay();
+      if (!daysOfWeek.includes(todayDow)) return false;
+    }
+    // Count today's completions vs timesPerDay (default 1)
+    const tpd = timesPerDay || 1;
+    return countTodayCompletions(completions, refDate) < tpd;
+  }
+
+  // weekly / monthly: count in period vs targetCount
   return countCompletionsInPeriod(completions, period, refDate) < targetCount;
 }

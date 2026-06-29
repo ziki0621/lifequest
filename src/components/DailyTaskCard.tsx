@@ -1,19 +1,37 @@
 import { Check, Pause } from "lucide-react";
 import type { DailyTask } from "../types";
-import { DOMAIN_ICONS, PERIOD_LABELS, ATTRIBUTE_ICONS, ATTR_COLOR } from "../types";
-import { today, countCompletionsInPeriod } from "../utils/date";
+import { DOMAIN_ICONS, PERIOD_LABELS, ATTRIBUTE_ICONS, ATTR_COLOR, WEEKDAY_FULL } from "../types";
+import { today, countCompletionsInPeriod, countTodayCompletions } from "../utils/date";
 
 interface Props { task: DailyTask; onComplete: (id: string) => void; onToggle: (id: string) => void; }
 
 export default function DailyTaskCard({ task, onComplete, onToggle }: Props) {
   const DomainIcon = DOMAIN_ICONS[task.domain];
   const t = today();
-  const count = countCompletionsInPeriod(task.completions, task.period, t);
-  const remaining = Math.max(0, task.targetCount - count);
-  const progressPercent = Math.min(100, Math.round((count / task.targetCount) * 100));
+
+  // Different counting for daily (per-day) vs weekly/monthly (per-period)
+  const isDaily = task.period === "daily";
+  const todayCount = countTodayCompletions(task.completions, t);
+  const periodCount = countCompletionsInPeriod(task.completions, task.period, t);
+
+  const target = isDaily ? (task.timesPerDay || 1) : task.targetCount;
+  const count = isDaily ? todayCount : periodCount;
+  const remaining = Math.max(0, target - count);
+  const progressPercent = Math.min(100, Math.round((count / target) * 100));
 
   const diffLabel = task.difficulty === "easy" ? "EASY" : task.difficulty === "normal" ? "NORMAL" : "HARD";
   const diffColor = task.difficulty === "easy" ? "text-leaf" : task.difficulty === "normal" ? "text-navy" : "text-coral";
+
+  // Build schedule description
+  let scheduleDesc = PERIOD_LABELS[task.period];
+  if (isDaily) {
+    if (task.daysOfWeek && task.daysOfWeek.length > 0) {
+      scheduleDesc = task.daysOfWeek.map((d) => WEEKDAY_FULL[d]).join("·");
+    }
+    scheduleDesc += ` · ${task.timesPerDay || 1}次/天`;
+  } else {
+    scheduleDesc += ` ${task.targetCount} 次`;
+  }
 
   return (
     <div className={`glass rounded-3xl p-4 transition-all duration-300 ${!task.active ? "opacity-40" : "hover:-translate-y-0.5"}`}>
@@ -26,7 +44,7 @@ export default function DailyTaskCard({ task, onComplete, onToggle }: Props) {
             <h4 className="text-[13px] font-black text-navy tracking-wide">{task.title}</h4>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className={`text-[9px] font-bold uppercase tracking-widest ${diffColor}`}>{diffLabel}</span>
-              <span className="text-[9px] font-bold text-navy/30 uppercase tracking-widest">{PERIOD_LABELS[task.period]} {task.targetCount} 次</span>
+              <span className="text-[9px] font-bold text-navy/30 uppercase tracking-widest">{scheduleDesc}</span>
               {task.attributeRewards.map((ar) => {
                 const AIcon = ATTRIBUTE_ICONS[ar.attribute];
                 return (
@@ -46,7 +64,7 @@ export default function DailyTaskCard({ task, onComplete, onToggle }: Props) {
             </button>
           )}
           {task.active && remaining === 0 && (
-            <span className="text-[10px] font-bold text-leaf tracking-wider">已完成 {count}/{task.targetCount}</span>
+            <span className="text-[10px] font-bold text-leaf tracking-wider">✓ {count}/{target}</span>
           )}
           <button onClick={() => onToggle(task.id)}
             className={`p-1.5 rounded-full transition-colors ${task.active ? "text-navy/20 hover:text-navy/50" : "text-navy/30 hover:text-coral"}`}
@@ -60,7 +78,7 @@ export default function DailyTaskCard({ task, onComplete, onToggle }: Props) {
         <div className="progress-fill" style={{ width: `${progressPercent}%`, background: task.active ? "#0B192C" : "#ccc" }} />
       </div>
       <div className="flex justify-between mt-1.5 text-[9px] font-bold text-navy/30 uppercase tracking-widest">
-        <span>{count}/{task.targetCount}</span>
+        <span>{count}/{target}</span>
         <span>{remaining > 0 ? `剩 ${remaining} 次` : "完成"}</span>
       </div>
     </div>
