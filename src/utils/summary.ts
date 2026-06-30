@@ -26,11 +26,19 @@ export function buildTodaySummary(state: AppState, date: string): TodaySummary {
     }
   });
 
-  state.mainQuests.forEach((mq) => {
-    mq.stages.forEach((s, index) => {
-      if (s.completedAt?.startsWith(date)) {
+  state.questBooks.forEach((qb) => {
+    qb.questLines.forEach((ql) => {
+      ql.stages.forEach((s, index) => {
+        if (s.completedAt?.startsWith(date)) {
+          completedCount += 1;
+          expGained += index === 0 ? 15 : 25;
+        }
+      });
+    });
+    qb.directTasks.forEach((t) => {
+      if (t.completedAt?.startsWith(date)) {
         completedCount += 1;
-        expGained += index === 0 ? 15 : 25;
+        expGained += 10;
       }
     });
   });

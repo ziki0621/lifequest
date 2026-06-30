@@ -5,13 +5,15 @@ import { ATTRIBUTE_ICONS, ATTRIBUTE_LABELS, ATTR_COLOR } from "../types";
 interface Props { ctx: CompletionContext; date?: string; }
 
 export default function CompletionCard({ ctx, date }: Props) {
-  const iconMap = {
-    mainStage: <Target size={14} />,
+  const iconMap: Record<string, React.ReactNode> = {
+    questStage: <Target size={14} />,
+    questBookTask: <CheckCircle2 size={14} />,
     daily: <Zap size={14} />,
     sideQuest: <CheckCircle2 size={14} />,
   };
-  const labelMap = {
-    mainStage: "主线阶段",
+  const labelMap: Record<string, string> = {
+    questStage: "任务书阶段",
+    questBookTask: "直接任务",
     daily: "日常打卡",
     sideQuest: "支线完成",
   };

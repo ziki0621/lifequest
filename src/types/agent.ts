@@ -25,7 +25,7 @@ export interface QuestPlannerInput {
 
 export interface QuestPlanStageDraft { title: string; description?: string; anchorDate?: string; }
 
-export interface QuestPlanMainQuestDraft {
+export interface QuestPlanBookDraft {
   title: string; description: string; domain: LifeDomain; stages: QuestPlanStageDraft[];
 }
 
@@ -41,13 +41,13 @@ export interface QuestPlanSideQuestDraft {
 
 export interface QuestPlanDraft {
   npcReply: string; rationale: string;
-  mainQuest?: QuestPlanMainQuestDraft;
+  mainQuest?: QuestPlanBookDraft;
   dailyTasks: QuestPlanDailyTaskDraft[];
   sideQuests: QuestPlanSideQuestDraft[];
 }
 
 export interface TodayRecommendation {
-  npcReply: string; taskType: "mainStage" | "daily" | "sideQuest" | "none";
+  npcReply: string; taskType: "questStage" | "questBookTask" | "daily" | "sideQuest" | "none";
   taskId?: string; title?: string; reason: string;
 }
 

@@ -1,0 +1,36 @@
+import { useState } from "react";
+import { X } from "lucide-react";
+import type { QuestBook, LifeDomain } from "../types";
+import { DOMAIN_LABELS } from "../types";
+
+interface Props { questBook: QuestBook; onClose: () => void; onUpdate: (id: string, data: Partial<QuestBook>) => void; onArchive?: (id: string) => void; onDelete?: (id: string) => void; }
+
+const domains: LifeDomain[] = ["body", "mind", "relationship", "home", "exploration", "interest", "learning", "career", "finance"];
+
+export default function EditQuestBookModal({ questBook, onClose, onUpdate, onArchive, onDelete }: Props) {
+  const [title, setTitle] = useState(questBook.title);
+  const [description, setDescription] = useState(questBook.description);
+  const [domain, setDomain] = useState<LifeDomain>(questBook.domain);
+
+  const handleSubmit = () => { if (!title.trim()) return; onUpdate(questBook.id, { title: title.trim(), description: description.trim(), domain }); onClose(); };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30 backdrop-blur-sm animate-fade">
+      <div className="glass rounded-3xl shadow-2xl max-w-md w-full animate-scale p-6 space-y-4">
+        <div className="flex items-center justify-between"><h3 className="text-sm font-black text-navy serif">编辑任务书</h3><button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button></div>
+        <F label="名称" required><input value={title} onChange={(e) => setTitle(e.target.value)} className="input" /></F>
+        <F label="描述"><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="input" /></F>
+        <F label="领域"><select value={domain} onChange={(e) => setDomain(e.target.value as LifeDomain)} className="input">{domains.map((d) => <option key={d} value={d}>{DOMAIN_LABELS[d]}</option>)}</select></F>
+        <button onClick={handleSubmit} disabled={!title.trim()} className="btn btn-primary w-full !rounded-full disabled:opacity-30">保存</button>
+        <div className="pt-3 border-t border-navy/5 space-y-2">
+          <p className="text-[9px] font-bold text-navy/20 uppercase tracking-widest">危险操作</p>
+          <div className="flex gap-2">
+            {onArchive && <button onClick={() => onArchive(questBook.id)} className="btn btn-ghost !text-[10px] !py-1.5 flex-1 text-coral/60 hover:text-coral">归档任务书</button>}
+            {onDelete && <button onClick={() => { if (window.confirm("确定要删除吗？")) onDelete(questBook.id); }} className="btn btn-ghost !text-[10px] !py-1.5 flex-1 text-coral/60 hover:text-coral">删除任务书</button>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function F({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) { return <div><label className="text-[9px] font-bold text-navy/30 uppercase tracking-widest block mb-1.5">{label}{required && <span className="text-coral ml-0.5">*</span>}</label>{children}</div>; }

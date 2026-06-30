@@ -10,7 +10,7 @@ import { daysSince } from "../utils/date";
 
 export default function CharacterPage() {
   const { state } = useApp();
-  const { player, achievements, mainQuests, dailyTasks, sideQuests } = state;
+  const { player, achievements, questBooks, dailyTasks, sideQuests } = state;
   const progress = Math.round(((player.totalExp % 100) / 100) * 100);
   const unlocked = achievements.filter((a) => a.unlocked).length;
 
@@ -18,7 +18,7 @@ export default function CharacterPage() {
     .sort((a, b) => b[1].level - a[1].level || b[1].exp - a[1].exp);
 
   // Stats
-  const completedStages = mainQuests.reduce((sum, mq) => sum + mq.stages.filter((s) => s.completed).length, 0);
+  const completedStages = questBooks.reduce((sum, qb) => sum + qb.questLines.reduce((s, ql) => s + ql.stages.filter((st) => st.completed).length, 0) + qb.directTasks.filter((t) => t.completed).length, 0);
   const completedSideQuests = sideQuests.filter((sq) => sq.completed).length;
   const totalDailyCompletions = dailyTasks.reduce((sum, dt) => sum + dt.completions.length, 0);
 
@@ -26,12 +26,11 @@ export default function CharacterPage() {
   let maxStreak = 0;
   const allDates = new Set<string>();
   dailyTasks.forEach((dt) => dt.completions.forEach((c) => allDates.add(c)));
-  mainQuests.forEach((mq) => mq.stages.forEach((s) => {
-    if (s.completed && s.completedAt) allDates.add(s.completedAt.slice(0, 10));
-  }));
-  sideQuests.forEach((sq) => {
-    if (sq.completed && sq.completedAt) allDates.add(sq.completedAt.slice(0, 10));
+  questBooks.forEach((qb) => {
+    qb.questLines.forEach((ql) => ql.stages.forEach((s) => { if (s.completed && s.completedAt) allDates.add(s.completedAt.slice(0, 10)); }));
+    qb.directTasks.forEach((t) => { if (t.completed && t.completedAt) allDates.add(t.completedAt.slice(0, 10)); });
   });
+  sideQuests.forEach((sq) => { if (sq.completed && sq.completedAt) allDates.add(sq.completedAt.slice(0, 10)); });
   const sortedDates = [...allDates].sort();
   let currentStreak = 0;
   for (let i = 0; i < sortedDates.length; i++) {

@@ -10,7 +10,7 @@ export type Mood = "calm" | "happy" | "tired" | "anxious" | "sad" | "satisfied" 
 export type EnergyLevel = "low" | "normal" | "high";
 export type RecurrencePeriod = "daily" | "weekly" | "monthly";
 export type Difficulty = "easy" | "normal" | "hard";
-export type MainQuestStatus = "active" | "paused" | "completed";
+export type QuestBookStatus = "active" | "paused" | "completed";
 
 // ====== Core Models ======
 export interface AttributeState { level: number; exp: number; }
@@ -22,17 +22,34 @@ export interface Player {
   startDate: string;
 }
 
-// ── 主线任务 ──
+// ── 任务书（代替原来的主线任务） ──
+
 export interface QuestStage {
   id: string; title: string; description?: string;
-  anchorDate?: string;       // 时间锚点
+  anchorDate?: string;
   completed: boolean; completedAt?: string;
   order: number;
 }
 
-export interface MainQuest {
+/** 任务书内的单条任务线 */
+export interface QuestLine {
+  id: string; title: string; description?: string;
+  stages: QuestStage[];
+}
+
+/** 任务书内的直接子任务（不归属任何任务线） */
+export interface QuestBookTask {
+  id: string; title: string; description?: string;
+  completed: boolean; completedAt?: string;
+}
+
+/** 任务书：包含多条并行任务线 + 直接子任务 */
+export interface QuestBook {
   id: string; title: string; description: string; domain: LifeDomain;
-  status: MainQuestStatus; stages: QuestStage[]; createdAt: string;
+  status: QuestBookStatus;
+  questLines: QuestLine[];
+  directTasks: QuestBookTask[];
+  createdAt: string;
   archived?: boolean; archivedAt?: string;
 }
 
@@ -67,28 +84,10 @@ export interface Achievement {
   unlocked: boolean; unlockedAt?: string;
 }
 
-// ====== AI Quest Planner ======
-export type PlannerIntensity = "gentle" | "normal" | "challenge";
-
-export interface QuestPlannerInput {
-  goal: string;
-  currentSituation?: string;
-  timeRange: "3days" | "1week" | "2weeks" | "1month";
-  intensity: PlannerIntensity;
-  focusDomains: LifeDomain[];
-}
-
-export interface QuestPlanDraft {
-  mainQuest: Omit<MainQuest, "id" | "createdAt">;
-  dailyTasks: Omit<DailyTask, "id" | "createdAt" | "completions">[];
-  sideQuests: Omit<SideQuest, "id" | "createdAt" | "completed" | "completedAt">[];
-  rationale?: string;
-}
-
 // ====== App State ======
 export interface AppState {
   player: Player;
-  mainQuests: MainQuest[];
+  questBooks: QuestBook[];
   dailyTasks: DailyTask[];
   sideQuests: SideQuest[];
   journalEntries: JournalEntry[];
@@ -97,14 +96,14 @@ export interface AppState {
 
 // ====== Linked item for JournalCard ======
 export interface LinkedTask {
-  type: "mainStage" | "daily" | "sideQuest";
+  type: "questStage" | "questBookTask" | "daily" | "sideQuest";
   title: string;
   attributeRewards: AttributeReward[];
 }
 
 // ====== Completion context for modals ======
 export interface CompletionContext {
-  itemType: "mainStage" | "daily" | "sideQuest";
+  itemType: "questStage" | "questBookTask" | "daily" | "sideQuest";
   itemId: string;
   title: string;
   expReward: number;
