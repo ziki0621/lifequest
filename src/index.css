@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy: #0B192C;
-  --color-navy-light: #1E3E62;
-  --color-coral: #FF4D6D;
-  --color-coral-soft: #FF6B80;
-  --color-leaf: #4A90E2;
-  --color-leaf-soft: #6BAAF0;
-  --color-sand: #F8F6F4;
-  --color-cream: #FFF5F5;
-  --color-ink: #1a1a2e;
+  --color-navy: #3a3028;
+  --color-navy-light: #5a4a3c;
+  --color-coral: #a37a42;
+  --color-coral-soft: #c5a06a;
+  --color-leaf: #5d7d42;
+  --color-leaf-soft: #8da76c;
+  --color-sand: #f2e6d1;
+  --color-cream: #fbf3e4;
+  --color-ink: #2f2924;
   --font-serif: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -21,16 +21,17 @@
     margin: 0;
     font-family: var(--font-sans);
     color: var(--color-navy);
+    background: #f4ead8;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
     line-height: 1.7;
   }
 
   #root { min-height: 100vh; }
 
   ::selection {
-    background: rgba(255, 77, 109, 0.2);
+    background: rgba(93, 125, 66, 0.22);
     color: var(--color-navy);
   }
 
@@ -45,87 +46,143 @@
   }
 }
 
-/* ── Theme-reactive primary color ── */
+/* Parchment background */
+.paper-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -10;
+  background:
+    linear-gradient(rgba(255, 250, 239, 0.28), rgba(235, 217, 184, 0.2)),
+    url("./assets/paper-bg-light.png") center / cover no-repeat,
+    #f4ead8;
+}
+.paper-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(255, 255, 255, 0.28), transparent 42%),
+    radial-gradient(circle at 50% 110%, rgba(121, 85, 45, 0.12), transparent 42%);
+  mix-blend-mode: multiply;
+}
+.paper-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 120px rgba(91, 66, 39, 0.14);
+}
+
+/* Theme-reactive primary color */
 .bg-theme {
-  background: var(--theme-primary, #0B192C);
+  background: var(--theme-primary, #5d7d42);
 }
 .bg-theme-light {
-  background: var(--theme-primary-light, #E0E0E8);
+  background: var(--theme-primary-light, #d9dfc6);
 }
 .text-theme {
-  color: var(--theme-primary, #0B192C);
+  color: var(--theme-primary, #5d7d42);
 }
 /* Progress fill also uses theme primary */
 .progress-fill {
-  background: var(--theme-primary, #0B192C) !important;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--theme-primary, #5d7d42) 88%, white), var(--theme-primary, #5d7d42)) !important;
 }
 
-/* ── Glass Card ── */
+/* Parchment card / window */
 .glass {
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  position: relative;
+  border-radius: 8px !important;
+  border: 1px solid rgba(69, 55, 42, 0.72) !important;
+  background:
+    linear-gradient(rgba(255, 251, 243, 0.84), rgba(249, 238, 218, 0.78)),
+    url("./assets/paper-bg-warm.png") center / cover no-repeat;
+  box-shadow:
+    0 18px 38px rgba(68, 52, 35, 0.12),
+    inset 0 0 0 4px rgba(255, 249, 237, 0.58),
+    inset 0 0 0 6px rgba(69, 55, 42, 0.22);
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  border: 1px solid rgba(69, 55, 42, 0.42);
+  pointer-events: none;
+}
+.glass > * {
+  position: relative;
+  z-index: 1;
 }
 
-/* ── Serif heading utility ── */
+/* Serif heading utility */
 .serif { font-family: var(--font-serif); }
 
-/* ── Pill button variants ── */
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: 8px !important;
+}
+
+/* Button variants */
 .btn {
   font-weight: 700;
-  border-radius: 9999px;
+  border-radius: 8px;
   padding: 0.75rem 2rem;
   text-align: center;
-  transition: all 0.3s;
+  transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   user-select: none;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   font-size: 0.8125rem;
+  border: 1px solid rgba(91, 73, 54, 0.38);
+  box-shadow: 0 2px 0 rgba(69, 55, 42, 0.16);
 }
 .btn-primary {
-  background: var(--theme-primary, var(--color-navy));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--theme-primary, #5d7d42) 88%, white), var(--theme-primary, #5d7d42));
   color: white;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
 }
 .btn-primary:hover {
   filter: brightness(0.92);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.10);
+  box-shadow: 0 8px 18px rgba(68, 52, 35, 0.16);
+  transform: translateY(-1px);
 }
 .btn-accent {
-  background: var(--color-coral);
+  background: linear-gradient(180deg, #b98d52, #9c713d);
   color: white;
 }
 .btn-accent:hover {
-  background: #E03A58;
-  box-shadow: 0 8px 24px rgba(255, 77, 109, 0.3);
+  filter: brightness(0.94);
+  box-shadow: 0 8px 18px rgba(68, 52, 35, 0.16);
 }
 .btn-ghost {
   color: var(--color-navy);
-  background: transparent;
+  background: rgba(255, 249, 237, 0.36);
 }
-.btn-ghost:hover { background: rgba(255, 255, 255, 0.5); }
+.btn-ghost:hover { background: rgba(255, 249, 237, 0.68); }
 
-/* ── Form input ── */
+/* Form input */
 .input {
   display: block;
   width: 100%;
   padding: 0.75rem 1rem;
-  border-radius: 9999px;
-  border: 1.5px solid rgba(11, 25, 44, 0.1);
-  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(91, 73, 54, 0.24);
+  background: rgba(255, 250, 240, 0.58);
   color: var(--color-navy);
   font-size: 0.8125rem;
   font-family: var(--font-sans);
   transition: border-color 0.2s, box-shadow 0.2s;
   outline: none;
 }
-.input::placeholder { color: rgba(11, 25, 44, 0.3); }
+.input::placeholder { color: rgba(58, 48, 40, 0.38); }
 .input:focus {
-  border-color: var(--color-navy);
-  box-shadow: 0 0 0 3px rgba(11, 25, 44, 0.06);
+  border-color: var(--theme-primary, #5d7d42);
+  box-shadow: 0 0 0 3px rgba(93, 125, 66, 0.12);
 }
-textarea.input { border-radius: 1.5rem; }
+textarea.input { border-radius: 8px; }
 select.input {
   cursor: pointer;
   appearance: none;
@@ -136,12 +193,13 @@ select.input {
   padding-right: 2.5rem;
 }
 
-/* ── Progress bar ── */
+/* Progress bar */
 .progress {
-  height: 6px;
+  height: 12px;
   border-radius: 9999px;
   width: 100%;
-  background: rgba(11, 25, 44, 0.08);
+  background: rgba(111, 84, 52, 0.08);
+  border: 1px solid rgba(111, 84, 52, 0.16);
   overflow: hidden;
 }
 .progress-fill {
@@ -150,7 +208,7 @@ select.input {
   transition: width 0.8s ease-out;
 }
 
-/* ── Animations ── */
+/* Animations */
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }

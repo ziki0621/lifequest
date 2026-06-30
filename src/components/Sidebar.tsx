@@ -23,7 +23,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
       <button
         key={item.id}
         onClick={() => onNavigate(item.id)}
-        className={`flex items-center gap-3 px-5 py-3 rounded-full font-bold transition-all duration-300 tracking-widest text-xs ${
+        className={`flex items-center gap-3 px-5 py-3 rounded-lg font-bold transition-all duration-300 tracking-widest text-xs ${
           active
             ? "bg-white text-navy shadow-sm"
             : "text-navy/40 hover:text-navy hover:bg-white/20"
@@ -58,7 +58,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
       </aside>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-theme text-white rounded-full flex justify-around py-3 px-2 z-50 shadow-2xl shadow-navy/20">
+      <nav className="md:hidden fixed bottom-4 left-4 right-4 bg-theme text-white rounded-lg border border-navy/30 flex justify-around py-3 px-2 z-50 shadow-2xl shadow-navy/20">
         {mainItems.map((item) => {
           const Icon = item.icon;
           const active = currentPage === item.id;
@@ -66,7 +66,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
             <button
               key={item.id}
               onClick={() => onNavigate(item.id)}
-              className={`p-2.5 rounded-full transition-colors ${active ? "bg-white/20" : "text-white/50"}`}
+              className={`p-2.5 rounded-md transition-colors ${active ? "bg-white/20" : "text-white/50"}`}
             >
               <Icon size={18} strokeWidth={active ? 2.5 : 2} />
             </button>
@@ -74,7 +74,7 @@ export default function Sidebar({ currentPage, onNavigate }: SidebarProps) {
         })}
         <button
           onClick={() => onNavigate("settings")}
-          className={`p-2.5 rounded-full transition-colors ${currentPage === "settings" ? "bg-white/20" : "text-white/50"}`}
+          className={`p-2.5 rounded-md transition-colors ${currentPage === "settings" ? "bg-white/20" : "text-white/50"}`}
         >
           <Settings size={18} strokeWidth={currentPage === "settings" ? 2.5 : 2} />
         </button>

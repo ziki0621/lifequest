@@ -84,12 +84,8 @@ function AppContent() {
 
 function WelcomeScreen({ onStart, theme }: { onStart: () => void; theme: ThemeConfig }) {
   return (
-    <div className="min-h-screen flex items-center justify-center relative p-6" style={{ background: theme.bg }}>
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10" style={{ background: theme.bg }}>
-        <div className="absolute -top-[10%] -right-[5%] w-[60vw] h-[60vw] rounded-full mix-blend-multiply blur-[80px] opacity-70 animate-pulse" style={{ background: theme.blob1, animationDuration: "8s" }} />
-        <div className="absolute -bottom-[10%] -left-[10%] w-[50vw] h-[50vw] rounded-full mix-blend-multiply blur-[80px] opacity-60 animate-pulse" style={{ background: theme.blob2, animationDuration: "12s" }} />
-        <div className="absolute top-[30%] left-[20%] w-[70vw] h-[40vw] rounded-[100%] mix-blend-multiply blur-[100px] opacity-50 rotate-12" style={{ background: theme.blob3 }} />
-      </div>
+    <div className="min-h-screen flex items-center justify-center relative p-6" style={{ "--theme-primary": theme.primary, "--theme-primary-light": theme.primaryLight } as React.CSSProperties}>
+      <div className="paper-bg" />
       <div className="relative z-10 text-center max-w-sm animate-scale">
         <div className="w-16 h-16 mx-auto rounded-2xl bg-theme text-white flex items-center justify-center mb-6 shadow-xl shadow-navy/20"><Sparkles size={26} /></div>
         <h1 className="text-3xl font-black text-navy tracking-tight serif mb-1">地球生活指南</h1>
