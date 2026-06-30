@@ -15,8 +15,8 @@ export default function Layout({ children, currentPage, onNavigate }: LayoutProp
         "--theme-primary-light": theme.primaryLight,
       } as React.CSSProperties}
     >
-      <div className="paper-bg" />
-
+      {/* Parchment texture background */}
+      <div className="parchment-bg" />
       <Sidebar currentPage={currentPage} onNavigate={onNavigate} />
       <div className="flex-1 flex flex-col pb-28 md:pb-0 min-w-0">
         <main className="flex-1 px-5 md:px-12 pt-6 md:pt-10 max-w-5xl mx-auto w-full z-10">

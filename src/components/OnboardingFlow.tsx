@@ -87,8 +87,8 @@ export default function OnboardingFlow({ onFinish, onSkip, onGenerate }: Props) 
               ))}
             </div>
             <div className="flex gap-2 pt-2">
-              <button onClick={onSkip} className="btn btn-ghost !text-[10px] flex-1">跳过，使用示例数据</button>
-              <button onClick={handleFinish} className="btn btn-primary !text-[10px] flex-1">开始 <ArrowRight size={13} /></button>
+              <button onClick={onSkip} className="wireframe-btn-ghost !text-[10px] flex-1">跳过，使用示例数据</button>
+              <button onClick={handleFinish} className="wireframe-btn !text-[10px] flex-1">开始 <ArrowRight size={13} /></button>
             </div>
           </div>
         )}

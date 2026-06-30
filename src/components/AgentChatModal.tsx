@@ -26,8 +26,8 @@ export default function AgentChatModal({ npc, title, intro, placeholder, taskTyp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30 backdrop-blur-sm animate-fade">
-      <div className="glass rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
+      <div className="wireframe max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-5">
         <div className="flex justify-between items-center">
           <div>
             <p className="text-[9px] font-bold text-coral uppercase tracking-widest">{title}</p>
@@ -67,11 +67,11 @@ export default function AgentChatModal({ npc, title, intro, placeholder, taskTyp
         {/* Step 2: Text input */}
         {step === "input" && (
           <>
-            <textarea className="input" rows={4} placeholder={placeholder} value={text} onChange={(e) => setText(e.target.value)} />
+            <textarea className="wireframe-input" rows={4} placeholder={placeholder} value={text} onChange={(e) => setText(e.target.value)} />
             <div className="flex justify-end gap-2">
-              {taskTypes.length > 0 && <button className="btn btn-ghost !text-[10px]" onClick={() => setStep("type")}>返回</button>}
-              <button className="btn btn-ghost !text-[11px]" onClick={onClose}>取消</button>
-              <button className="btn btn-primary !text-[11px]" disabled={!text.trim() || loading} onClick={handleSubmit}>
+              {taskTypes.length > 0 && <button className="wireframe-btn-ghost !text-[10px]" onClick={() => setStep("type")}>返回</button>}
+              <button className="wireframe-btn-ghost !text-[11px]" onClick={onClose}>取消</button>
+              <button className="wireframe-btn !text-[11px]" disabled={!text.trim() || loading} onClick={handleSubmit}>
                 {loading ? "生成中..." : "发送"}
               </button>
             </div>

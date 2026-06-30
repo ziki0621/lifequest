@@ -10,8 +10,8 @@ export default function QuestPlanPreview({ plan, onConfirm, onRegenerate, onClos
   const hasSide = p.sideQuests?.length > 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30 backdrop-blur-sm animate-fade">
-      <div className="glass rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
+      <div className="wireframe max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-black text-navy serif">Maro 的任务线</h3>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button>
@@ -61,9 +61,9 @@ export default function QuestPlanPreview({ plan, onConfirm, onRegenerate, onClos
         </div>
 
         <div className="flex gap-2 pt-2">
-          <button className="btn btn-ghost !text-[11px] flex-1" onClick={onClose}>取消</button>
-          {onRegenerate && <button className="btn btn-ghost !text-[11px] flex-1" onClick={onRegenerate}>重新生成</button>}
-          <button className="btn btn-primary !text-[11px] flex-1" onClick={onConfirm}>加入我的任务</button>
+          <button className="wireframe-btn-ghost !text-[11px] flex-1" onClick={onClose}>取消</button>
+          {onRegenerate && <button className="wireframe-btn-ghost !text-[11px] flex-1" onClick={onRegenerate}>重新生成</button>}
+          <button className="wireframe-btn !text-[11px] flex-1" onClick={onConfirm}>加入我的任务</button>
         </div>
       </div>
     </div>

@@ -32,8 +32,8 @@ export default function AIQuestPlannerModal({ onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30 backdrop-blur-sm animate-fade">
-      <div className="glass rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
+      <div className="wireframe max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-5">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-black text-navy serif flex items-center gap-2"><Sparkles size={16} className="text-coral" /> AI 任务线生成器</h3>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button>
@@ -41,11 +41,11 @@ export default function AIQuestPlannerModal({ onClose }: Props) {
 
         <div>
           <label className="text-[9px] font-bold text-navy/30 uppercase tracking-widest block mb-1.5">输入你的生活目标 <span className="text-coral">*</span></label>
-          <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="例如：我最近作息很乱，想重新稳定生活。" className="input" disabled={loading} />
+          <input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder="例如：我最近作息很乱，想重新稳定生活。" className="wireframe-input" disabled={loading} />
         </div>
 
         <button onClick={handleGenerate} disabled={!goal.trim() || loading}
-          className="btn btn-primary w-full !rounded-full disabled:opacity-30">
+          className="wireframe-btn">
           {loading ? <><Loader2 size={14} className="animate-spin" /> 生成中…</> : <><Sparkles size={14} /> 生成任务线</>}
         </button>
 
@@ -91,8 +91,8 @@ export default function AIQuestPlannerModal({ onClose }: Props) {
             </div>
 
             <div className="flex gap-2 pt-2">
-              <button onClick={onClose} className="btn btn-ghost !text-[11px] flex-1">取消</button>
-              <button onClick={handleApply} className="btn btn-primary !text-[11px] flex-1">加入我的任务</button>
+              <button onClick={onClose} className="wireframe-btn-ghost !text-[11px] flex-1">取消</button>
+              <button onClick={handleApply} className="wireframe-btn !text-[11px] flex-1">加入我的任务</button>
             </div>
           </div>
         )}

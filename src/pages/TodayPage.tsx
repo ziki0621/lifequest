@@ -31,91 +31,67 @@ export default function TodayPage() {
   const [lumiLoading, setLumiLoading] = useState(false);
   const fabRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => { if (fabRef.current && !fabRef.current.contains(e.target as Node)) setShowFab(false); };
-    document.addEventListener("mousedown", handler); return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  useEffect(() => { const handler = (e: MouseEvent) => { if (fabRef.current && !fabRef.current.contains(e.target as Node)) setShowFab(false); }; document.addEventListener("mousedown", handler); return () => document.removeEventListener("mousedown", handler); }, []);
 
-  // Collect all active stages/tasks from questBooks
   const questBookItems: { bookId: string; bookTitle: string; lineTitle?: string; stageId?: string; taskId?: string; title: string; description?: string; type: "stage" | "task" }[] = [];
   state.questBooks.filter((qb) => qb.status === "active" && !qb.archived).forEach((qb) => {
-    qb.questLines.forEach((ql) => {
-      const firstUncompleted = ql.stages.find((s) => !s.completed);
-      if (firstUncompleted) questBookItems.push({ bookId: qb.id, bookTitle: qb.title, lineTitle: ql.title, stageId: firstUncompleted.id, title: firstUncompleted.title, description: firstUncompleted.description, type: "stage" });
-    });
+    qb.questLines.forEach((ql) => { const s = ql.stages.find((st) => !st.completed); if (s) questBookItems.push({ bookId: qb.id, bookTitle: qb.title, lineTitle: ql.title, stageId: s.id, title: s.title, description: s.description, type: "stage" }); });
     qb.directTasks.filter((t) => !t.completed).forEach((t) => questBookItems.push({ bookId: qb.id, bookTitle: qb.title, taskId: t.id, title: t.title, description: t.description, type: "task" }));
   });
 
   const isEmpty = questBookItems.length === 0 && todayDailyTasks.length === 0 && todaySideQuests.length === 0;
 
-  const handleSaveJournal = useCallback((content: string, mood: Mood, energy: EnergyLevel) => {
-    if (completionCtx && content.trim()) addJournal({ date: today(), taskId: completionCtx.itemId, mood, energy, content: content.trim(), tags: [] });
-    setCompletionCtx(null);
-  }, [completionCtx, addJournal]);
+  const handleSaveJournal = useCallback((content: string, mood: Mood, energy: EnergyLevel) => { if (completionCtx && content.trim()) addJournal({ date: today(), taskId: completionCtx.itemId, mood, energy, content: content.trim(), tags: [] }); setCompletionCtx(null); }, [completionCtx, addJournal]);
 
   return (
     <div className="space-y-6 pb-24 animate-in">
       <NpcAgentPanel npc={NPCS.lumi} message={lumiMessage}
-        actionLabel={lumiLoading ? "正在思考…" : "推荐一个任务"}
+        actionLabel={lumiLoading ? "思考中…" : "推荐一个任务"}
         onAction={async () => { setLumiLoading(true); try { const config = loadLLMConfig(); const rec = await getLLMTodayRecommendation(state, config); setLumiMessage(rec.npcReply); } catch { setLumiMessage(getTodayRecommendation(state).npcReply); } setLumiLoading(false); }}
-        secondaryLabel="我今天有点累"
-        onSecondary={() => setLumiMessage("那今天不要挑战太多。")}
-      />
-      <button onClick={() => setShowShareCard(true)} className="glass rounded-3xl p-3 flex items-center justify-center gap-2 hover:-translate-y-0.5 transition-all w-full">
-        <Zap size={14} className="text-coral" /><span className="text-[11px] font-black text-navy">今日冒险总结</span>
-      </button>
+        secondaryLabel="我今天有点累" onSecondary={() => setLumiMessage("那今天不要挑战太多。")} />
+      <div onClick={() => setShowShareCard(true)} className="wireframe cursor-pointer hover:shadow-[3px_3px_0px_rgba(74,59,44,0.15)] transition-all">
+        <div className="wireframe-inner p-3 flex items-center justify-center gap-2"><Zap size={14} className="text-coral" /><span className="text-[11px] font-black text-ink">今日冒险总结</span></div>
+      </div>
 
-      {isEmpty ? (
-        <div className="glass rounded-3xl p-10 text-center"><p className="text-navy/40 font-bold text-xs tracking-widest uppercase">今天还没有任务</p></div>
-      ) : (
+      {isEmpty ? <div className="wireframe"><div className="wireframe-inner p-8 text-center"><p className="text-ink/40 font-bold text-xs tracking-widest uppercase">今天还没有任务</p></div></div> : (
         <>
-          {questBookItems.length > 0 && (
-            <PanelShell icon={<BookOpen size={15} />} title="任务书" accent="border-navy/10" accentBar="bg-theme" badge={`${questBookItems.length}`} onAdd={() => setCreateModal("book")}>
-              {questBookItems.map((item) => (
-                <SubFrame key={item.stageId || item.taskId}>
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <span className="text-[9px] font-bold text-navy/25 uppercase tracking-widest">{item.bookTitle}{item.lineTitle ? ` → ${item.lineTitle}` : ""}</span>
-                      <h4 className="text-[13px] font-black text-navy mt-0.5">{item.title}</h4>
-                      {item.description && <p className="text-[10px] text-navy/35 mt-0.5 line-clamp-1">{item.description}</p>}
-                    </div>
-                    <button
-                      onClick={() => { if (item.type === "stage" && item.stageId) { const ctx = completeQuestStage(item.bookId, state.questBooks.find((q) => q.id === item.bookId)!.questLines.find((l) => l.stages.some((s) => s.id === item.stageId))!.id, item.stageId); if (ctx) setCompletionCtx(ctx); } if (item.type === "task" && item.taskId) { const ctx = completeQuestBookTask(item.bookId, item.taskId); if (ctx) setCompletionCtx(ctx); } }}
-                      className="btn btn-primary !py-1.5 !px-4 !text-[10px] flex-shrink-0"><CheckCircle2 size={12} /> 完成</button>
+          {questBookItems.length > 0 && <Panel icon={<BookOpen size={15} />} title="任务书" accent="border-ink" accentBar="bg-ink" badge={`${questBookItems.length}`} onAdd={() => setCreateModal("book")}>
+            {questBookItems.map((item) => (
+              <div key={item.stageId || item.taskId} className="wireframe wireframe-shaded">
+                <div className="wireframe-inner p-3 flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <span className="text-[9px] font-bold text-ink/30 uppercase tracking-widest">{item.bookTitle}{item.lineTitle ? ` → ${item.lineTitle}` : ""}</span>
+                    <h4 className="text-[13px] font-black text-ink mt-0.5">{item.title}</h4>
+                    {item.description && <p className="text-[10px] text-ink/35 mt-0.5 line-clamp-1">{item.description}</p>}
                   </div>
-                </SubFrame>
-              ))}
-            </PanelShell>
-          )}
-          {todayDailyTasks.length > 0 && (
-            <PanelShell icon={<ListTodo size={15} />} title="今日日常" accent="border-coral/15" accentBar="bg-coral" badge={`${todayDailyTasks.filter((dt) => dt.active).length} 项`} onAdd={() => setCreateModal("daily")}>
-              {todayDailyTasks.map((dt) => <DailyTaskCard key={dt.id} task={dt} onComplete={(id) => { const ctx = completeDailyTask(id); if (ctx) setCompletionCtx(ctx); }} onToggle={toggleDailyActive} onEdit={setEditingDaily} />)}
-            </PanelShell>
-          )}
-          {todaySideQuests.length > 0 && (
-            <PanelShell icon={<CheckCircle2 size={15} />} title="支线任务" accent="border-leaf/15" accentBar="bg-leaf" badge={`${todaySideQuests.length} 项`} onAdd={() => setCreateModal("side")}>
-              {todaySideQuests.slice(0, 6).map((sq) => (
-                <SubFrame key={sq.id}>
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setEditingSide(sq)}><h4 className="text-[13px] font-black text-navy">{sq.title}</h4>{sq.description && <p className="text-[10px] text-navy/35 mt-0.5 line-clamp-1">{sq.description}</p>}</div>
-                    <button onClick={() => { const ctx = completeSideQuest(sq.id); if (ctx) setCompletionCtx(ctx); }} className="btn btn-primary !py-1.5 !px-4 !text-[10px] flex-shrink-0"><CheckCircle2 size={12} /> 完成</button>
-                  </div>
-                </SubFrame>
-              ))}
-            </PanelShell>
-          )}
+                  <div className="chamfer-btn h-7 flex-shrink-0" onClick={() => { if (item.type === "stage" && item.stageId) { const qb = state.questBooks.find((q) => q.id === item.bookId); const ql = qb?.questLines.find((l) => l.stages.some((s) => s.id === item.stageId)); if (ql) { const ctx = completeQuestStage(item.bookId, ql.id, item.stageId); if (ctx) setCompletionCtx(ctx); } } if (item.type === "task" && item.taskId) { const ctx = completeQuestBookTask(item.bookId, item.taskId); if (ctx) setCompletionCtx(ctx); } }}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core px-3"><CheckCircle2 size={11} /><span className="text-[10px] font-bold ml-1">完成</span></div></div></div></div></div>
+                </div>
+              </div>
+            ))}
+          </Panel>}
+          {todayDailyTasks.length > 0 && <Panel icon={<ListTodo size={15} />} title="今日日常" accent="border-coral/30" accentBar="bg-coral" badge={`${todayDailyTasks.filter((dt) => dt.active).length} 项`} onAdd={() => setCreateModal("daily")}>
+            {todayDailyTasks.map((dt) => <DailyTaskCard key={dt.id} task={dt} onComplete={(id) => { const ctx = completeDailyTask(id); if (ctx) setCompletionCtx(ctx); }} onToggle={toggleDailyActive} onEdit={setEditingDaily} />)}
+          </Panel>}
+          {todaySideQuests.length > 0 && <Panel icon={<CheckCircle2 size={15} />} title="支线任务" accent="border-leaf/30" accentBar="bg-leaf" badge={`${todaySideQuests.length} 项`} onAdd={() => setCreateModal("side")}>
+            {todaySideQuests.slice(0, 6).map((sq) => (
+              <div key={sq.id} className="wireframe wireframe-shaded">
+                <div className="wireframe-inner p-3 flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setEditingSide(sq)}><h4 className="text-[13px] font-black text-ink">{sq.title}</h4>{sq.description && <p className="text-[10px] text-ink/35 mt-0.5 line-clamp-1">{sq.description}</p>}</div>
+                  <div className="chamfer-btn h-7 flex-shrink-0" onClick={() => { const ctx = completeSideQuest(sq.id); if (ctx) setCompletionCtx(ctx); }}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core px-3"><CheckCircle2 size={11} /><span className="text-[10px] font-bold ml-1">完成</span></div></div></div></div></div>
+                </div>
+              </div>
+            ))}
+          </Panel>}
         </>
       )}
 
       <div ref={fabRef} className="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40">
-        {showFab && (
-          <div className="absolute bottom-14 right-0 flex flex-col gap-2 mb-2 animate-scale">
-            <button onClick={() => { setCreateModal("book"); setShowFab(false); }} className="btn btn-primary !py-2 !px-4 !text-[10px] whitespace-nowrap shadow-lg"><BookOpen size={13} /> 新建任务书</button>
-            <button onClick={() => { setCreateModal("daily"); setShowFab(false); }} className="btn btn-accent !py-2 !px-4 !text-[10px] whitespace-nowrap shadow-lg"><ListTodo size={13} /> 新建日常</button>
-            <button onClick={() => { setCreateModal("side"); setShowFab(false); }} className="btn btn-primary !bg-leaf !py-2 !px-4 !text-[10px] whitespace-nowrap shadow-lg"><CheckCircle2 size={13} /> 新建支线</button>
-          </div>
-        )}
-        <button onClick={() => setShowFab(!showFab)} className="w-12 h-12 bg-theme text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95"><Plus size={20} strokeWidth={2.5} /></button>
+        {showFab && (<div className="absolute bottom-14 right-0 flex flex-col gap-2 mb-2 animate-scale">
+          <div className="chamfer-btn h-9" onClick={() => { setCreateModal("book"); setShowFab(false); }}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core px-4"><BookOpen size={13} /><span className="text-[10px] font-bold ml-1.5">新建任务书</span></div></div></div></div></div>
+          <div className="chamfer-btn chamfer-btn-shaded h-9" onClick={() => { setCreateModal("daily"); setShowFab(false); }}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core px-4"><ListTodo size={13} /><span className="text-[10px] font-bold ml-1.5">新建日常</span></div></div></div></div></div>
+          <div className="chamfer-btn chamfer-btn-shaded h-9" onClick={() => { setCreateModal("side"); setShowFab(false); }}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core px-4"><CheckCircle2 size={13} /><span className="text-[10px] font-bold ml-1.5">新建支线</span></div></div></div></div></div>
+        </div>)}
+        <div className="chamfer-btn w-12 h-12" onClick={() => setShowFab(!showFab)}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core"><Plus size={20} strokeWidth={2.5} /></div></div></div></div></div>
       </div>
 
       {completionCtx && <CompleteTaskModal ctx={completionCtx} onClose={() => setCompletionCtx(null)} onSaveJournal={handleSaveJournal} />}
@@ -129,7 +105,10 @@ export default function TodayPage() {
   );
 }
 
-function PanelShell({ icon, title, accent, accentBar, badge, onAdd, children }: { icon: React.ReactNode; title: string; accent: string; accentBar: string; badge: string; onAdd: () => void; children: React.ReactNode }) {
-  return (<section className={`glass rounded-3xl border ${accent} overflow-hidden`}><div className="flex items-center justify-between px-5 py-3.5 border-b border-navy/5"><div className="flex items-center gap-2.5"><div className={`w-1 h-4 rounded-full ${accentBar}`} />{icon}<h3 className="text-[11px] font-black text-navy uppercase tracking-widest">{title}</h3><span className="text-[9px] font-bold text-navy/25 bg-navy/5 px-2 py-0.5 rounded-full">{badge}</span></div><button onClick={onAdd} className="flex items-center gap-1 text-[10px] font-bold text-navy/30 hover:text-navy"><Plus size={13} /> 添加</button></div><div className="p-3 space-y-2">{children}</div></section>);
+function Panel({ icon, title, accent, accentBar, badge, onAdd, children }: { icon: React.ReactNode; title: string; accent: string; accentBar: string; badge: string; onAdd: () => void; children: React.ReactNode; }) {
+  return (
+    <div className={`wireframe ${accent}`}>
+      <div className="wireframe-inner"><div className="h-7 border-b-[0.5px] border-ink/15 flex items-center justify-between px-3"><div className="flex items-center gap-2"><div className={`w-1 h-4 ${accentBar}`} />{icon}<h3 className="text-[10px] font-black text-ink uppercase tracking-widest">{title}</h3><span className="text-[9px] font-bold text-ink/25 bg-parchment-dark px-2 py-0.5 border border-ink/10">{badge}</span></div><button onClick={onAdd} className="text-[10px] font-bold text-ink/30 hover:text-ink transition-colors flex items-center gap-1"><Plus size={12} />添加</button></div><div className="p-3 space-y-2">{children}</div></div>
+    </div>
+  );
 }
-function SubFrame({ children }: { children: React.ReactNode }) { return <div className="bg-white/20 rounded-2xl border border-navy/5 p-3 transition-all duration-200 hover:border-navy/10 hover:bg-white/35">{children}</div>; }

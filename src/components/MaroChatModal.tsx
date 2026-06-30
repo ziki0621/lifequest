@@ -109,8 +109,8 @@ export default function MaroChatModal({ onClose }: Props) {
   const waitingForExtra = !!userGoal && !draft && messages.length >= 4 && messages[messages.length - 1].role === "npc";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30 backdrop-blur-sm animate-fade">
-      <div className="glass rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col animate-scale">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
+      <div className="wireframe max-w-lg w-full max-h-[90vh] flex flex-col animate-scale">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-navy/5">
           <div className="flex items-center gap-3">
@@ -179,7 +179,7 @@ export default function MaroChatModal({ onClose }: Props) {
               disabled={loading}
             />
             <button
-              className="btn btn-primary !py-2 !px-4 !text-[10px] flex-shrink-0"
+              className="wireframe-btn !py-2 !px-4 !text-[10px] flex-shrink-0"
               disabled={!canSend}
               onClick={waitingForExtra ? handleSendExtra : handleSendGoal}
             >

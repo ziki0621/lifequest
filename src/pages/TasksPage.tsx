@@ -23,8 +23,7 @@ export default function TasksPage() {
   const { state, completeQuestStage, completeQuestBookTask, completeDailyTask, completeSideQuest,
     addJournal, addQuestBook, addQuestLine, addQuestStage, addQuestBookTask, addDailyTask, addSideQuest, toggleDailyActive,
     updateQuestBook, updateDailyTask, updateSideQuest,
-    archiveQuestBook, archiveDailyTask, archiveSideQuest,
-    deleteQuestBook, deleteDailyTask, deleteSideQuest } = useApp();
+    archiveQuestBook, archiveDailyTask, archiveSideQuest, deleteQuestBook, deleteDailyTask, deleteSideQuest } = useApp();
 
   const [selectedBook, setSelectedBook] = useState<string | null>(null);
   const [completionCtx, setCompletionCtx] = useState<CompletionContext | null>(null);
@@ -35,7 +34,6 @@ export default function TasksPage() {
   const [editingBook, setEditingBook] = useState<QuestBook | null>(null);
   const [editingDaily, setEditingDaily] = useState<DailyTask | null>(null);
   const [editingSide, setEditingSide] = useState<SideQuest | null>(null);
-
   const [showMaroChat, setShowMaroChat] = useState(false);
 
   const handleStageComplete = (bookId: string, lineId: string, stageId: string) => { const ctx = completeQuestStage(bookId, lineId, stageId); if (ctx) setCompletionCtx(ctx); };
@@ -44,92 +42,49 @@ export default function TasksPage() {
   const handleSideComplete = (id: string) => { const ctx = completeSideQuest(id); if (ctx) setCompletionCtx(ctx); };
   const handleSaveJournal = (content: string, mood: Mood, energy: EnergyLevel) => { if (completionCtx && content.trim()) addJournal({ date: today(), taskId: completionCtx.itemId, mood, energy, content: content.trim(), tags: [] }); setCompletionCtx(null); };
 
-  // ── QuestBook Detail ──
   if (selectedBook) {
     const qb = state.questBooks.find((q) => q.id === selectedBook);
     if (!qb) return null;
-    const totalStages = qb.questLines.reduce((s, l) => s + l.stages.length, 0) + qb.directTasks.length;
-    const completedStages = qb.questLines.reduce((s, l) => s + l.stages.filter((st) => st.completed).length, 0) + qb.directTasks.filter((t) => t.completed).length;
-    const progress = totalStages > 0 ? Math.round((completedStages / totalStages) * 100) : 0;
+    const total = qb.questLines.reduce((s, l) => s + l.stages.length, 0) + qb.directTasks.length;
+    const completed = qb.questLines.reduce((s, l) => s + l.stages.filter((st) => st.completed).length, 0) + qb.directTasks.filter((t) => t.completed).length;
+    const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     return (
       <div className="space-y-6 animate-fade pb-24">
-        <button onClick={() => setSelectedBook(null)} className="flex items-center gap-1.5 text-[11px] font-bold text-navy/40 uppercase tracking-widest hover:text-navy"><ArrowLeft size={14} /> 返回</button>
+        <button onClick={() => setSelectedBook(null)} className="flex items-center gap-1.5 text-[11px] font-bold text-ink/40 uppercase tracking-widest hover:text-ink"><ArrowLeft size={14} /> 返回</button>
         <div className="text-center space-y-2">
           <p className="text-coral font-bold text-xs tracking-widest uppercase">{qb.status === "active" ? "进行中" : qb.status === "paused" ? "已暂停" : "已完成"}</p>
-          <div className="flex items-center justify-center gap-2"><BookOpen size={18} className="text-navy" /><h2 className="text-2xl font-black text-navy tracking-tight serif cursor-pointer" onClick={() => setEditingBook(qb)}>{qb.title}</h2></div>
-          <p className="text-[12px] text-navy/50 font-medium leading-relaxed serif">{qb.description}</p>
+          <div className="flex items-center justify-center gap-2"><BookOpen size={18} /><h2 className="text-2xl font-black text-ink tracking-tight serif cursor-pointer" onClick={() => setEditingBook(qb)}>{qb.title}</h2></div>
+          <p className="text-[12px] text-ink/50 font-medium leading-relaxed serif">{qb.description}</p>
         </div>
-        <div className="glass rounded-3xl p-4">
-          <div className="flex justify-between text-[9px] font-bold text-navy/30 uppercase tracking-widest mb-1 px-2"><span>进度</span><span>{completedStages}/{totalStages}</span></div>
-          <div className="progress"><div className="progress-fill" style={{ width: `${progress}%` }} /></div>
-        </div>
+        <div className="wireframe"><div className="wireframe-inner p-3"><div className="flex justify-between text-[9px] font-bold text-ink/30 uppercase tracking-widest mb-1 px-1"><span>进度</span><span>{completed}/{total}</span></div><div className="progress-track"><div className="progress-fill" style={{ width: `${pct}%` }} /></div></div></div>
 
-        {/* QuestLines — parallel columns */}
-        <div className="space-y-4">
-          {qb.questLines.map((ql) => (
-            <section key={ql.id} className="glass rounded-3xl border border-navy/10 overflow-hidden">
-              <div className="px-5 py-3 border-b border-navy/5 flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-1 h-4 rounded-full bg-theme" />
-                  <Target size={13} className="text-navy" />
-                  <h3 className="text-[11px] font-black text-navy uppercase tracking-widest">{ql.title || "任务线"}</h3>
-                  <span className="text-[9px] font-bold text-navy/25 bg-navy/5 px-2 py-0.5 rounded-full">{ql.stages.filter((s) => s.completed).length}/{ql.stages.length}</span>
-                </div>
-                <button onClick={() => setAddStageLineId(ql.id)} className="flex items-center gap-1 text-[10px] font-bold text-navy/30 hover:text-navy transition-colors"><Plus size={13} /> 添加阶段</button>
-              </div>
+        {qb.questLines.map((ql) => (
+          <div key={ql.id} className="wireframe">
+            <div className="wireframe-inner"><div className="h-7 border-b-[0.5px] border-ink/15 flex items-center justify-between px-3"><div className="flex items-center gap-2"><div className="w-1 h-4 bg-ink" /><Target size={13} /><h3 className="text-[10px] font-black text-ink uppercase tracking-widest">{ql.title || "任务线"}</h3><span className="text-[9px] font-bold text-ink/25 bg-parchment-dark px-2 py-0.5 border border-ink/10">{ql.stages.filter((s) => s.completed).length}/{ql.stages.length}</span></div>
+              <button onClick={() => setAddStageLineId(ql.id)} className="text-[10px] font-bold text-ink/30 hover:text-ink"><Plus size={12} /> 添加阶段</button></div>
               <div className="p-3 space-y-1.5">
-                {ql.stages.map((s, i) => {
-                  const isCurrent = !s.completed && (i === 0 || ql.stages[i - 1].completed);
-                  const isFuture = !s.completed && !isCurrent;
-                  return (
-                    <div key={s.id} className={`bg-white/20 rounded-2xl border border-navy/5 p-3 flex items-center justify-between gap-3 ${isCurrent ? "ring-1 ring-theme/30" : ""} ${s.completed ? "opacity-50" : ""}`}>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-[9px] font-bold text-navy/25 uppercase tracking-widest">阶段 {i + 1}</span>
-                        <h4 className={`text-[12px] font-bold ${s.completed ? "text-navy/40 line-through" : "text-navy"}`}>{s.title}</h4>
-                        {s.description && <p className="text-[9px] text-navy/35 mt-0.5">{s.description}</p>}
-                      </div>
-                      {isCurrent && (
-                        <button onClick={() => handleStageComplete(qb.id, ql.id, s.id)}
-                          className="btn btn-primary !py-1 !px-3 !text-[9px] !tracking-widest flex-shrink-0"><CheckCircle2 size={11} /> 完成</button>
-                      )}
-                      {s.completed && <CheckCircle2 size={14} className="text-sage flex-shrink-0" />}
-                      {isFuture && <div className="w-6 h-6 rounded-full bg-navy/5 flex items-center justify-center flex-shrink-0"><div className="w-1.5 h-1.5 rounded-full bg-navy/15" /></div>}
-                    </div>
-                  );
+                {ql.stages.map((s, i) => { const isCur = !s.completed && (i === 0 || ql.stages[i - 1].completed); const isFut = !s.completed && !isCur;
+                  return (<div key={s.id} className={`wireframe wireframe-shaded ${isCur ? "shadow-[2px_2px_0px_rgba(74,59,44,0.3)]" : ""}`}>
+                    <div className="wireframe-inner p-3 flex items-center justify-between gap-3"><div className="flex-1 min-w-0"><span className="text-[9px] font-bold text-ink/25 uppercase tracking-widest">阶段 {i+1}</span><h4 className={`text-[12px] font-bold ${s.completed ? "text-ink/30 line-through" : "text-ink"}`}>{s.title}</h4>{s.description && <p className="text-[9px] text-ink/35 mt-0.5">{s.description}</p>}</div>
+                      {isCur && (<div className="chamfer-btn h-7 flex-shrink-0" onClick={() => handleStageComplete(qb.id, ql.id, s.id)}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core px-2"><CheckCircle2 size={11} /><span className="text-[9px] font-bold ml-1">完成</span></div></div></div></div></div>)}
+                      {s.completed && <CheckCircle2 size={14} className="text-ink/40 flex-shrink-0" />}
+                      {isFut && <div className="w-6 h-6 border border-ink/15 flex items-center justify-center flex-shrink-0"><div className="w-1.5 h-1.5 border border-ink/20" /></div>}
+                    </div></div>);
                 })}
-              </div>
-            </section>
-          ))}
-          <button onClick={() => setShowAddLine(true)} className="w-full py-2.5 border-2 border-dashed border-navy/15 rounded-3xl text-[10px] font-bold text-navy/40 hover:text-navy hover:border-navy/30 transition-all">+ 添加任务线</button>
-        </div>
+              </div></div>
+          </div>
+        ))}
+        <button onClick={() => setShowAddLine(true)} className="w-full py-2.5 border-[1.5px] border-dashed border-ink/20 text-[10px] font-bold text-ink/30 hover:text-ink hover:border-ink/40">+ 添加任务线</button>
 
-        {/* Direct Tasks */}
         {qb.directTasks.length > 0 && (
-          <section className="glass rounded-3xl border border-navy/10 overflow-hidden">
-            <div className="px-5 py-3 border-b border-navy/5 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-1 h-4 rounded-full bg-coral" />
-                <CheckCircle2 size={13} className="text-coral" />
-                <h3 className="text-[11px] font-black text-navy uppercase tracking-widest">直接任务</h3>
-                <span className="text-[9px] font-bold text-navy/25 bg-navy/5 px-2 py-0.5 rounded-full">{qb.directTasks.filter((t) => t.completed).length}/{qb.directTasks.length}</span>
-              </div>
-              <button onClick={() => { setSelectedBook(qb.id); setShowAddTask(true); }} className="flex items-center gap-1 text-[10px] font-bold text-navy/30 hover:text-navy transition-colors"><Plus size={13} /> 添加</button>
-            </div>
-            <div className="p-3 space-y-1.5">
-              {qb.directTasks.map((t) => (
-                <div key={t.id} className="bg-white/20 rounded-2xl border border-navy/5 p-3 flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <h4 className={`text-[12px] font-bold ${t.completed ? "text-navy/40 line-through" : "text-navy"}`}>{t.title}</h4>
-                    {t.description && <p className="text-[9px] text-navy/35 mt-0.5">{t.description}</p>}
-                  </div>
-                  {!t.completed ? (
-                    <button onClick={() => handleTaskComplete(qb.id, t.id)} className="btn btn-primary !py-1 !px-3 !text-[9px] !tracking-widest flex-shrink-0"><CheckCircle2 size={11} /> 完成</button>
-                  ) : <CheckCircle2 size={14} className="text-sage flex-shrink-0" />}
-                </div>
-              ))}
-            </div>
-          </section>
+          <div className="wireframe"><div className="wireframe-inner"><div className="h-7 border-b-[0.5px] border-ink/15 flex items-center justify-between px-3"><div className="flex items-center gap-2"><div className="w-1 h-4 bg-coral" /><CheckCircle2 size={13} /><h3 className="text-[10px] font-black text-ink uppercase tracking-widest">直接任务</h3><span className="text-[9px] font-bold text-ink/25 bg-parchment-dark px-2 py-0.5 border border-ink/10">{qb.directTasks.filter((t) => t.completed).length}/{qb.directTasks.length}</span></div><button onClick={() => setShowAddTask(true)} className="text-[10px] font-bold text-ink/30 hover:text-ink"><Plus size={12} /> 添加</button></div>
+            <div className="p-3 space-y-1.5">{qb.directTasks.map((t) => (
+              <div key={t.id} className="wireframe wireframe-shaded"><div className="wireframe-inner p-3 flex items-center justify-between gap-3"><div className="flex-1 min-w-0"><h4 className={`text-[12px] font-bold ${t.completed ? "text-ink/30 line-through" : "text-ink"}`}>{t.title}</h4></div>
+                {!t.completed ? (<div className="chamfer-btn h-7 flex-shrink-0" onClick={() => handleTaskComplete(qb.id, t.id)}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core px-2"><CheckCircle2 size={11} /><span className="text-[9px] font-bold ml-1">完成</span></div></div></div></div></div>) : <CheckCircle2 size={14} className="text-ink/40 flex-shrink-0" />}
+              </div></div>
+            ))}</div></div>
+          </div>
         )}
 
         {completionCtx && <CompleteTaskModal ctx={completionCtx} onClose={() => setCompletionCtx(null)} onSaveJournal={handleSaveJournal} />}
@@ -143,49 +98,33 @@ export default function TasksPage() {
     );
   }
 
-  // ── Panel List View ──
   const activeDaily = state.dailyTasks.filter((dt) => dt.active && !dt.archived);
   const pendingSides = state.sideQuests.filter((sq) => !sq.completed && !sq.archived);
 
   return (
     <div className="space-y-6 pb-24 animate-in">
-      <div className="pt-2 flex items-center justify-between">
-        <div><p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">任务书</p><h2 className="text-2xl font-black text-navy tracking-tight serif">全部任务</h2></div>
-      </div>
-
+      <div className="pt-2"><p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">任务书</p><h2 className="text-2xl font-black text-ink tracking-tight serif">全部任务</h2></div>
       <NpcAgentPanel npc={NPCS.maro} message="欢迎来到冒险公会。告诉我你想生成什么类型的任务，我来帮你规划。" actionLabel="让 Maro 生成任务" onAction={() => setShowMaroChat(true)} />
 
-      <Panel icon={<BookOpen size={15} />} title="任务书" accentBar="bg-theme" accent="border-navy/10" badge={`${state.questBooks.filter((q) => !q.archived).length} 本`} onAdd={() => setCreateModal("book")}>
-        {state.questBooks.filter((q) => !q.archived).length === 0 ? <Empty>还没有任务书。</Empty> : state.questBooks.filter((q) => !q.archived).map((qb) => {
-          const total = qb.questLines.reduce((s, l) => s + l.stages.length, 0) + qb.directTasks.length;
-          const completed = qb.questLines.reduce((s, l) => s + l.stages.filter((st) => st.completed).length, 0) + qb.directTasks.filter((t) => t.completed).length;
+      <P icon={<BookOpen size={15} />} title="任务书" accentBar="bg-ink" badge={`${state.questBooks.filter((q) => !q.archived).length} 本`} onAdd={() => setCreateModal("book")}>
+        {state.questBooks.filter((q) => !q.archived).length === 0 ? <E>还没有任务书。</E> : state.questBooks.filter((q) => !q.archived).map((qb) => {
+          const t = qb.questLines.reduce((s, l) => s + l.stages.length, 0) + qb.directTasks.length;
+          const c = qb.questLines.reduce((s, l) => s + l.stages.filter((st) => st.completed).length, 0) + qb.directTasks.filter((dt) => dt.completed).length;
           return (
-            <SubFrame key={qb.id} onClick={() => setSelectedBook(qb.id)} clickable>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-[13px] font-black text-navy">{qb.title}</h4>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`text-[9px] font-bold uppercase tracking-widest ${qb.status === "active" ? "text-coral" : "text-navy/30"}`}>{qb.status === "active" ? "进行中" : qb.status === "paused" ? "暂停" : "完成"}</span>
-                    <span className="text-[9px] text-navy/25">{qb.questLines.length} 线 · {completed}/{total}</span>
-                  </div>
-                </div>
-                <div className="text-right"><span className="text-[11px] font-black text-navy tabular-nums">{total > 0 ? Math.round((completed / total) * 100) : 0}%</span></div>
-              </div>
-              {total > 0 && <div className="mt-2 progress"><div className="progress-fill" style={{ width: `${Math.round((completed / total) * 100)}%` }} /></div>}
-            </SubFrame>
+            <div key={qb.id} className="wireframe wireframe-shaded cursor-pointer hover:shadow-[3px_3px_0px_rgba(74,59,44,0.15)] transition-all" onClick={() => setSelectedBook(qb.id)}>
+              <div className="wireframe-inner p-3"><div className="flex items-center gap-3"><div className="flex-1 min-w-0"><h4 className="text-[13px] font-black text-ink">{qb.title}</h4><div className="flex items-center gap-2 mt-1"><span className={`text-[9px] font-bold uppercase tracking-widest ${qb.status === "active" ? "text-coral" : "text-ink/30"}`}>{qb.status === "active" ? "进行中" : qb.status === "paused" ? "暂停" : "完成"}</span><span className="text-[9px] text-ink/25">{qb.questLines.length} 线 · {c}/{t}</span></div></div><div className="text-right"><span className="text-[11px] font-black text-ink tabular-nums">{t > 0 ? Math.round((c / t) * 100) : 0}%</span></div></div>{t > 0 && <div className="mt-2 progress-track"><div className="progress-fill" style={{ width: `${Math.round((c / t) * 100)}%` }} /></div>}</div>
+            </div>
           );
         })}
-      </Panel>
+      </P>
+      <P icon={<ListTodo size={15} />} title="日常" accentBar="bg-coral" badge={`${activeDaily.length} 活跃`} onAdd={() => setCreateModal("daily")}>
+        {state.dailyTasks.filter((d) => !d.archived).length === 0 ? <E>还没有日常任务。</E> : state.dailyTasks.filter((d) => !d.archived).map((dt) => <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} onEdit={setEditingDaily} />)}
+      </P>
+      <P icon={<CheckCircle2 size={15} />} title="支线" accentBar="bg-leaf" badge={`${pendingSides.length} 待完成`} onAdd={() => setCreateModal("side")}>
+        {state.sideQuests.filter((s) => !s.archived).length === 0 ? <E>还没有支线任务。</E> : state.sideQuests.filter((s) => !s.archived).map((sq) => <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} onEdit={setEditingSide} />)}
+      </P>
 
-      <Panel icon={<ListTodo size={15} />} title="日常" accentBar="bg-coral" accent="border-coral/15" badge={`${activeDaily.length} 活跃`} onAdd={() => setCreateModal("daily")}>
-        {state.dailyTasks.filter((d) => !d.archived).length === 0 ? <Empty>还没有日常任务。</Empty> : state.dailyTasks.filter((d) => !d.archived).map((dt) => <DailyTaskCard key={dt.id} task={dt} onComplete={handleDailyComplete} onToggle={toggleDailyActive} onEdit={setEditingDaily} />)}
-      </Panel>
-
-      <Panel icon={<CheckCircle2 size={15} />} title="支线" accentBar="bg-leaf" accent="border-leaf/15" badge={`${pendingSides.length} 待完成`} onAdd={() => setCreateModal("side")}>
-        {state.sideQuests.filter((s) => !s.archived).length === 0 ? <Empty>还没有支线任务。</Empty> : state.sideQuests.filter((s) => !s.archived).map((sq) => <SideQuestCard key={sq.id} quest={sq} onComplete={handleSideComplete} onEdit={setEditingSide} />)}
-      </Panel>
-
-      <button onClick={() => setCreateModal("book")} className="fixed bottom-20 md:bottom-6 right-4 md:right-6 w-12 h-12 bg-theme text-white rounded-full shadow-xl shadow-navy/30 flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-40"><Plus size={20} strokeWidth={2.5} /></button>
+      <div className="chamfer-btn w-12 h-12 fixed bottom-20 md:bottom-6 right-4 md:right-6 z-40" onClick={() => setCreateModal("book")}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core"><Plus size={20} strokeWidth={2.5} /></div></div></div></div></div>
 
       {completionCtx && <CompleteTaskModal ctx={completionCtx} onClose={() => setCompletionCtx(null)} onSaveJournal={handleSaveJournal} />}
       {createModal === "book" && <CreateQuestBookModal onClose={() => setCreateModal(null)} onCreate={addQuestBook} />}
@@ -199,12 +138,7 @@ export default function TasksPage() {
   );
 }
 
-function Panel({ icon, title, accent, accentBar, badge, onAdd, children }: { icon: React.ReactNode; title: string; accent: string; accentBar: string; badge: string; onAdd: () => void; children: React.ReactNode }) {
-  return (<section className={`glass rounded-3xl border ${accent} overflow-hidden`}><div className="flex items-center justify-between px-5 py-3.5 border-b border-navy/5"><div className="flex items-center gap-2.5"><div className={`w-1 h-4 rounded-full ${accentBar}`} />{icon}<h3 className="text-[11px] font-black text-navy uppercase tracking-widest">{title}</h3><span className="text-[9px] font-bold text-navy/25 bg-navy/5 px-2 py-0.5 rounded-full">{badge}</span></div><button onClick={onAdd} className="flex items-center gap-1 text-[10px] font-bold text-navy/30 hover:text-navy"><Plus size={13} /> 添加</button></div><div className="p-3 space-y-2">{children}</div></section>);
+function P({ icon, title, accentBar, badge, onAdd, children }: { icon: React.ReactNode; title: string; accentBar: string; badge: string; onAdd: () => void; children: React.ReactNode }) {
+  return <div className="wireframe"><div className="wireframe-inner"><div className="h-7 border-b-[0.5px] border-ink/15 flex items-center justify-between px-3"><div className="flex items-center gap-2"><div className={`w-1 h-4 ${accentBar}`} />{icon}<h3 className="text-[10px] font-black text-ink uppercase tracking-widest">{title}</h3><span className="text-[9px] font-bold text-ink/25 bg-parchment-dark px-2 py-0.5 border border-ink/10">{badge}</span></div><button onClick={onAdd} className="text-[10px] font-bold text-ink/30 hover:text-ink transition-colors flex items-center gap-1"><Plus size={12} />添加</button></div><div className="p-3 space-y-2">{children}</div></div></div>;
 }
-
-function SubFrame({ children, onClick, clickable }: { children: React.ReactNode; onClick?: () => void; clickable?: boolean }) {
-  return <div onClick={onClick} className={`bg-white/20 rounded-2xl border border-navy/5 p-3 transition-all duration-200 ${clickable ? "cursor-pointer hover:border-navy/10 hover:bg-white/35" : ""}`}>{children}</div>;
-}
-
-function Empty({ children }: { children: React.ReactNode }) { return <div className="text-center py-6"><p className="text-[10px] font-medium text-navy/25">{children}</p></div>; }
+function E({ children }: { children: React.ReactNode }) { return <div className="text-center py-6"><p className="text-[10px] font-medium text-ink/25">{children}</p></div>; }

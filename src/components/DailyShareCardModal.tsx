@@ -15,8 +15,8 @@ export default function DailyShareCardModal({ onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30 backdrop-blur-sm animate-fade">
-      <div className="glass rounded-3xl shadow-2xl max-w-sm w-full animate-scale p-6 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
+      <div className="wireframe max-w-sm w-full animate-scale p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-black text-navy serif flex items-center gap-2"><Zap size={15} className="text-coral" /> 今日冒险总结</h3>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button>
@@ -52,8 +52,8 @@ export default function DailyShareCardModal({ onClose }: Props) {
         </div>
 
         <div className="flex gap-2">
-          <button onClick={handleCopy} className="btn btn-primary !text-[10px] flex-1"><Copy size={13} /> 复制总结</button>
-          <button onClick={onClose} className="btn btn-ghost !text-[10px]">关闭</button>
+          <button onClick={handleCopy} className="wireframe-btn !text-[10px] flex-1"><Copy size={13} /> 复制总结</button>
+          <button onClick={onClose} className="wireframe-btn-ghost !text-[10px]">关闭</button>
         </div>
       </div>
     </div>
