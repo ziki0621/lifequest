@@ -13,7 +13,7 @@ import NpcAgentPanel from "../components/NpcAgentPanel";
 import { NPCS } from "../data/npcs";
 import { getTodayRecommendation, getLLMTodayRecommendation } from "../services/todayRecommendAgent";
 import { loadLLMConfig } from "../utils/llmConfig";
-import { WireframeBox, ChamferedButton } from "../components/vintage";
+import { WireframeBox, ChamferedButton, SectionTitle } from "../components/vintage";
 import type { CompletionContext, Mood, EnergyLevel, DailyTask, SideQuest } from "../types";
 import { today } from "../utils/date";
 
@@ -41,6 +41,7 @@ export default function TodayPage() {
       onAction={async () => { setLl(true); try { const c = loadLLMConfig(); const r = await getLLMTodayRecommendation(state, c); setLm(r.npcReply); } catch { setLm(getTodayRecommendation(state).npcReply); } setLl(false); }}
       secondaryLabel="我今天有点累" onSecondary={() => setLm("那今天不要挑战太多。")} />
     <WireframeBox className="cursor-pointer" innerClassName="p-3 flex items-center justify-center gap-2" onClick={() => setSc(true)}><Zap size={14} className="text-[#8B3A3A]" /><span className="text-[11px] font-black text-[#4A3B2C]">今日冒险总结</span></WireframeBox>
+    <SectionTitle text="今日行动" />
     {empty ? <WireframeBox innerClassName="p-8 text-center"><p className="text-[#4A3B2C]/40 font-bold text-xs tracking-widest uppercase">今天还没有任务</p></WireframeBox> : (<>
       {qbi.length > 0 && <P icon={<BookOpen size={15} />} title="任务书" bar="bg-[#4A3B2C]" badge={`${qbi.length}`} onAdd={() => setCm("book")}>{qbi.map((it) => (
         <WireframeBox key={it.stageId || it.taskId} shaded innerClassName="p-3 flex items-center justify-between gap-3">

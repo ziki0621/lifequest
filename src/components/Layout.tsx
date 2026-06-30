@@ -1,22 +1,13 @@
 import type { ReactNode } from "react";
-import { useApp } from "../hooks/useApp";
 import Sidebar from "./Sidebar";
+import { ParchmentTexture } from "./vintage";
 
 interface LayoutProps { children: ReactNode; currentPage: string; onNavigate: (page: string) => void; }
 
 export default function Layout({ children, currentPage, onNavigate }: LayoutProps) {
-  const { theme } = useApp();
-
   return (
-    <div
-      className="flex min-h-screen relative"
-      style={{
-        "--theme-primary": theme.primary,
-        "--theme-primary-light": theme.primaryLight,
-      } as React.CSSProperties}
-    >
-      {/* Parchment texture background */}
-      <div className="parchment-bg" />
+    <div className="flex min-h-screen relative">
+      <ParchmentTexture />
       <Sidebar currentPage={currentPage} onNavigate={onNavigate} />
       <div className="flex-1 flex flex-col pb-28 md:pb-0 min-w-0">
         <main className="flex-1 px-5 md:px-12 pt-6 md:pt-10 max-w-5xl mx-auto w-full z-10">

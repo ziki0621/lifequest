@@ -3,6 +3,7 @@ import { Plus, Edit3, BookOpen, Target, ListTodo, CheckCircle2 } from "lucide-re
 import { useApp } from "../hooks/useApp";
 import JournalCard from "../components/JournalCard";
 import CreateJournalModal from "../components/CreateJournalModal";
+import { ChamferedTab, ChamferedTabBase } from "../components/vintage";
 import NpcAgentPanel from "../components/NpcAgentPanel";
 import AgentChatModal from "../components/AgentChatModal";
 import { NPCS } from "../data/npcs";
@@ -42,8 +43,11 @@ export default function JournalPage() {
       <div className="flex justify-between items-center"><div><p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">记录</p><h2 className="text-2xl font-black text-ink tracking-tight serif">生活日志</h2></div>
         <div className="chamfer-btn h-9" onClick={() => setShowCreate(true)}><div className="chamfer-outer"><div className="chamfer-gap"><div className="chamfer-inner"><div className="chamfer-core px-4"><Edit3 size={13} /><span className="text-[10px] font-bold ml-1.5">撰写日志</span></div></div></div></div></div>
       </div>
-      <div className="chamfer-tabs"><div className={`chamfer-tab ${tab === "diary" ? "is-active" : ""}`} onClick={() => setTab("diary")}><div className="chamfer-tab-gap"><div className="chamfer-tab-inner"><div className="chamfer-tab-core"><BookOpen size={13} /><span className="text-[9px] font-bold ml-1 tracking-widest">每日日记</span></div></div></div></div><div className={`chamfer-tab ${tab === "log" ? "is-active" : ""}`} onClick={() => setTab("log")}><div className="chamfer-tab-gap"><div className="chamfer-tab-inner"><div className="chamfer-tab-core"><Edit3 size={13} /><span className="text-[9px] font-bold ml-1 tracking-widest">任务日志</span></div></div></div></div></div>
-      <div className="chamfer-tab-base" />
+      <div className="chamfer-tabs">
+        <ChamferedTab active={tab === "diary"} onClick={() => setTab("diary")}><BookOpen size={13} /><span className="text-[9px] font-bold ml-1 tracking-widest">每日日记</span></ChamferedTab>
+        <ChamferedTab active={tab === "log"} onClick={() => setTab("log")}><Edit3 size={13} /><span className="text-[9px] font-bold ml-1 tracking-widest">任务日志</span></ChamferedTab>
+      </div>
+      <ChamferedTabBase />
 
       {tab === "diary" ? (
         entries.length > 0 ? <div className="space-y-4 stagger-1 md:ml-10">{entries.map((e) => <JournalCard key={e.id} entry={e} linkedItem={e.taskId ? findLinked(e.taskId) : undefined} />)}</div>
