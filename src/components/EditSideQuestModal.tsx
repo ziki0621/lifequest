@@ -31,8 +31,8 @@ export default function EditSideQuestModal({ quest, onClose, onUpdate, onArchive
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
       <div className="wireframe max-w-md w-full animate-scale p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-black text-navy serif">编辑支线</h3>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button>
+          <h3 className="text-sm font-black text-ink serif">编辑支线</h3>
+          <button onClick={onClose} className="p-1.5  hover:bg-ink/5 text-ink/40"><X size={16} /></button>
         </div>
         <F label="名称" required><input value={title} onChange={(e) => setTitle(e.target.value)} className="wireframe-input" /></F>
         <F label="描述"><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="wireframe-input" /></F>
@@ -47,8 +47,8 @@ export default function EditSideQuestModal({ quest, onClose, onUpdate, onArchive
         <button onClick={handleSubmit} disabled={!title.trim()}
           className="wireframe-btn">保存</button>
 
-        <div className="pt-3 border-t border-navy/5 space-y-2">
-          <p className="text-[9px] font-bold text-navy/20 uppercase tracking-widest">危险操作</p>
+        <div className="pt-3 border-t border-[#4A3B2C]/5 space-y-2">
+          <p className="text-[9px] font-bold text-ink/20 uppercase tracking-widest">危险操作</p>
           <div className="flex gap-2">
             {onArchive && (
               <button onClick={() => onArchive(quest.id)} className="wireframe-btn-ghost !text-[10px] !py-1.5 flex-1 text-coral/60 hover:text-coral">归档任务</button>
@@ -67,7 +67,7 @@ export default function EditSideQuestModal({ quest, onClose, onUpdate, onArchive
 function F({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-[9px] font-bold text-navy/30 uppercase tracking-widest block mb-1.5">
+      <label className="text-[9px] font-bold text-ink/30 uppercase tracking-widest block mb-1.5">
         {label}{required && <span className="text-coral ml-0.5">*</span>}
       </label>
       {children}

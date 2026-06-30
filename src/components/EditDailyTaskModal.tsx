@@ -45,8 +45,8 @@ export default function EditDailyTaskModal({ task, onClose, onUpdate, onArchive,
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
       <div className="wireframe max-w-md w-full max-h-[90vh] overflow-y-auto animate-scale p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-black text-navy serif">编辑日常</h3>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button>
+          <h3 className="text-sm font-black text-ink serif">编辑日常</h3>
+          <button onClick={onClose} className="p-1.5  hover:bg-ink/5 text-ink/40"><X size={16} /></button>
         </div>
 
         <F label="名称" required><input value={title} onChange={(e) => setTitle(e.target.value)} className="wireframe-input" /></F>
@@ -64,7 +64,7 @@ export default function EditDailyTaskModal({ task, onClose, onUpdate, onArchive,
           <div className="flex gap-2">
             {periods.map((p) => (
               <button key={p} onClick={() => setPeriod(p)}
-                className={`text-[10px] px-3 py-1.5 rounded-full font-bold transition-all ${period === p ? "bg-coral text-white" : "bg-navy/5 text-navy/40"}`}>
+                className={`text-[10px] px-3 py-1.5  font-bold transition-all ${period === p ? "bg-coral text-white" : "bg-ink/5 text-ink/40"}`}>
                 {periodLabels[p]}
               </button>
             ))}
@@ -77,19 +77,19 @@ export default function EditDailyTaskModal({ task, onClose, onUpdate, onArchive,
               <div className="flex gap-1.5">
                 {[0, 1, 2, 3, 4, 5, 6].map((d) => (
                   <button key={d} onClick={() => toggleDay(d)}
-                    className={`w-9 h-9 rounded-full text-[10px] font-bold transition-all ${daysOfWeek.includes(d) ? "bg-theme text-white" : "bg-navy/5 text-navy/30 hover:bg-navy/10"}`}>
+                    className={`w-9 h-9  text-[10px] font-bold transition-all ${daysOfWeek.includes(d) ? "bg-theme text-white" : "bg-ink/5 text-ink/30 hover:bg-ink/10"}`}>
                     {WEEKDAY_LABELS[d]}
                   </button>
                 ))}
               </div>
-              <p className="text-[9px] text-navy/25 mt-1">{daysOfWeek.length === 0 ? "未选择 = 每天" : `已选 ${daysOfWeek.length} 天`}</p>
+              <p className="text-[9px] text-ink/25 mt-1">{daysOfWeek.length === 0 ? "未选择 = 每天" : `已选 ${daysOfWeek.length} 天`}</p>
             </F>
             <F label="每天几次">
               <div className="flex items-center gap-2">
-                <button onClick={() => setTimesPerDay(Math.max(1, timesPerDay - 1))} className="w-8 h-8 rounded-full bg-navy/5 text-navy font-bold">−</button>
-                <span className="text-sm font-black text-navy w-8 text-center">{timesPerDay}</span>
-                <button onClick={() => setTimesPerDay(timesPerDay + 1)} className="w-8 h-8 rounded-full bg-theme text-white font-bold">+</button>
-                <span className="text-[10px] text-navy/30 font-medium">次/天</span>
+                <button onClick={() => setTimesPerDay(Math.max(1, timesPerDay - 1))} className="w-8 h-8  bg-ink/5 text-ink font-bold">−</button>
+                <span className="text-sm font-black text-ink w-8 text-center">{timesPerDay}</span>
+                <button onClick={() => setTimesPerDay(timesPerDay + 1)} className="w-8 h-8  bg-theme text-white font-bold">+</button>
+                <span className="text-[10px] text-ink/30 font-medium">次/天</span>
               </div>
             </F>
           </>
@@ -98,10 +98,10 @@ export default function EditDailyTaskModal({ task, onClose, onUpdate, onArchive,
         {period !== "daily" && (
           <F label="目标次数">
             <div className="flex items-center gap-2">
-              <button onClick={() => setTargetCount(Math.max(1, targetCount - 1))} className="w-8 h-8 rounded-full bg-navy/5 text-navy font-bold">−</button>
-              <span className="text-sm font-black text-navy w-8 text-center">{targetCount}</span>
-              <button onClick={() => setTargetCount(targetCount + 1)} className="w-8 h-8 rounded-full bg-theme text-white font-bold">+</button>
-              <span className="text-[10px] text-navy/30 font-medium">{period === "weekly" ? "次/周" : "次/月"}</span>
+              <button onClick={() => setTargetCount(Math.max(1, targetCount - 1))} className="w-8 h-8  bg-ink/5 text-ink font-bold">−</button>
+              <span className="text-sm font-black text-ink w-8 text-center">{targetCount}</span>
+              <button onClick={() => setTargetCount(targetCount + 1)} className="w-8 h-8  bg-theme text-white font-bold">+</button>
+              <span className="text-[10px] text-ink/30 font-medium">{period === "weekly" ? "次/周" : "次/月"}</span>
             </div>
           </F>
         )}
@@ -109,8 +109,8 @@ export default function EditDailyTaskModal({ task, onClose, onUpdate, onArchive,
         <button onClick={handleSubmit} disabled={!title.trim()}
           className="wireframe-btn">保存</button>
 
-        <div className="pt-3 border-t border-navy/5 space-y-2">
-          <p className="text-[9px] font-bold text-navy/20 uppercase tracking-widest">危险操作</p>
+        <div className="pt-3 border-t border-[#4A3B2C]/5 space-y-2">
+          <p className="text-[9px] font-bold text-ink/20 uppercase tracking-widest">危险操作</p>
           <div className="flex gap-2">
             {onArchive && (
               <button onClick={() => onArchive(task.id)} className="wireframe-btn-ghost !text-[10px] !py-1.5 flex-1 text-coral/60 hover:text-coral">
@@ -133,7 +133,7 @@ export default function EditDailyTaskModal({ task, onClose, onUpdate, onArchive,
 function F({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-[9px] font-bold text-navy/30 uppercase tracking-widest block mb-1.5">
+      <label className="text-[9px] font-bold text-ink/30 uppercase tracking-widest block mb-1.5">
         {label}{required && <span className="text-coral ml-0.5">*</span>}
       </label>
       {children}

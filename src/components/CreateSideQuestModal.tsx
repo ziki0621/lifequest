@@ -27,8 +27,8 @@ export default function CreateSideQuestModal({ onClose, onCreate }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
       <div className="wireframe max-w-md w-full animate-scale p-6 space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-black text-navy serif">新建支线任务</h3>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button>
+          <h3 className="text-sm font-black text-ink serif">新建支线任务</h3>
+          <button onClick={onClose} className="p-1.5  hover:bg-ink/5 text-ink/40"><X size={16} /></button>
         </div>
 
         <F label="任务标题" required><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例如：读完一本书" className="wireframe-input" /></F>
@@ -43,7 +43,7 @@ export default function CreateSideQuestModal({ onClose, onCreate }: Props) {
           <F label="难度">
             <div className="flex gap-1.5">
               {(["easy", "normal", "hard"] as const).map((d) => (
-                <button key={d} onClick={() => setDifficulty(d)} className={`text-[10px] px-2.5 py-1.5 rounded-full font-bold transition-all ${difficulty === d ? "bg-theme text-white" : "bg-navy/5 text-navy/40"}`}>
+                <button key={d} onClick={() => setDifficulty(d)} className={`text-[10px] px-2.5 py-1.5  font-bold transition-all ${difficulty === d ? "bg-theme text-white" : "bg-ink/5 text-ink/40"}`}>
                   {d === "easy" ? "+10" : d === "normal" ? "+20" : "+35"}
                 </button>
               ))}
@@ -64,7 +64,7 @@ export default function CreateSideQuestModal({ onClose, onCreate }: Props) {
 function F({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
     <div>
-      <label className="text-[9px] font-bold text-navy/30 uppercase tracking-widest block mb-1.5">
+      <label className="text-[9px] font-bold text-ink/30 uppercase tracking-widest block mb-1.5">
         {label}{required && <span className="text-coral ml-0.5">*</span>}
       </label>
       {children}

@@ -10,9 +10,9 @@ export default function CreateQuestBookTaskModal({ bookId, onClose, onCreate }: 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
       <div className="wireframe max-w-sm w-full animate-scale p-6 space-y-4">
-        <div className="flex items-center justify-between"><h3 className="text-sm font-black text-navy serif">添加直接任务</h3><button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button></div>
-        <div><label className="text-[9px] font-bold text-navy/30 uppercase tracking-widest block mb-1.5">任务名称 <span className="text-coral">*</span></label><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例如：睡前写三句话日记" className="wireframe-input" /></div>
-        <div><label className="text-[9px] font-bold text-navy/30 uppercase tracking-widest block mb-1.5">描述</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="wireframe-input" /></div>
+        <div className="flex items-center justify-between"><h3 className="text-sm font-black text-ink serif">添加直接任务</h3><button onClick={onClose} className="p-1.5  hover:bg-ink/5 text-ink/40"><X size={16} /></button></div>
+        <div><label className="text-[9px] font-bold text-ink/30 uppercase tracking-widest block mb-1.5">任务名称 <span className="text-coral">*</span></label><input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例如：睡前写三句话日记" className="wireframe-input" /></div>
+        <div><label className="text-[9px] font-bold text-ink/30 uppercase tracking-widest block mb-1.5">描述</label><textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} className="wireframe-input" /></div>
         <button onClick={handleSubmit} disabled={!title.trim()} className="wireframe-btn">添加任务</button>
       </div>
     </div>

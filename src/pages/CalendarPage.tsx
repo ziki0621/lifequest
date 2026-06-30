@@ -68,10 +68,10 @@ export default function CalendarPage() {
 
   return (
     <div className="space-y-8 animate-in pb-24">
-      <div className="flex justify-between items-end"><div><p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">地球时间轴</p><h2 className="text-2xl font-black text-navy tracking-tight serif">日历</h2></div><div className="text-xs font-black tracking-widest text-navy border-b-2 border-navy pb-0.5 uppercase">{year}.{String(month + 1).padStart(2, "0")}</div></div>
+      <div className="flex justify-between items-end"><div><p className="text-coral font-bold text-xs tracking-widest uppercase mb-1">地球时间轴</p><h2 className="text-2xl font-black text-ink tracking-tight serif">日历</h2></div><div className="text-xs font-black tracking-widest text-ink border-b-2 border-[#4A3B2C] pb-0.5 uppercase">{year}.{String(month + 1).padStart(2, "0")}</div></div>
       <div className="wireframe wireframe-inner p-5">
-        <div className="flex items-center justify-between mb-4"><button onClick={prevMonth} className="p-2 rounded-full hover:bg-navy/5 text-navy/50"><ChevronLeft size={16} /></button><span className="text-xs font-black text-navy/40 uppercase tracking-widest">{year}年 {month + 1}月</span><button onClick={nextMonth} className="p-2 rounded-full hover:bg-navy/5 text-navy/50"><ChevronRight size={16} /></button></div>
-        <div className="grid grid-cols-7 gap-y-5 gap-x-1 text-center">{["日","一","二","三","四","五","六"].map((d) => <div key={d} className="text-[10px] font-bold text-navy/25 uppercase tracking-widest">{d}</div>)}
+        <div className="flex items-center justify-between mb-4"><button onClick={prevMonth} className="p-2  hover:bg-ink/5 text-ink/50"><ChevronLeft size={16} /></button><span className="text-xs font-black text-ink/40 uppercase tracking-widest">{year}年 {month + 1}月</span><button onClick={nextMonth} className="p-2  hover:bg-ink/5 text-ink/50"><ChevronRight size={16} /></button></div>
+        <div className="grid grid-cols-7 gap-y-5 gap-x-1 text-center">{["日","一","二","三","四","五","六"].map((d) => <div key={d} className="text-[10px] font-bold text-ink/25 uppercase tracking-widest">{d}</div>)}
           {cells.map((day, i) => {
             if (day === null) return <div key={`e-${i}`} />;
             const date = formatDate(new Date(year, month, day));
@@ -81,12 +81,12 @@ export default function CalendarPage() {
             const hasJournal = (data?.journals.length ?? 0) > 0;
             const selected = date === selectedDate;
             const isToday = date === todayStr();
-            return (<div key={day} className="flex justify-center"><button onClick={() => setSelectedDate(date)} className={`w-9 h-9 flex items-center justify-center rounded-full text-xs font-bold transition-all duration-300 relative ${selected ? "bg-theme text-white shadow-lg scale-110" : isToday ? "bg-coral/10 text-coral font-black" : hasComp || hasDue || hasJournal ? "text-navy/70" : "text-navy/30 hover:bg-white/60"}`}><div className="relative">{day}<div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">{hasComp && <div className="w-1 h-1 rounded-full bg-coral" />}{hasDue && <div className="w-1 h-1 rounded-full bg-leaf" />}{hasJournal && <div className="w-1 h-1 rounded-full bg-theme" />}</div></div></button></div>);
+            return (<div key={day} className="flex justify-center"><button onClick={() => setSelectedDate(date)} className={`w-9 h-9 flex items-center justify-center  text-xs font-bold transition-all duration-300 relative ${selected ? "bg-theme text-white shadow-lg scale-110" : isToday ? "bg-coral/10 text-coral font-black" : hasComp || hasDue || hasJournal ? "text-ink/70" : "text-ink/30 hover:bg-white/60"}`}><div className="relative">{day}<div className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex gap-0.5">{hasComp && <div className="w-1 h-1  bg-coral" />}{hasDue && <div className="w-1 h-1  bg-leaf" />}{hasJournal && <div className="w-1 h-1  bg-theme" />}</div></div></button></div>);
           })}
         </div>
-        <div className="flex items-center gap-4 mt-5 pt-3 border-t border-navy/5 text-[9px] font-bold text-navy/30 uppercase tracking-widest"><span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-coral" /> 有记录</span><span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-leaf" /> 有截止</span><span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-theme" /> 有日记</span></div>
+        <div className="flex items-center gap-4 mt-5 pt-3 border-t border-[#4A3B2C]/5 text-[9px] font-bold text-ink/30 uppercase tracking-widest"><span className="flex items-center gap-1"><div className="w-1.5 h-1.5  bg-coral" /> 有记录</span><span className="flex items-center gap-1"><div className="w-1.5 h-1.5  bg-leaf" /> 有截止</span><span className="flex items-center gap-1"><div className="w-1.5 h-1.5  bg-theme" /> 有日记</span></div>
       </div>
-      {selectedDate && (<div className="space-y-3"><h3 className="text-[11px] font-bold text-navy/40 uppercase tracking-widest">{selectedDate}</h3>{sel.completions.length === 0 && sel.dueItems.length === 0 && sel.journals.length === 0 ? <div className="wireframe wireframe-inner p-8 text-center"><p className="text-navy/30 font-bold text-[11px] tracking-widest">这一天还没有安排。</p></div> : <>{sel.completions.map((c, i) => <CompletionCard key={`comp-${i}`} ctx={c.ctx} date={c.date} />)}{sel.dueItems.map((item) => <DueItemCard key={`due-${item.id}`} item={item} />)}{sel.journals.map((j) => <JournalCard key={j.id} entry={j} linkedItem={j.linked} />)}</>}</div>)}
+      {selectedDate && (<div className="space-y-3"><h3 className="text-[11px] font-bold text-ink/40 uppercase tracking-widest">{selectedDate}</h3>{sel.completions.length === 0 && sel.dueItems.length === 0 && sel.journals.length === 0 ? <div className="wireframe wireframe-inner p-8 text-center"><p className="text-ink/30 font-bold text-[11px] tracking-widest">这一天还没有安排。</p></div> : <>{sel.completions.map((c, i) => <CompletionCard key={`comp-${i}`} ctx={c.ctx} date={c.date} />)}{sel.dueItems.map((item) => <DueItemCard key={`due-${item.id}`} item={item} />)}{sel.journals.map((j) => <JournalCard key={j.id} entry={j} linkedItem={j.linked} />)}</>}</div>)}
     </div>
   );
 }
@@ -94,11 +94,11 @@ export default function CalendarPage() {
 function DueItemCard({ item }: { item: SideQuest }) {
   return (
     <div className="p-3 flex items-center gap-3">
-      <div className="w-8 h-8 rounded-full bg-leaf text-white flex items-center justify-center flex-shrink-0"><CalendarClock size={14} /></div>
+      <div className="w-8 h-8  bg-leaf text-white flex items-center justify-center flex-shrink-0"><CalendarClock size={14} /></div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2"><span className="text-[10px] font-bold text-navy/30 uppercase tracking-widest">支线截止</span>{item.completed && <span className="text-[10px] font-bold text-leaf">已完成</span>}</div>
-        <p className="text-[12px] font-black text-navy">{item.title}</p>
-        <p className="text-[9px] font-bold text-navy/30 mt-1">{DOMAIN_LABELS[item.domain]} · {item.difficulty === "easy" ? "简单" : item.difficulty === "normal" ? "普通" : "困难"}</p>
+        <div className="flex items-center gap-2"><span className="text-[10px] font-bold text-ink/30 uppercase tracking-widest">支线截止</span>{item.completed && <span className="text-[10px] font-bold text-leaf">已完成</span>}</div>
+        <p className="text-[12px] font-black text-ink">{item.title}</p>
+        <p className="text-[9px] font-bold text-ink/30 mt-1">{DOMAIN_LABELS[item.domain]} · {item.difficulty === "easy" ? "简单" : item.difficulty === "normal" ? "普通" : "困难"}</p>
       </div>
     </div>
   );

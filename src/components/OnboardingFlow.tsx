@@ -41,25 +41,25 @@ export default function OnboardingFlow({ onFinish, onSkip, onGenerate }: Props) 
     <div className="min-h-screen flex items-center justify-center relative p-6">
       <div className="relative z-10 max-w-sm w-full animate-scale space-y-8">
         <div className="text-center">
-          <div className="w-14 h-14 mx-auto rounded-2xl bg-theme text-white flex items-center justify-center mb-4 shadow-xl shadow-navy/20">
+          <div className="w-14 h-14 mx-auto  bg-theme text-white flex items-center justify-center mb-4 shadow-xl shadow-navy/20">
             <Sparkles size={22} />
           </div>
-          <h2 className="text-xl font-black text-navy tracking-tight serif">了解你的状态</h2>
-          <p className="text-[11px] text-navy/40 mt-1">帮助你生成适合的任务线</p>
+          <h2 className="text-xl font-black text-ink tracking-tight serif">了解你的状态</h2>
+          <p className="text-[11px] text-ink/40 mt-1">帮助你生成适合的任务线</p>
           <div className="flex justify-center gap-1.5 mt-3">
             {(["focus", "energy", "style"] as Step[]).map((s) => (
-              <div key={s} className={`w-2 h-2 rounded-full transition-all ${step === s ? "bg-theme w-6" : "bg-navy/10"}`} />
+              <div key={s} className={`w-2 h-2  transition-all ${step === s ? "bg-theme w-6" : "bg-ink/10"}`} />
             ))}
           </div>
         </div>
 
         {step === "focus" && (
           <div className="space-y-4">
-            <h3 className="text-[13px] font-black text-navy text-center">最近你最想改善什么？</h3>
+            <h3 className="text-[13px] font-black text-ink text-center">最近你最想改善什么？</h3>
             <div className="space-y-2">
               {focusOptions.map((o) => (
                 <button key={o} onClick={() => { setFocus(o); setStep("energy"); }}
-                  className={`w-full text-left px-4 py-3 rounded-2xl text-[11px] font-bold transition-all ${focus === o ? "bg-theme text-white" : "bg-white/30 text-navy/60 hover:bg-white/50"}`}>{o}</button>
+                  className={`w-full text-left px-4 py-3  text-[11px] font-bold transition-all ${focus === o ? "bg-theme text-white" : "bg-white/30 text-ink/60 hover:bg-white/50"}`}>{o}</button>
               ))}
             </div>
           </div>
@@ -67,11 +67,11 @@ export default function OnboardingFlow({ onFinish, onSkip, onGenerate }: Props) 
 
         {step === "energy" && (
           <div className="space-y-4">
-            <h3 className="text-[13px] font-black text-navy text-center">你现在的能量状态？</h3>
+            <h3 className="text-[13px] font-black text-ink text-center">你现在的能量状态？</h3>
             <div className="space-y-2">
               {energyOptions.map((o) => (
                 <button key={o.value} onClick={() => { setEnergy(o.value); setStep("style"); }}
-                  className={`w-full text-left px-4 py-3 rounded-2xl text-[11px] font-bold transition-all ${energy === o.value ? "bg-theme text-white" : "bg-white/30 text-navy/60 hover:bg-white/50"}`}>{o.label}</button>
+                  className={`w-full text-left px-4 py-3  text-[11px] font-bold transition-all ${energy === o.value ? "bg-theme text-white" : "bg-white/30 text-ink/60 hover:bg-white/50"}`}>{o.label}</button>
               ))}
             </div>
           </div>
@@ -79,11 +79,11 @@ export default function OnboardingFlow({ onFinish, onSkip, onGenerate }: Props) 
 
         {step === "style" && (
           <div className="space-y-4">
-            <h3 className="text-[13px] font-black text-navy text-center">你希望 LifeQuest 更像什么？</h3>
+            <h3 className="text-[13px] font-black text-ink text-center">你希望 LifeQuest 更像什么？</h3>
             <div className="space-y-2">
               {styleOptions.map((o) => (
                 <button key={o} onClick={() => setStyle(o)}
-                  className={`w-full text-left px-4 py-3 rounded-2xl text-[11px] font-bold transition-all ${style === o ? "bg-theme text-white" : "bg-white/30 text-navy/60 hover:bg-white/50"}`}>{o}</button>
+                  className={`w-full text-left px-4 py-3  text-[11px] font-bold transition-all ${style === o ? "bg-theme text-white" : "bg-white/30 text-ink/60 hover:bg-white/50"}`}>{o}</button>
               ))}
             </div>
             <div className="flex gap-2 pt-2">

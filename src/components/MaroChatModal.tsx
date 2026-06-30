@@ -112,15 +112,15 @@ export default function MaroChatModal({ onClose }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 modal-backdrop animate-fade">
       <div className="wireframe max-w-lg w-full max-h-[90vh] flex flex-col animate-scale">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-navy/5">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#4A3B2C]/5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-white/50 border border-white/60 flex items-center justify-center text-xl">{maro.avatar}</div>
+            <div className="w-10 h-10  bg-white/50 border border-white/60 flex items-center justify-center text-xl">{maro.avatar}</div>
             <div>
-              <h3 className="text-sm font-black text-navy">{maro.name}</h3>
+              <h3 className="text-sm font-black text-ink">{maro.name}</h3>
               <p className="text-[9px] font-bold text-coral uppercase tracking-widest">{maro.title}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-navy/5 text-navy/40"><X size={16} /></button>
+          <button onClick={onClose} className="p-1.5  hover:bg-ink/5 text-ink/40"><X size={16} /></button>
         </div>
 
         {/* Messages */}
@@ -128,10 +128,10 @@ export default function MaroChatModal({ onClose }: Props) {
           {messages.map((m, i) => (
             <div key={i} className={`flex gap-2 ${m.role === "user" ? "flex-row-reverse" : ""}`}>
               {m.role === "npc" && (
-                <div className="w-8 h-8 rounded-xl bg-white/40 flex items-center justify-center text-sm flex-shrink-0 mt-1">{maro.avatar}</div>
+                <div className="w-8 h-8  bg-white/40 flex items-center justify-center text-sm flex-shrink-0 mt-1">{maro.avatar}</div>
               )}
-              <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${m.role === "npc" ? "bg-white/35 border border-navy/5" : "bg-theme text-white"}`}>
-                <p className={`text-[12px] leading-relaxed ${m.role === "npc" ? "text-navy/60 serif" : "font-medium"}`}>{m.content}</p>
+              <div className={`max-w-[80%]  px-3.5 py-2.5 ${m.role === "npc" ? "bg-white/35 border border-[#4A3B2C]/5" : "bg-theme text-white"}`}>
+                <p className={`text-[12px] leading-relaxed ${m.role === "npc" ? "text-ink/60 serif" : "font-medium"}`}>{m.content}</p>
               </div>
             </div>
           ))}
@@ -146,7 +146,7 @@ export default function MaroChatModal({ onClose }: Props) {
                 { id: "all" as QuestGenType, label: "全套任务线" },
               ].map((t) => (
                 <button key={t.id} onClick={() => handleChooseType(t.id)}
-                  className="flex items-center justify-center gap-1.5 p-3 rounded-2xl text-[11px] font-bold bg-white/30 text-navy/60 hover:bg-white/50 transition-all">
+                  className="flex items-center justify-center gap-1.5 p-3  text-[11px] font-bold bg-white/30 text-ink/60 hover:bg-white/50 transition-all">
                   {t.label}
                 </button>
               ))}
@@ -156,10 +156,10 @@ export default function MaroChatModal({ onClose }: Props) {
           {/* Loading indicator */}
           {loading && !draft && (
             <div className="flex gap-2">
-              <div className="w-8 h-8 rounded-xl bg-white/40 flex items-center justify-center text-sm flex-shrink-0 mt-1">{maro.avatar}</div>
-              <div className="bg-white/35 border border-navy/5 rounded-2xl px-4 py-3 flex items-center gap-2">
-                <Loader2 size={14} className="animate-spin text-navy/30" />
-                <span className="text-[11px] text-navy/30">Maro 正在思考…</span>
+              <div className="w-8 h-8  bg-white/40 flex items-center justify-center text-sm flex-shrink-0 mt-1">{maro.avatar}</div>
+              <div className="bg-white/35 border border-[#4A3B2C]/5  px-4 py-3 flex items-center gap-2">
+                <Loader2 size={14} className="animate-spin text-ink/30" />
+                <span className="text-[11px] text-ink/30">Maro 正在思考…</span>
               </div>
             </div>
           )}
@@ -169,7 +169,7 @@ export default function MaroChatModal({ onClose }: Props) {
 
         {/* Input bar */}
         {typeChosen && !draft && (
-          <div className="px-5 pb-5 pt-2 border-t border-navy/5 flex gap-2">
+          <div className="px-5 pb-5 pt-2 border-t border-[#4A3B2C]/5 flex gap-2">
             <input
               className="input flex-1 !py-2 !text-[12px]"
               placeholder={waitingForExtra ? "回答 Maro…" : "描述你的目标…"}
