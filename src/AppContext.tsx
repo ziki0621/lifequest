@@ -1,16 +1,14 @@
 import { useState, useEffect, useCallback, type ReactNode } from "react";
-import type { AppState, QuestBook, QuestLine, QuestStage, DailyTask, SideQuest, JournalEntry, Achievement, CompletionContext, AttributeReward, LifeDomain, LifeAttribute } from "./types";
+import type { AppState, QuestBook, QuestLine, QuestStage, DailyTask, SideQuest, JournalEntry, Achievement, CompletionContext, AttributeReward } from "./types";
 import type { QuestPlanDraft } from "./types/agent";
 import { AppContext } from "./context";
 import { createDefaultAppState } from "./data/defaultData";
 import { loadAppState, saveAppState, resetAppState } from "./utils/storage";
 import { localTimestamp, today, isDailyTaskDue } from "./utils/date";
 import { checkAchievements } from "./utils/achievements";
-import { calcLevel, getPlayerTitle, calcAttributeLevel, difficultyExp } from "./utils/exp";
+import { calcLevel, getPlayerTitle, calcAttributeLevel, defaultAttributeRewards, difficultyExp, getStageReward } from "./utils/exp";
 import { genId } from "./utils/id";
 import { loadTheme, saveTheme, getTheme } from "./utils/theme";
-
-export { useApp } from "./hooks/useApp";
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(() => {
@@ -50,16 +48,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return { ...s, achievements, player: { ...s.player, unlockedAchievements: [...s.player.unlockedAchievements, ...newIds] } };
   }, []);
 
-  const getDefaultRewards = (domain: LifeDomain, totalExp: number): AttributeReward[] => {
-    const map: Partial<Record<LifeDomain, LifeAttribute[]>> = {
-      body: ["stamina"], mind: ["mind"], relationship: ["connection"], home: ["order"],
-      exploration: ["perception"], interest: ["creativity"], learning: ["knowledge"],
-      career: ["order", "knowledge"], finance: ["order"],
-    };
-    const attrs = map[domain] || ["mind"];
-    const per = Math.floor(totalExp / attrs.length);
-    return attrs.map((attribute) => ({ attribute, exp: per }));
-  };
+  const recomputeQuestBookStatus = useCallback((book: QuestBook): QuestBook => {
+    const allStagesDone = book.questLines.every((line) => line.stages.every((stage) => stage.completed));
+    const directTasksDone = book.directTasks.every((task) => task.completed);
+    return { ...book, status: allStagesDone && directTasksDone ? "completed" : book.status === "completed" ? "active" : book.status };
+  }, []);
 
   // ── Complete actions ──
 
@@ -75,20 +68,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const firstUncompleted = ql.stages.findIndex((s) => !s.completed);
       if (stageIdx !== firstUncompleted) return prev;
       const completedAt = localTimestamp();
-      const expReward = stageIdx === 0 ? 15 : 25;
-      const attrRewards = getDefaultRewards(qb.domain, expReward);
+      const { expReward, attributeRewards: attrRewards } = getStageReward(qb, lineId, stageIdx);
       ctx = { itemType: "questStage" as const, itemId: stageId, title: ql.stages[stageIdx].title, expReward, attributeRewards: attrRewards };
       const newBooks = prev.questBooks.map((b) => b.id === bookId ? {
-        ...b,
-        questLines: b.questLines.map((l) => l.id === lineId ? {
-          ...l, stages: l.stages.map((s, i) => i === stageIdx ? { ...s, completed: true, completedAt } : s),
-        } : l),
-        status: b.questLines.every((l) => l.stages.every((s) => s.completed)) && b.directTasks.every((t) => t.completed) ? "completed" as const : b.status,
+        ...recomputeQuestBookStatus({
+          ...b,
+          questLines: b.questLines.map((l) => l.id === lineId ? {
+            ...l, stages: l.stages.map((s, i) => i === stageIdx ? { ...s, completed: true, completedAt } : s),
+          } : l),
+        }),
       } : b);
       return applyAchievementUpdates({ ...prev, questBooks: newBooks, player: applyRewards(prev, expReward, attrRewards) });
     });
     return ctx;
-  }, [applyRewards, applyAchievementUpdates, getDefaultRewards]);
+  }, [applyRewards, applyAchievementUpdates, recomputeQuestBookStatus]);
 
   const completeQuestBookTask = useCallback((bookId: string, taskId: string): CompletionContext | null => {
     let ctx: CompletionContext | null = null;
@@ -99,15 +92,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (!task || task.completed) return prev;
       const completedAt = localTimestamp();
       const expReward = 10;
-      const attrRewards = getDefaultRewards(qb.domain, expReward);
+      const attrRewards = defaultAttributeRewards(qb.domain, expReward);
       ctx = { itemType: "questBookTask" as const, itemId: taskId, title: task.title, expReward, attributeRewards: attrRewards };
       const newBooks = prev.questBooks.map((b) => b.id === bookId ? {
-        ...b, directTasks: b.directTasks.map((t) => t.id === taskId ? { ...t, completed: true, completedAt } : t),
+        ...recomputeQuestBookStatus({
+          ...b,
+          directTasks: b.directTasks.map((t) => t.id === taskId ? { ...t, completed: true, completedAt } : t),
+        }),
       } : b);
       return applyAchievementUpdates({ ...prev, questBooks: newBooks, player: applyRewards(prev, expReward, attrRewards) });
     });
     return ctx;
-  }, [applyRewards, applyAchievementUpdates, getDefaultRewards]);
+  }, [applyRewards, applyAchievementUpdates, recomputeQuestBookStatus]);
 
   const completeDailyTask = useCallback((dailyTaskId: string): CompletionContext | null => {
     let ctx: CompletionContext | null = null;
@@ -208,13 +204,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (plan.dailyTasks?.length) {
         additions.dailyTasks = plan.dailyTasks.map((t) => {
           const exp = difficultyExp(t.difficulty);
-          return { id: genId(), title: t.title, description: t.description, domain: t.domain, difficulty: t.difficulty, expReward: exp, attributeRewards: getDefaultRewards(t.domain, exp), period: t.period, targetCount: t.targetCount, daysOfWeek: t.daysOfWeek, timesPerDay: t.timesPerDay, active: true, completions: [], createdAt: now };
+          return { id: genId(), title: t.title, description: t.description, domain: t.domain, difficulty: t.difficulty, expReward: exp, attributeRewards: defaultAttributeRewards(t.domain, exp), period: t.period, targetCount: t.targetCount, daysOfWeek: t.daysOfWeek, timesPerDay: t.timesPerDay, active: true, completions: [], createdAt: now };
         });
       }
       if (plan.sideQuests?.length) {
         additions.sideQuests = plan.sideQuests.map((q) => {
           const exp = difficultyExp(q.difficulty);
-          return { id: genId(), title: q.title, description: q.description, domain: q.domain, difficulty: q.difficulty, expReward: exp, attributeRewards: getDefaultRewards(q.domain, exp), dueDate: q.dueDate, completed: false, createdAt: now };
+          return { id: genId(), title: q.title, description: q.description, domain: q.domain, difficulty: q.difficulty, expReward: exp, attributeRewards: defaultAttributeRewards(q.domain, exp), dueDate: q.dueDate, completed: false, createdAt: now };
         });
       }
       return { ...prev, questBooks: questBook ? [...prev.questBooks, questBook] : prev.questBooks, dailyTasks: [...prev.dailyTasks, ...additions.dailyTasks], sideQuests: [...prev.sideQuests, ...additions.sideQuests] };

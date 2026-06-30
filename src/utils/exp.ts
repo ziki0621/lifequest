@@ -1,5 +1,4 @@
-import type { LifeAttribute, AttributeState } from "../types";
-import type { Difficulty, QuestBook } from "../types";
+import type { AttributeReward, AttributeState, Difficulty, LifeAttribute, LifeDomain, QuestBook } from "../types";
 
 /** 每100总经验升1级 */
 export function calcLevel(totalExp: number): number { return Math.floor(totalExp / 100) + 1; }
@@ -14,6 +13,23 @@ export function attributeExpToNextLevel(exp: number): number { return 50 - (exp 
 /** 任务难度 -> 基础经验 */
 export function difficultyExp(difficulty: Difficulty): number {
   switch (difficulty) { case "easy": return 10; case "normal": return 20; case "hard": return 35; default: return 10; }
+}
+
+export function defaultAttributeRewards(domain: LifeDomain, totalExp: number): AttributeReward[] {
+  const map: Partial<Record<LifeDomain, LifeAttribute[]>> = {
+    body: ["stamina"],
+    mind: ["mind"],
+    relationship: ["connection"],
+    home: ["order"],
+    exploration: ["perception"],
+    interest: ["creativity"],
+    learning: ["knowledge"],
+    career: ["order", "knowledge"],
+    finance: ["order"],
+  };
+  const attrs = map[domain] || ["mind"];
+  const per = Math.floor(totalExp / attrs.length);
+  return attrs.map((attribute) => ({ attribute, exp: per }));
 }
 
 export function makeAttributeState(exp: number = 0): AttributeState {
@@ -44,8 +60,9 @@ export function getPlayerTitle(level: number): string {
 }
 
 /** Get stage reward: first stage 15, rest 25 */
-export function getStageReward(questBook: QuestBook, questLineId: string, stageIdx: number): { expReward: number } {
+export function getStageReward(questBook: QuestBook, questLineId: string, stageIdx: number): { expReward: number; attributeRewards: AttributeReward[] } {
   const ql = questBook.questLines.find((l) => l.id === questLineId);
   const order = ql?.stages[stageIdx]?.order ?? stageIdx;
-  return { expReward: order === 0 ? 15 : 25 };
+  const expReward = order === 0 ? 15 : 25;
+  return { expReward, attributeRewards: defaultAttributeRewards(questBook.domain, expReward) };
 }

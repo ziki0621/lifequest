@@ -54,8 +54,8 @@ ${genType !== "main" && genType !== "daily" ? `支线 sideQuests 1 到 3 个：
  "npcReply": "Maro 对用户说的话",
  "rationale": "为什么这样拆解",
  ${genType !== "daily" && genType !== "side" ? `"mainQuest": { "title": "主线标题", "description": "主线描述", "domain": "mind", "stages": [{ "title": "阶段标题", "description": "阶段描述" }] },` : ""}
- "${genType === "daily" || genType === "all" ? `"dailyTasks": [{ "title": "日常标题", "description": "", "domain": "body", "difficulty": "easy", "period": "daily", "targetCount": 1, "timesPerDay": 1 }],` : ""}
- "${genType === "side" || genType === "all" ? `"sideQuests": [{ "title": "支线标题", "description": "", "domain": "exploration", "difficulty": "normal" }]` : ""}
+ ${genType === "daily" || genType === "all" ? `"dailyTasks": [{ "title": "日常标题", "description": "", "domain": "body", "difficulty": "easy", "period": "daily", "targetCount": 1, "timesPerDay": 1 }],` : ""}
+ ${genType === "side" || genType === "all" ? `"sideQuests": [{ "title": "支线标题", "description": "", "domain": "exploration", "difficulty": "normal" }]` : ""}
 }`;
 }
 

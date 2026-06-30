@@ -76,7 +76,7 @@ export default function TasksPage() {
                   <h3 className="text-[11px] font-black text-navy uppercase tracking-widest">{ql.title || "任务线"}</h3>
                   <span className="text-[9px] font-bold text-navy/25 bg-navy/5 px-2 py-0.5 rounded-full">{ql.stages.filter((s) => s.completed).length}/{ql.stages.length}</span>
                 </div>
-                <button onClick={() => { setSelectedBook(ql.id); setAddStageLineId(ql.id); }} className="flex items-center gap-1 text-[10px] font-bold text-navy/30 hover:text-navy transition-colors"><Plus size={13} /> 添加阶段</button>
+                <button onClick={() => setAddStageLineId(ql.id)} className="flex items-center gap-1 text-[10px] font-bold text-navy/30 hover:text-navy transition-colors"><Plus size={13} /> 添加阶段</button>
               </div>
               <div className="p-3 space-y-1.5">
                 {ql.stages.map((s, i) => {
