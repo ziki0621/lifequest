@@ -14,27 +14,15 @@ import EditQuestBookModal from "../components/EditQuestBookModal";
 import EditDailyTaskModal from "../components/EditDailyTaskModal";
 import EditSideQuestModal from "../components/EditSideQuestModal";
 import NpcAgentPanel from "../components/NpcAgentPanel";
-import AgentChatModal from "../components/AgentChatModal";
-import QuestPlanPreview from "../components/QuestPlanPreview";
+import MaroChatModal from "../components/MaroChatModal";
 import { NPCS } from "../data/npcs";
-import { loadLLMConfig } from "../utils/llmConfig";
-import { generateQuestPlan } from "../services/questPlanAgent";
-import type { QuestGenType } from "../services/questPlanAgent";
 import type { CompletionContext, Mood, EnergyLevel, QuestBook, DailyTask, SideQuest } from "../types";
-import type { QuestPlanDraft as AgentQuestPlanDraft } from "../types/agent";
 import { today } from "../utils/date";
-
-const maroTaskTypes = [
-  { id: "main", label: "任务书", icon: BookOpen },
-  { id: "daily", label: "日常任务", icon: ListTodo },
-  { id: "side", label: "支线任务", icon: CheckCircle2 },
-  { id: "all", label: "全部类型", icon: Plus },
-];
 
 export default function TasksPage() {
   const { state, completeQuestStage, completeQuestBookTask, completeDailyTask, completeSideQuest,
     addJournal, addQuestBook, addQuestLine, addQuestStage, addQuestBookTask, addDailyTask, addSideQuest, toggleDailyActive,
-    updateQuestBook, updateDailyTask, updateSideQuest, applyQuestPlan,
+    updateQuestBook, updateDailyTask, updateSideQuest,
     archiveQuestBook, archiveDailyTask, archiveSideQuest,
     deleteQuestBook, deleteDailyTask, deleteSideQuest } = useApp();
 
@@ -49,17 +37,6 @@ export default function TasksPage() {
   const [editingSide, setEditingSide] = useState<SideQuest | null>(null);
 
   const [showMaroChat, setShowMaroChat] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [planDraft, setPlanDraft] = useState<AgentQuestPlanDraft | null>(null);
-  const [maroError, setMaroError] = useState<string | null>(null);
-
-  const handleGeneratePlan = async (goal: string, taskType: string) => {
-    setGenerating(true); setMaroError(null); setPlanDraft(null);
-    try { const config = loadLLMConfig(); const plan = await generateQuestPlan({ goal, timeRange: "1week", intensity: "gentle" }, config, taskType as QuestGenType); setPlanDraft(plan); setShowMaroChat(false); }
-    catch (e) { setMaroError((e as Error).message || "生成失败"); setShowMaroChat(false); }
-    finally { setGenerating(false); }
-  };
-  const handleApplyPlan = () => { if (!planDraft) return; applyQuestPlan(planDraft); setPlanDraft(null); };
 
   const handleStageComplete = (bookId: string, lineId: string, stageId: string) => { const ctx = completeQuestStage(bookId, lineId, stageId); if (ctx) setCompletionCtx(ctx); };
   const handleTaskComplete = (bookId: string, taskId: string) => { const ctx = completeQuestBookTask(bookId, taskId); if (ctx) setCompletionCtx(ctx); };
@@ -217,9 +194,7 @@ export default function TasksPage() {
       {editingBook && <EditQuestBookModal questBook={editingBook} onClose={() => setEditingBook(null)} onUpdate={updateQuestBook} onArchive={archiveQuestBook} onDelete={deleteQuestBook} />}
       {editingDaily && <EditDailyTaskModal task={editingDaily} onClose={() => setEditingDaily(null)} onUpdate={updateDailyTask} onArchive={archiveDailyTask} onDelete={deleteDailyTask} />}
       {editingSide && <EditSideQuestModal quest={editingSide} onClose={() => setEditingSide(null)} onUpdate={updateSideQuest} onArchive={archiveSideQuest} onDelete={deleteSideQuest} />}
-      {showMaroChat && <AgentChatModal npc={NPCS.maro} title="Maro 任务生成" intro="你想让我生成哪种类型的任务？" placeholder="描述你的目标" taskTypes={maroTaskTypes} loading={generating} onClose={() => setShowMaroChat(false)} onSubmit={handleGeneratePlan} />}
-      {maroError && (<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/30"><div className="glass rounded-3xl shadow-2xl p-6 text-center max-w-sm"><p className="text-sm font-bold text-coral">生成失败</p><p className="text-[11px] text-navy/50 mt-2">{maroError}</p><button onClick={() => setMaroError(null)} className="btn btn-primary !text-[10px] mt-4">关闭</button></div></div>)}
-      {planDraft && <QuestPlanPreview plan={planDraft} onConfirm={handleApplyPlan} onClose={() => setPlanDraft(null)} onRegenerate={() => { setPlanDraft(null); setShowMaroChat(true); }} />}
+      {showMaroChat && <MaroChatModal onClose={() => setShowMaroChat(false)} />}
     </div>
   );
 }
