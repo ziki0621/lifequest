@@ -2,35 +2,7 @@ import { Zap } from "lucide-react";
 import type { JournalEntry, LinkedTask } from "../types";
 import { MOOD_LABELS, ENERGY_LABELS, ATTRIBUTE_LABELS, ATTR_COLOR } from "../types";
 import { readableDate } from "../utils/date";
-
 interface Props { entry: JournalEntry; linkedItem?: LinkedTask; }
-
 export default function JournalCard({ entry, linkedItem }: Props) {
-  return (
-    <div className="wireframe animate-in">
-      <div className="wireframe-inner p-4 space-y-3">
-        <div className="flex items-center gap-3 flex-wrap">
-          <span className="text-[9px] font-bold text-ink/40 uppercase tracking-widest">{readableDate(entry.date)}</span>
-          <span className="text-[9px] font-bold text-coral uppercase tracking-widest">{MOOD_LABELS[entry.mood]}</span>
-          <span className="text-[9px] font-bold text-ink/40 uppercase tracking-widest">{ENERGY_LABELS[entry.energy]}</span>
-        </div>
-        <p className="text-[14px] text-ink/80 font-medium leading-relaxed serif">{entry.content}</p>
-        {linkedItem && (
-          <div className="flex gap-3 pt-2 border-t-[0.5px] border-ink/10">
-            <span className="text-[10px] font-bold text-ink/30 uppercase tracking-widest">{linkedItem.title}</span>
-            {linkedItem.attributeRewards.map((ar) => (
-              <span key={ar.attribute} className="text-[10px] font-bold tracking-widest uppercase flex items-center gap-1" style={{ color: ATTR_COLOR[ar.attribute] }}>
-                <Zap size={12} /> {ATTRIBUTE_LABELS[ar.attribute]} +{ar.exp}
-              </span>
-            ))}
-          </div>
-        )}
-        {entry.tags.length > 0 && (
-          <div className="flex gap-2 flex-wrap">
-            {entry.tags.map((tag) => <span key={tag} className="text-[9px] font-bold text-ink/30 border border-ink/15 px-2 py-0.5 tracking-wider">#{tag}</span>)}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return <div className="wireframe animate-in"><div className="wireframe-inner p-4 space-y-3"><div className="flex items-center gap-3 flex-wrap"><span className="text-[9px] font-bold text-[#4A3B2C]/40 uppercase tracking-widest">{readableDate(entry.date)}</span><span className="text-[9px] font-bold text-[#8B3A3A] uppercase tracking-widest">{MOOD_LABELS[entry.mood]}</span><span className="text-[9px] font-bold text-[#4A3B2C]/40 uppercase tracking-widest">{ENERGY_LABELS[entry.energy]}</span></div><p className="text-[14px] text-[#4A3B2C]/80 font-medium leading-relaxed serif">{entry.content}</p>{linkedItem && <div className="flex gap-3 pt-2 border-t-[0.5px] border-[#4A3B2C]/10"><span className="text-[10px] font-bold text-[#4A3B2C]/30 uppercase tracking-widest">{linkedItem.title}</span>{linkedItem.attributeRewards.map(ar => <span key={ar.attribute} className="text-[10px] font-bold tracking-widest uppercase flex items-center gap-1" style={{color:ATTR_COLOR[ar.attribute]}}><Zap size={12}/> {ATTRIBUTE_LABELS[ar.attribute]} +{ar.exp}</span>)}</div>}{entry.tags.length > 0 && <div className="flex gap-2 flex-wrap">{entry.tags.map(tag => <span key={tag} className="text-[9px] font-bold text-[#4A3B2C]/30 border border-[#4A3B2C]/15 px-2 py-0.5 tracking-wider">#{tag}</span>)}</div>}</div></div>;
 }
